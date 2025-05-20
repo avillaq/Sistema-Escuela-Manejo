@@ -4,10 +4,10 @@ from .instructor import Instructor
 from .administrador import Administrador
 from .matricula import Matricula
 from .paquete import Paquete
-#from .pago import Pago
-#from .bloque import Bloque
-#from .reserva import Reserva
-#from .asistencia import Asistencia
-#from .ticket import Ticket
+from .pago import Pago
+from .bloque import Bloque
+from .reserva import Reserva
+from .asistencia import Asistencia
+from .ticket import Ticket
 from .auto import Auto
 from .tipo_auto import TipoAuto

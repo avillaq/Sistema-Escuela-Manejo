@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -8,8 +9,12 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
 # Conexion a la base de datos
 db = SQLAlchemy()
+
+# Migracion de la base de datos
+migrate = Migrate()
 
 # Limitar el numero de peticiones a la API
 limiter = Limiter(

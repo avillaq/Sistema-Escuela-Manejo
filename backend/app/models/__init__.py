@@ -2,8 +2,8 @@ from .usuario import Usuario
 from .alumno import Alumno
 from .instructor import Instructor
 from .administrador import Administrador
-#from .matricula import Matricula
-#from .paquete import Paquete
+from .matricula import Matricula
+from .paquete import Paquete
 #from .pago import Pago
 #from .bloque import Bloque
 #from .reserva import Reserva

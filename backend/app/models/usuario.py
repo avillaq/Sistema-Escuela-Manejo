@@ -1,6 +1,6 @@
 from backend.app.extensions import db
 
-class User(db.Model):
+class Usuario(db.Model):
     __tablename__ = "usuarios"
 
     id = db.Column(db.Integer, primary_key=True)

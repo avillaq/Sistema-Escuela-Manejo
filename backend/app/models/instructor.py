@@ -9,5 +9,8 @@ class Instructor(db.Model):
     apellidos = db.Column(db.String(100), nullable=False)
     dni = db.Column(db.String(20), unique=True, nullable=False)
     telefono = db.Column(db.String(20), nullable=False)
+    fecha_creado = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    fecha_actualizado = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
+    activo = db.Column(db.Boolean, default=True)
 
     usuario = db.relationship("Usuario", backref="instructor", uselist=False)

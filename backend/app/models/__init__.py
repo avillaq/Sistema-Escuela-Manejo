@@ -1,5 +1,5 @@
 from .usuario import Usuario
-#from .alumno import Alumno
+from .alumno import Alumno
 #from .instructor import Instructor
 #from .administrador import Administrador
 #from .matricula import Matricula

@@ -30,3 +30,21 @@ def crear_alumno(data):
     db.session.add(alumno)
     db.session.commit()
     return alumno
+
+def actualizar_alumno(alumno_id, data):
+    alumno = Alumno.query.get_or_404(alumno_id)
+
+    for campo in ["nombre", "apellidos", "telefono", "email", "categoria"]:
+        if campo in data:
+            setattr(alumno, campo, data[campo])
+
+    db.session.commit()
+    return alumno
+
+def eliminar_alumno(alumno_id): # TODO: La eliminacion solo es logica
+    alumno = Alumno.query.get_or_404(alumno_id)
+    usuario = alumno.usuario
+
+    db.session.delete(alumno)
+    db.session.delete(usuario)
+    db.session.commit()

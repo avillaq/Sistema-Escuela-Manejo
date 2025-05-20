@@ -9,5 +9,5 @@ from .administrador import Administrador
 #from .reserva import Reserva
 #from .asistencia import Asistencia
 #from .ticket import Ticket
-#from .auto import Auto
-#from .tipo_auto import TipoAuto
+from .auto import Auto
+from .tipo_auto import TipoAuto

@@ -1,6 +1,6 @@
 from flask import Flask
-from backend.app.core.extensions import db, limiter, cors, guard, blacklist
-from app.api.models import User
+from backend.app.extensions import db, limiter, cors, guard, blacklist
+from app.models import User
 
 def create_app():
     app = Flask(__name__)

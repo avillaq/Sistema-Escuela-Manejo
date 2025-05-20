@@ -1,5 +1,5 @@
 from app.api import bp
-from backend.app.core.extensions import db
+from backend.app.extensions import db
 from flask import jsonify
 from dotenv import load_dotenv
 

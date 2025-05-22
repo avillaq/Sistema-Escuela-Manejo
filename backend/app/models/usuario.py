@@ -7,7 +7,10 @@ class Usuario(db.Model):
     nombre_usuario = db.Column(db.String(50), unique=True, nullable=False)
     contraseña_hash = db.Column(db.String(255), nullable=False)
     rol = db.Column(db.String(50), nullable=False)
-
+    fecha_creado = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    fecha_actualizado = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
+    activo = db.Column(db.Boolean, default=True)
+    
     @property
     def identity(self):
         return self.id

@@ -1,0 +1,51 @@
+from flask import Blueprint, jsonify, request
+from app.schemas.instructor import CrearInstructorSchema, InstructorSchema, ActualizarInstructorSchema
+from app.services.instructor_service import crear_instructor, actualizar_instructor, eliminar_instructor
+from app.extensions import guard
+from app.models.instructor import Instructor
+ 
+instructores_bp = Blueprint('instructores', __name__)
+
+crear_schema = CrearInstructorSchema()
+ver_schema = InstructorSchema()
+actualizar_schema = ActualizarInstructorSchema()
+
+@instructores_bp.route("/", methods=["POST"])
+#@guard.roles_required("admin") 
+def registrar_instructor():
+    data = request.get_json()
+    errors = crear_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
+
+    instructor = crear_instructor(data)
+    return ver_schema.dump(instructor), 201
+
+@instructores_bp.route("/", methods=["GET"])
+#@guard.roles_required("admin")
+def listar_instructores():
+    instructores = Instructor.query.all() #TODO: Falta paginación
+    return jsonify(ver_schema.dump(instructores, many=True)), 200
+
+@instructores_bp.route("/<int:instructor_id>", methods=["GET"])
+#@guard.roles_required("admin")
+def obtener_instructor(instructor_id):
+    instructor = Instructor.query.get_or_404(instructor_id)
+    return ver_schema.dump(instructor), 200
+
+@instructores_bp.route("/<int:instructor_id>", methods=["PUT"])
+#@guard.roles_required("admin")
+def editar_instructor(instructor_id):
+    data = request.get_json()
+    errors = actualizar_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
+
+    instructor = actualizar_instructor(instructor_id, data)
+    return ver_schema.dump(instructor), 200
+
+@instructores_bp.route("/<int:instructor_id>", methods=["DELETE"])
+#@guard.roles_required("admin")
+def eliminar_instructor_route(instructor_id):
+    eliminar_instructor(instructor_id)
+    return jsonify({"mensaje": "Instructor eliminado"}), 200

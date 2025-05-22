@@ -37,6 +37,9 @@ def actualizar_alumno(alumno_id, data):
     for campo in ["nombre", "apellidos", "telefono", "email", "categoria"]:
         if campo in data:
             setattr(alumno, campo, data[campo])
+    
+    if alumno.usuario:
+        alumno.usuario.activo = alumno.usuario.activo
 
     db.session.commit()
     return alumno

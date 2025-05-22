@@ -6,6 +6,8 @@ from .routes.auth import auth_bp
 from .routes.matriculas import matriculas_bp
 from .routes.asistencia import asistencias_bp
 from .routes.reservas import reservas_bp
+from .routes.instructores import instructores_bp
+from .routes.administradores import administradores_bp
 
 def create_app():
     app = Flask(__name__)
@@ -20,6 +22,8 @@ def create_app():
     # Registrar los blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(alumnos_bp, url_prefix="/api/alumnos")
+    app.register_blueprint(instructores_bp, url_prefix="/api/instructores")
+    app.register_blueprint(administradores_bp, url_prefix="/api/administradores")
     app.register_blueprint(matriculas_bp, url_prefix="/api/matriculas")
     app.register_blueprint(asistencias_bp, url_prefix="/api/asistencias")
     app.register_blueprint(reservas_bp, url_prefix="/api/reservas")

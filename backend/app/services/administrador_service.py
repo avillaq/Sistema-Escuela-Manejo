@@ -36,9 +36,6 @@ def actualizar_administrador(administrador_id, data):
         if campo in data:
             setattr(administrador, campo, data[campo])
     
-    if administrador.usuario:
-        administrador.usuario.activo = administrador.usuario.activo
-    
     db.session.commit()
     return administrador
 

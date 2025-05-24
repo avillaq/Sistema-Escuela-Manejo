@@ -31,6 +31,9 @@ def crear_alumno(data):
     db.session.commit()
     return alumno
 
+def listar_alumnos():
+    return Alumno.query.all()  # TODO: agregar filtros y paginación
+
 def actualizar_alumno(alumno_id, data):
     alumno = Alumno.query.get_or_404(alumno_id)
 

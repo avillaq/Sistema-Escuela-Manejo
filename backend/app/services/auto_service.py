@@ -47,5 +47,5 @@ def actualizar_auto(auto_id, data):
 
 def eliminar_auto(auto_id):
     auto = Auto.query.get_or_404(auto_id)
-    db.session.delete(auto)
+    auto.activo = False
     db.session.commit()

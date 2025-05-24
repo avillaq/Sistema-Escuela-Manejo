@@ -6,6 +6,7 @@ class AdministradorSchema(Schema):
     apellidos = fields.Str()
     dni = fields.Str()
     telefono = fields.Str()
+    activo = fields.Bool()
 
 class CrearAdministradorSchema(Schema):
     nombre = fields.Str(required=True)

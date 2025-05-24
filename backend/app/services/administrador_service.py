@@ -41,9 +41,5 @@ def actualizar_administrador(administrador_id, data):
 
 def eliminar_administrador(administrador_id):
     administrador = Administrador.query.get_or_404(administrador_id)
-    usuario = administrador.usuario
-
-    db.session.delete(administrador)
-    if usuario:
-        db.session.delete(usuario)
+    administrador.activo = False
     db.session.commit()

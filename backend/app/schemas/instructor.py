@@ -6,6 +6,7 @@ class InstructorSchema(Schema):
     apellidos = fields.Str()
     dni = fields.Str()
     telefono = fields.Str()
+    activo = fields.Bool()
 
 class CrearInstructorSchema(Schema):
     nombre = fields.Str(required=True)

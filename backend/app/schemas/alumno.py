@@ -8,7 +8,8 @@ class AlumnoSchema(Schema):
     telefono = fields.Str()
     email = fields.Email()
     categoria = fields.Str()
-
+    activo = fields.Bool()
+    
 class CrearAlumnoSchema(Schema):
     nombre = fields.Str(required=True)
     apellidos = fields.Str(required=True)

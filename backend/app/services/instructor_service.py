@@ -47,9 +47,5 @@ def actualizar_instructor(instructor_id, data):
 
 def eliminar_instructor(instructor_id):
     instructor = Instructor.query.get_or_404(instructor_id)
-    usuario = instructor.usuario
-
-    db.session.delete(instructor)
-    if usuario:
-        db.session.delete(usuario)
+    instructor.activo = False
     db.session.commit()

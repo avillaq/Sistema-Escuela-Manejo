@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.alumno import CrearAlumnoSchema, AlumnoSchema, ActualizarAlumnoSchema
-from app.services.alumno_service import crear_alumno, actualizar_alumno, eliminar_alumno
+from app.services.alumno_service import crear_alumno, listar_alumnos, actualizar_alumno, eliminar_alumno
 import flask_praetorian
 from app.models.alumno import Alumno
  
@@ -23,8 +23,8 @@ def registrar_alumno():
 
 @alumnos_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
-def listar_alumnos():
-    alumnos = Alumno.query.all() #TODO: Falta paginación
+def obtener_alumnos():
+    alumnos = listar_alumnos()
     return jsonify(ver_schema.dump(alumnos, many=True)), 200
 
 @alumnos_bp.route("/<int:alumno_id>", methods=["GET"])

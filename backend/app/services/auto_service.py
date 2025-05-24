@@ -26,6 +26,9 @@ def crear_auto(data):
     db.session.commit()
     return auto
 
+def listar_autos():
+    return Auto.query.all()  # TODO: agregar filtros y paginación
+
 def actualizar_auto(auto_id, data):
     auto = Auto.query.get_or_404(auto_id)
 

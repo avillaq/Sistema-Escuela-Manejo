@@ -32,6 +32,9 @@ def crear_matricula(data):
     db.session.commit()
     return matricula
 
+def listar_matriculas():
+    return Matricula.query.all()  # TODO: agregar filtros y paginación
+
 def actualizar_matricula(matricula_id, data):
     matricula = Matricula.query.get_or_404(matricula_id)
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.auto import CrearAutoSchema, AutoSchema, ActualizarAutoSchema
-from app.services.auto_service import crear_auto, actualizar_auto, eliminar_auto
+from app.services.auto_service import crear_auto, listar_autos, actualizar_auto, eliminar_auto
 import flask_praetorian
 from app.models.auto import Auto
  
@@ -23,8 +23,8 @@ def registrar_auto():
 
 @autos_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
-def listar_autos():
-    autos = Auto.query.all() #TODO: Falta paginación
+def obtener_autos():
+    autos = listar_autos() #TODO: Falta paginación
     return jsonify(ver_schema.dump(autos, many=True)), 200
 
 @autos_bp.route("/<int:auto_id>", methods=["GET"])

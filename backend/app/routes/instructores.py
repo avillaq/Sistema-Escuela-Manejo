@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.instructor import CrearInstructorSchema, InstructorSchema, ActualizarInstructorSchema
-from app.services.instructor_service import crear_instructor, actualizar_instructor, eliminar_instructor
+from app.services.instructor_service import crear_instructor, listar_instructores, actualizar_instructor, eliminar_instructor
 import flask_praetorian
 from app.models.instructor import Instructor
  
@@ -23,8 +23,8 @@ def registrar_instructor():
 
 @instructores_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
-def listar_instructores():
-    instructores = Instructor.query.all() #TODO: Falta paginación
+def obtener_instructores():
+    instructores = listar_instructores()
     return jsonify(ver_schema.dump(instructores, many=True)), 200
 
 @instructores_bp.route("/<int:instructor_id>", methods=["GET"])

@@ -29,6 +29,9 @@ def crear_instructor(data):
     db.session.commit()
     return instructor
 
+def listar_instructores():
+    return Instructor.query.all()  # TODO: agregar filtros y paginación
+
 def actualizar_instructor(instructor_id, data):
     instructor = Instructor.query.get_or_404(instructor_id)
 

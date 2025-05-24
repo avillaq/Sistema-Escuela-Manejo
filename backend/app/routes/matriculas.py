@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, ActualizarMatriculaSchema
-from app.services.matricula_service import crear_matricula, actualizar_matricula, eliminar_matricula
+from app.services.matricula_service import crear_matricula, listar_matriculas, actualizar_matricula, eliminar_matricula
 from app.models.matricula import Matricula
 import flask_praetorian
 from app.extensions import db
@@ -23,8 +23,8 @@ def registrar_matricula():
 
 @matriculas_bp.route("/", methods=["GET"])
 @flask_praetorian.roles_required("admin")
-def listar_matriculas():
-    matriculas = Matricula.query.all() # TODO: agregar filtros y paginación
+def obtener_matriculas():
+    matriculas = listar_matriculas()
     return jsonify(ver_schema.dump(matriculas, many=True)), 200
 
 @matriculas_bp.route("/<int:id>", methods=["GET"])

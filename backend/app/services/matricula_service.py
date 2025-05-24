@@ -44,3 +44,8 @@ def actualizar_matricula(matricula_id, data):
     db.session.commit()
     return matricula
 
+def eliminar_matricula(matricula_id):
+    matricula = Matricula.query.get_or_404(matricula_id)
+    db.session.delete(matricula)# TODO: Analizar si se debe eliminar o desactivar
+    db.session.commit()
+    return matricula

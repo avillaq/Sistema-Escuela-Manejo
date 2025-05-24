@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, ActualizarMatriculaSchema
-from app.services.matricula_service import crear_matricula, actualizar_matricula
+from app.services.matricula_service import crear_matricula, actualizar_matricula, eliminar_matricula
 from app.models.matricula import Matricula
 import flask_praetorian
 from app.extensions import db
@@ -46,8 +46,6 @@ def editar_matricula(id):
 
 @matriculas_bp.route("/<int:id>", methods=["DELETE"])
 @flask_praetorian.roles_required("admin")
-def eliminar_matricula(id):
-    matricula = Matricula.query.get_or_404(id) 
-    db.session.delete(matricula) # TODO: Analizar si se debe eliminar o desactivar
-    db.session.commit()
+def eliminar_matricula_route(id):
+    eliminar_matricula(id)
     return jsonify({"mensaje": "Matrícula eliminada"}), 200

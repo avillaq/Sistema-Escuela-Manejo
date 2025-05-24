@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 class CrearMatriculaSchema(Schema):
     id_alumno = fields.Int(required=True)
@@ -12,3 +12,7 @@ class MatriculaSchema(Schema):
     fecha_matricula = fields.Date()
     fecha_limite = fields.Date()
     estado = fields.Str()
+
+class ActualizarMatriculaSchema(Schema):
+    id_paquete = fields.Int(allow_none=True)
+    estado = fields.Str(validate=validate.OneOf(["pendiente", "completo", "vencido"]))

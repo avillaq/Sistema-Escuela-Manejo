@@ -31,3 +31,16 @@ def crear_matricula(data):
     db.session.add(matricula)
     db.session.commit()
     return matricula
+
+def actualizar_matricula(matricula_id, data):
+    matricula = Matricula.query.get_or_404(matricula_id)
+
+    if "estado" in data:
+        matricula.estado = data["estado"]
+
+    if "id_paquete" in data:
+        matricula.id_paquete = data["id_paquete"] or None  # null si no hay paquete
+
+    db.session.commit()
+    return matricula
+

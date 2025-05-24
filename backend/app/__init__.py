@@ -2,6 +2,7 @@ from flask import Flask
 from .extensions import db, migrate, limiter, cors, guard, blacklist
 from .models.usuario import Usuario
 from .routes.alumnos import alumnos_bp
+from .routes.auto import autos_bp
 from .routes.auth import auth_bp
 from .routes.matriculas import matriculas_bp
 from .routes.asistencia import asistencias_bp
@@ -25,6 +26,7 @@ def create_app():
     app.register_blueprint(alumnos_bp, url_prefix="/api/alumnos")
     app.register_blueprint(instructores_bp, url_prefix="/api/instructores")
     app.register_blueprint(administradores_bp, url_prefix="/api/administradores")
+    app.register_blueprint(autos_bp, url_prefix="/api/autos")
     app.register_blueprint(matriculas_bp, url_prefix="/api/matriculas")
     app.register_blueprint(asistencias_bp, url_prefix="/api/asistencias")
     app.register_blueprint(reservas_bp, url_prefix="/api/reservas")

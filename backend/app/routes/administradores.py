@@ -24,7 +24,7 @@ def registrar_administrador():
 @administradores_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
 def listar_administradores():
-    administradores = Administrador.query.all() #TODO: Falta paginación pero como son pocos no es necesario
+    administradores = Administrador.query.all() #TODO: Falta paginación pero como son pocos no es necesario creo
     return jsonify(ver_schema.dump(administradores, many=True)), 200
 
 @administradores_bp.route("/<int:administrador_id>", methods=["GET"])

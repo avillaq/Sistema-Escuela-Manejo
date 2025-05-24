@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import flask_praetorian
 from app.extensions import guard
 from app.schemas.login import LoginSchema
 
@@ -22,7 +23,7 @@ def login():
     }), 200
 
 @auth_bp.route("/me", methods=["GET"])
-@guard.auth_required
+@flask_praetorian.auth_required
 def usuario_actual():
     current_user = guard.extract_jwt_token()
     return jsonify({

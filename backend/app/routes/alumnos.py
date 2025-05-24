@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.alumno import CrearAlumnoSchema, AlumnoSchema, ActualizarAlumnoSchema
 from app.services.alumno_service import crear_alumno, actualizar_alumno, eliminar_alumno
-from app.extensions import guard
+import flask_praetorian
 from app.models.alumno import Alumno
  
 alumnos_bp = Blueprint('alumnos', __name__)
@@ -11,7 +11,7 @@ ver_schema = AlumnoSchema()
 actualizar_schema = ActualizarAlumnoSchema()
 
 @alumnos_bp.route("/", methods=["POST"])
-#@guard.roles_required("admin") 
+@flask_praetorian.roles_required("admin")
 def registrar_alumno():
     data = request.get_json()
     errors = crear_schema.validate(data)
@@ -22,19 +22,19 @@ def registrar_alumno():
     return ver_schema.dump(alumno), 201
 
 @alumnos_bp.route("/", methods=["GET"])
-#@guard.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def listar_alumnos():
     alumnos = Alumno.query.all() #TODO: Falta paginación
     return jsonify(ver_schema.dump(alumnos, many=True)), 200
 
 @alumnos_bp.route("/<int:alumno_id>", methods=["GET"])
-#@guard.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def obtener_alumno(alumno_id):
     alumno = Alumno.query.get_or_404(alumno_id)
     return ver_schema.dump(alumno), 200
 
 @alumnos_bp.route("/<int:alumno_id>", methods=["PUT"])
-#@guard.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def editar_alumno(alumno_id):
     data = request.get_json()
     errors = actualizar_schema.validate(data)
@@ -45,7 +45,7 @@ def editar_alumno(alumno_id):
     return ver_schema.dump(alumno), 200
 
 @alumnos_bp.route("/<int:alumno_id>", methods=["DELETE"])
-#@guard.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def eliminar_alumno_route(alumno_id):
     eliminar_alumno(alumno_id)
     return jsonify({"mensaje": "Alumno eliminado"}), 200

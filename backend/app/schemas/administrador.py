@@ -1,19 +1,19 @@
 from marshmallow import Schema, fields, validate
 
-class InstructorSchema(Schema):
+class AdministradorSchema(Schema):
     id = fields.Int()
     nombre = fields.Str()
     apellidos = fields.Str()
     dni = fields.Str()
     telefono = fields.Str()
 
-class CrearInstructorSchema(Schema):
+class CrearAdministradorSchema(Schema):
     nombre = fields.Str(required=True)
     apellidos = fields.Str(required=True)
     dni = fields.Str(required=True, validate=validate.Length(equal=8))
     telefono = fields.Str(required=True, validate=validate.Length(equal=9))
 
-class ActualizarInstructorSchema(Schema):
+class ActualizarAdministradorSchema(Schema):
     nombre = fields.Str()
     apellidos = fields.Str()
     telefono = fields.Str()

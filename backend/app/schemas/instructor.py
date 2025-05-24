@@ -18,3 +18,4 @@ class ActualizarInstructorSchema(Schema):
     nombre = fields.Str()
     apellidos = fields.Str()
     telefono = fields.Str(validate=validate.Length(equal=9)) # TODO: Validar que sean tambien solo numeros
+    activo = fields.Bool(validate=validate.OneOf([True, False]))

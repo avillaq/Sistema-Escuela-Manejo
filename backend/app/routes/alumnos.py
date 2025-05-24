@@ -11,7 +11,7 @@ ver_schema = AlumnoSchema()
 actualizar_schema = ActualizarAlumnoSchema()
 
 @alumnos_bp.route("/", methods=["POST"])
-@flask_praetorian.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def registrar_alumno():
     data = request.get_json()
     errors = crear_schema.validate(data)

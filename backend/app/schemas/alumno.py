@@ -24,3 +24,4 @@ class ActualizarAlumnoSchema(Schema):
     telefono = fields.Str(validate=validate.Length(equal=9)) # TODO: Validar que sean tambien solo numeros
     email = fields.Email()
     categoria = fields.Str(validate=validate.OneOf(["A-I", "A-II"]))
+    activo = fields.Bool(validate=validate.OneOf([True, False]))

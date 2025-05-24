@@ -35,12 +35,9 @@ def listar_instructores():
 def actualizar_instructor(instructor_id, data):
     instructor = Instructor.query.get_or_404(instructor_id)
 
-    for campo in ["nombre", "apellidos", "telefono"]:
+    for campo in ["nombre", "apellidos", "telefono", "activo"]:
         if campo in data:
             setattr(instructor, campo, data[campo])
-    
-    if instructor.usuario:
-        instructor.usuario.activo = instructor.usuario.activo
 
     db.session.commit()
     return instructor

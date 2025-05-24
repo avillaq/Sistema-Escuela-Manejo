@@ -21,4 +21,4 @@ class ActualizarAutoSchema(Schema):
     modelo = fields.Str()
     color = fields.Str()
     id_tipo_auto = fields.Int()
-    activo = fields.Bool()
+    activo = fields.Bool(validate=validate.OneOf([True, False]))

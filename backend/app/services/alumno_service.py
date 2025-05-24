@@ -37,13 +37,10 @@ def listar_alumnos():
 def actualizar_alumno(alumno_id, data):
     alumno = Alumno.query.get_or_404(alumno_id)
 
-    for campo in ["nombre", "apellidos", "telefono", "email", "categoria"]:
+    for campo in ["nombre", "apellidos", "telefono", "email", "categoria", "activo"]:
         if campo in data:
             setattr(alumno, campo, data[campo])
     
-    if alumno.usuario:
-        alumno.usuario.activo = alumno.usuario.activo
-
     db.session.commit()
     return alumno
 

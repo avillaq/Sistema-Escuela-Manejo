@@ -32,7 +32,7 @@ def crear_administrador(data):
 def actualizar_administrador(administrador_id, data):
     administrador = Administrador.query.get_or_404(administrador_id)
 
-    for campo in ["nombre", "apellidos", "telefono"]:
+    for campo in ["nombre", "apellidos", "telefono", "activo"]:
         if campo in data:
             setattr(administrador, campo, data[campo])
     

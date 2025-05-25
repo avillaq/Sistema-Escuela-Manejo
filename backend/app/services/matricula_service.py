@@ -34,8 +34,11 @@ def listar_matriculas():
 def actualizar_matricula(matricula_id, data):
     matricula = Matricula.query.get_or_404(matricula_id)
 
-    if "estado" in data:
-        matricula.estado = data["estado"]
+    if "estado_pago" in data:
+        matricula.estado_pago = data["estado_pago"]
+
+    if "estado_clases" in data:
+        matricula.estado_clases = data["estado_clases"]
 
     if "id_paquete" in data:
         matricula.id_paquete = data["id_paquete"] or None  # null si no hay paquete

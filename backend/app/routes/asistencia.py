@@ -1,13 +1,32 @@
-from flask import Blueprint
-from flask import jsonify
-from dotenv import load_dotenv
+from flask import Blueprint, request, jsonify
+from app.schemas.asistencia import CrearAsistenciaSchema
+from app.services.asistencia_service import registrar_asistencia
+import flask_praetorian
 
-asistencias_bp = Blueprint('asistencias', __name__)
+asistencias_bp = Blueprint("asistencias", __name__)
+crear_schema = CrearAsistenciaSchema()
 
-load_dotenv()
+@asistencias_bp.route("/", methods=["POST"])
+@flask_praetorian.roles_required("admin")
+def marcar_asistencia():
+    data = request.get_json()
+    errors = crear_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
 
-@asistencias_bp.route("/")
-def home():
+    asistencia, ticket = registrar_asistencia(data)
+    if ticket is None:
+        return jsonify({
+            "asistencia_id": asistencia.id,
+            "mensaje": "El alumno no asistió a la clase, no se generó un ticket."
+        }), 201
+    
     return jsonify({
-        "message": "Sistema de escuela de manejo"
-    }), 200
+        "asistencia_id": asistencia.id,
+        "ticket": {
+            "id": ticket.id,
+            "numero_clase_dia": ticket.numero_clase_dia,
+            "id_instructor": ticket.id_instructor,
+            "id_auto": ticket.id_auto
+        }
+    }), 201

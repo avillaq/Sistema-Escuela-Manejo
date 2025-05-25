@@ -5,7 +5,7 @@ class Ticket(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     id_asistencia = db.Column(db.Integer, db.ForeignKey("asistencias.id"), unique=True)
-    numero_clase_dia = db.Column(db.Integer, nullable=False)
+    numero_clase_alumno = db.Column(db.Integer, nullable=False)
     id_instructor = db.Column(db.Integer, db.ForeignKey("instructores.id"))
     id_auto = db.Column(db.Integer, db.ForeignKey("autos.id"))
 

@@ -9,7 +9,8 @@ class Matricula(db.Model):
     fecha_matricula = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     fecha_actualizado = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
     fecha_limite = db.Column(db.DateTime(timezone=True))
-    estado = db.Column(db.String(20))  # 'pendiente', 'completo', 'vencido'
+    estado_pago = db.Column(db.String(20), default='pendiente')  # 'pendiente', 'completo'
+    estado_clases = db.Column(db.String(20), default='pendiente')  # 'pendiente', 'en_progreso', 'completado', 'vencido'
     ultima_modificacion_reserva = db.Column(db.DateTime(timezone=True))
 
     alumno = db.relationship("Alumno", backref="matriculas")

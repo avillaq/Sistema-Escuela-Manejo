@@ -10,6 +10,7 @@ from .routes.reservas import reservas_bp
 from .routes.instructores import instructores_bp
 from .routes.administradores import administradores_bp
 from .routes.pagos import pagos_bp
+from app.routes.bloques import bloques_bp
 
 
 def create_app():
@@ -32,5 +33,6 @@ def create_app():
     app.register_blueprint(reservas_bp, url_prefix="/api/reservas")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(pagos_bp, url_prefix="/api/pagos")
+    app.register_blueprint(bloques_bp, url_prefix="/api/bloques")
     
     return app

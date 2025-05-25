@@ -6,6 +6,13 @@ class Matricula(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_alumno = db.Column(db.Integer, db.ForeignKey("alumnos.id"))
     id_paquete = db.Column(db.Integer, db.ForeignKey("paquetes.id"), nullable=True)
+
+    tipo_contratacion = db.Column(db.String(20), nullable=False)  # 'paquete' o 'por_hora'
+    horas_contratadas = db.Column(db.Integer)  # Solo para contrataciones por hora
+    tarifa_por_hora = db.Column(db.Float)  # Solo para contrataciones por hora
+    
+    costo_total = db.Column(db.Float)  # Se calcula según paquete o (horas * tarifa)
+
     fecha_matricula = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     fecha_actualizado = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
     fecha_limite = db.Column(db.DateTime(timezone=True))

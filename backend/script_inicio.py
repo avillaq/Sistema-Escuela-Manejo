@@ -43,6 +43,7 @@ def poblar_db():
                 Paquete(nombre='Básico', id_tipo_auto=tipo_automatico.id, horas_total=15, costo_total=640.0),
                 Paquete(nombre='Intermedio', id_tipo_auto=tipo_automatico.id, horas_total=10, costo_total=480.0),
                 Paquete(nombre='Avanzado', id_tipo_auto=tipo_automatico.id, horas_total=5, costo_total=250.0),
+                Paquete(nombre='Por_hora')
             ]
             
             db.session.add_all(paquetes)

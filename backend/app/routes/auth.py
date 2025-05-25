@@ -13,7 +13,7 @@ def login():
     if errors:
         return jsonify(errors), 400
 
-    usuario = guard.authenticate(data["nombre_usuario"], data["contrasena"])
+    usuario = guard.authenticate(data["nombre_usuario"], data["contraseña"])
     token = guard.encode_jwt_token(usuario)
 
     return jsonify({
@@ -25,7 +25,7 @@ def login():
 @auth_bp.route("/me", methods=["GET"])
 @flask_praetorian.auth_required
 def usuario_actual():
-    current_user = guard.extract_jwt_token()
+    current_user = flask_praetorian.current_user()
     return jsonify({
         "id": current_user.id,
         "nombre_usuario": current_user.nombre_usuario,

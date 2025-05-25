@@ -10,8 +10,8 @@ from .routes.reservas import reservas_bp
 from .routes.instructores import instructores_bp
 from .routes.administradores import administradores_bp
 from .routes.pagos import pagos_bp
-from app.routes.bloques import bloques_bp
-
+from .routes.bloques import bloques_bp
+from .routes.tickets import tickets_bp
 
 def create_app():
     app = Flask(__name__)
@@ -34,5 +34,6 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(pagos_bp, url_prefix="/api/pagos")
     app.register_blueprint(bloques_bp, url_prefix="/api/bloques")
+    app.register_blueprint(tickets_bp, url_prefix="/api/tickets")
     
     return app

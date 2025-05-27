@@ -11,6 +11,15 @@ from werkzeug.exceptions import BadRequest
 
 def crear_matricula(data):
     alumno = Alumno.query.get_or_404(data["id_alumno"])
+
+    # Validar que el alumno esté activo
+    if not alumno.activo:
+        raise BadRequest("El alumno no está activo")
+    
+    # Validar que el alumno no tenga una matrícula activa segun su estado de clases
+    if any(matricula.estado_clases in ["en_progreso", "pendiente"] for matricula in alumno.matriculas):
+        raise BadRequest("El alumno ya tiene una matrícula activa")
+
     tipo_contratacion = data["tipo_contratacion"]
 
     fecha_matricula = datetime.now()

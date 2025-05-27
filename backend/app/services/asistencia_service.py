@@ -48,6 +48,8 @@ def registrar_asistencia(data):
             total_clases = matricula.paquete.horas_total
         elif matricula.tipo_contratacion == "por_hora":
             total_clases = matricula.horas_contratadas
+        else:
+            total_clases = float("inf")
         if nuevo_numero_clase > total_clases:
             raise BadRequest(f"El alumno ya completó las {total_clases} horas contratadas")
 
@@ -72,13 +74,13 @@ def registrar_asistencia(data):
         )
         db.session.add(ticket)
             
-        if matricula.paquete and matricula.estado_clases != "completado":
+        if matricula.estado_clases != "completado":
             # Cambiar a "en_progreso" si aún no lo está
             if matricula.estado_clases == "pendiente":
                 matricula.estado_clases = "en_progreso"
             
             # Si esta es la última clase del paquete, marcar como completado
-            if nuevo_numero_clase >= matricula.paquete.horas_total:
+            if nuevo_numero_clase >= total_clases:
                 matricula.estado_clases = "completado"
 
     db.session.commit()

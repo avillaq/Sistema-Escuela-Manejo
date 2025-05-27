@@ -36,4 +36,3 @@ def obtener_pago(id):
     return Pago.query.get_or_404(id)
 
 # TODO: analizar si se debe eliminar un pago mal registrado
-# TODO: Informar estado de pago al intentar agendar clase o registrar asistencia.

@@ -19,13 +19,14 @@ def listar_tickets():
     else:
         return jsonify({"error": "No autorizado"}), 403
 
-    def serializar_ticket(t): # TODO: Falta el numero de clase del alumno 
+    def serializar_ticket(t):
         alumno = t.asistencia.reserva.matricula.alumno
         return {
             **ver_schema.dump(t),
+            "numero_clase_alumno": t.numero_clase_alumno,
             "fecha_asistencia": t.asistencia.fecha_asistencia,
-            "nombre_alumno": f"{alumno.nombre} {alumno.apellido}",
-            "nombre_instructor": f"{t.instructor.nombre} {t.instructor.apellido}"
+            "nombre_alumno": f"{alumno.nombre} {alumno.apellidos}",
+            "nombre_instructor": f"{t.instructor.nombre} {t.instructor.apellidos}"
         }
 
     return jsonify([serializar_ticket(t) for t in tickets]), 200

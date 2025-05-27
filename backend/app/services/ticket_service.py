@@ -1,6 +1,7 @@
 from app.models import Ticket, Asistencia, Reserva, Matricula, Alumno, Instructor
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
+from datetime import datetime
 
 def listar_tickets_admin(filtros):
     query = Ticket.query\
@@ -16,7 +17,8 @@ def listar_tickets_admin(filtros):
     if "instructor_id" in filtros:
         query = query.filter(Ticket.id_instructor == filtros["instructor_id"]) # Este filtro puede cambiar
     if "fecha" in filtros:
-        query = query.filter(func.date(Asistencia.fecha_asistencia) == filtros["fecha"])
+        fecha = datetime.strptime(filtros["fecha"], "%Y-%m-%d").date()
+        query = query.filter(func.date(Asistencia.fecha_asistencia) == fecha)
 
     # Podria ser mejor usar un filtro por nombre de instructor
     if "nombre_instructor" in filtros:

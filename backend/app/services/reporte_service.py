@@ -62,7 +62,7 @@ def obtener_reporte_admin():
     for m in matriculas:
         if m.estado_pago != "completo":
             pagado = sum(p.monto for p in m.pagos)
-            total = total = m.costo_total or 1  # evitar div 0
+            total = m.costo_total or 1  # evitar div 0
             pendientes.append({
                 "alumno": f"{m.alumno.nombre} {m.alumno.apellidos}",
                 "tipo": m.tipo_contratacion,

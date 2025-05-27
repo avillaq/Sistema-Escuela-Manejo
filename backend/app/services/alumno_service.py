@@ -44,7 +44,7 @@ def actualizar_alumno(alumno_id, data):
     db.session.commit()
     return alumno
 
-def eliminar_alumno(alumno_id): # TODO: La eliminacion solo es logica
+def eliminar_alumno(alumno_id):
     alumno = Alumno.query.get_or_404(alumno_id)
     alumno.activo = False
     db.session.commit()

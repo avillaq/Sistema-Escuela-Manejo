@@ -10,7 +10,7 @@ class AutoSchema(Schema):
     activo = fields.Bool()
 
 class CrearAutoSchema(Schema):
-    placa = fields.Str(required=True, validate=validate.Length(min=6, max=10))
+    placa = fields.Str(required=True, validate=validate.Length(min=6, max=7))
     marca = fields.Str(required=True)
     modelo = fields.Str(required=True)
     color = fields.Str(required=True)

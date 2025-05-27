@@ -18,13 +18,6 @@ def registrar_asistencia(data):
         asistencia_existente = Asistencia.query.filter_by(id_reserva=reserva.id).first()
         if asistencia_existente:
             raise BadRequest("Ya existe un registro de asistencia para esta reserva")
-        
-        if matricula.paquete and matricula.paquete.horas_total:
-            if nuevo_numero_clase > matricula.paquete.horas_total:
-                raise BadRequest(f"El alumno ya completó las {matricula.paquete.horas_total} horas de su paquete")
-            
-        if nuevo_numero_clase >= 5 and matricula.estado_pago != "completo":
-            raise BadRequest("El alumno debe completar el pago antes de tomar la quinta clase")
 
         instructor_ocupado = Ticket.query.join(Asistencia).join(Reserva).join(Reserva.bloque).filter(
             Ticket.id_instructor == data["id_instructor"],
@@ -50,6 +43,16 @@ def registrar_asistencia(data):
             Reserva.id_matricula == matricula.id
         ).count()
         nuevo_numero_clase = total_asistencias + 1
+
+        if matricula.tipo_contratacion == "paquete" and matricula.paquete:
+            total_clases = matricula.paquete.horas_total
+        elif matricula.tipo_contratacion == "por_hora":
+            total_clases = matricula.horas_contratadas
+        if nuevo_numero_clase > total_clases:
+            raise BadRequest(f"El alumno ya completó las {total_clases} horas contratadas")
+
+        if nuevo_numero_clase >= 5 and matricula.estado_pago != "completo":
+            raise BadRequest("El alumno debe completar el pago antes de tomar la quinta clase")
 
     asistencia = Asistencia(
         id_reserva=reserva.id,

@@ -2,6 +2,8 @@ from datetime import datetime
 from app.models import Bloque, Reserva, Matricula
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
+from sqlalchemy import func
+
 
 def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
@@ -12,6 +14,15 @@ def crear_reservas(data, por_admin=False):
         
     if matricula.estado_clases == 'completado':
         raise BadRequest("El alumno ya completó todas sus horas de la matricula")
+    
+    if matricula.tipo_contratacion == "paquete" and matricula.paquete:
+        total_horas = matricula.paquete.horas_total
+    elif matricula.tipo_contratacion == "por_hora":
+        total_horas = matricula.horas_contratadas
+    horas_usadas = db.session.query(func.count(Reserva.id)).filter_by(id_matricula=matricula.id).scalar() or 0
+    nuevas_horas = len(data["reservas"])
+    if horas_usadas + nuevas_horas > total_horas:
+        raise BadRequest(f"No hay suficientes horas disponibles. Tiene {total_horas - horas_usadas} hora(s) restante(s).")
 
     # Procesar todas las reservas
     reservas_creadas = []

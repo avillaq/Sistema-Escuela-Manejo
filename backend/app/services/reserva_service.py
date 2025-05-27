@@ -33,7 +33,7 @@ def crear_reservas(data, por_admin=False):
             raise BadRequest(f"El bloque {bloque.fecha}: {bloque.hora_inicio} - {bloque.hora_fin} está lleno")
             
         # Solo aplicar restricción de anticipación si no es admin
-        if not por_admin and matricula.alumno.categoria == "A-II" and bloque.fecha <= hoy:
+        if not por_admin and matricula.categoria == "A-II" and bloque.fecha <= hoy:
             raise BadRequest("Alumnos A-II deben reservar con 1 día de anticipación")
             
         reserva = Reserva(

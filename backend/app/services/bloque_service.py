@@ -25,7 +25,7 @@ def obtener_bloques_disponibles(id_alumno, por_admin=False):
 
     # - Para alumno A-II (sin admin): mostrar desde mañana
     # - Para todos los demás casos: mostrar desde hoy
-    categoria = matricula.alumno.categoria
+    categoria = matricula.categoria
     fecha_inicial = hoy + timedelta(days=1) if (categoria == "A-II") else hoy
 
     bloques = Bloque.query.filter(

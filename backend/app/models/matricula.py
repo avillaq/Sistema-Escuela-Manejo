@@ -6,6 +6,7 @@ class Matricula(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_alumno = db.Column(db.Integer, db.ForeignKey("alumnos.id"))
     id_paquete = db.Column(db.Integer, db.ForeignKey("paquetes.id"), nullable=True)
+    categoria = db.Column(db.String(10), nullable=False)  # 'A-I' o 'A-II'
 
     tipo_contratacion = db.Column(db.String(20), nullable=False)  # 'paquete' o 'por_hora'
     horas_contratadas = db.Column(db.Integer)  # Solo para contrataciones por hora

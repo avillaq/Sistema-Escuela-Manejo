@@ -10,7 +10,6 @@ class Alumno(db.Model):
     dni = db.Column(db.String(8), unique=True, nullable=False)
     telefono = db.Column(db.String(9), nullable=False)
     email = db.Column(db.String(100))
-    categoria = db.Column(db.String(10), nullable=False)  # 'A-I' o 'A-II'
     fecha_creado = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     fecha_actualizado = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
     activo = db.Column(db.Boolean, default=True)

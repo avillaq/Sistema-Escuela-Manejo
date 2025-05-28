@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { routes } from './routes';
-import { Layout } from '../components/Layout';
+import { Layout } from '@/components/Layout';
 
 export const RouterProvider = () => {
   return (

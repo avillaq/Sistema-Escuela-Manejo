@@ -1,5 +1,5 @@
-import { Dashboard } from '../pages/Dashboard';
-import { NotFound } from '../pages/NotFound';
+import { Dashboard } from '@/pages/Dashboard';
+import { NotFound } from '@/pages/NotFound';
 import { Navigate } from 'react-router';
 
 

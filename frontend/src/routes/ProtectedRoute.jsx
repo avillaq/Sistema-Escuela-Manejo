@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router";
 import { useAuthStore } from "@/store/authStore";
 
-export function ProtectedRoute({ children }) {
+export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuthStore();
   const location = useLocation();
 

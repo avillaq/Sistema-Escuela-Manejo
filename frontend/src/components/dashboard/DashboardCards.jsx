@@ -1,7 +1,7 @@
 import { ArrowUpRight, ArrowDownRight, DollarSign, Users, ShoppingCart, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function StatCard({ title, value, change, icon, trend }) {
+export const StatCard = ({ title, value, change, icon, trend }) => {
   const isPositive = trend === 'up';
 
   return (
@@ -33,7 +33,7 @@ export function StatCard({ title, value, change, icon, trend }) {
   );
 }
 
-export function ChartCard({ title, children }) {
+export const ChartCard = ({ title, children }) => {
   return (
     <div className="bg-card rounded-lg shadow-sm border border-border p-6">
       <h3 className="text-lg font-medium mb-4">{title}</h3>
@@ -42,7 +42,7 @@ export function ChartCard({ title, children }) {
   );
 }
 
-export function SimpleBarChart() {
+export const SimpleBarChart = () => {
   // Simplified chart display - in real app, use a chart library like Chart.js or Recharts
   const values = [35, 55, 40, 70, 60, 80, 65];
   const max = Math.max(...values);
@@ -62,7 +62,7 @@ export function SimpleBarChart() {
   );
 }
 
-export function DonutChart() {
+export const DonutChart = () => {
   // Simplified donut chart
   return (
     <div className="flex items-center justify-center h-full">

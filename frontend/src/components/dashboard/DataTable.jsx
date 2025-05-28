@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MoreVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function DataTable() {
+export const DataTable = () => {
   const [sort, setSort] = useState({ column: 'name', direction: 'asc' });
   
   const tableData = [

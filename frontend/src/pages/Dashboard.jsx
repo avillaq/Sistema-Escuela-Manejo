@@ -2,7 +2,7 @@ import { StatCard, ChartCard, SimpleBarChart, DonutChart } from "../components/d
 import { DataTable } from "../components/dashboard/DataTable";
 import { DollarSign, Users, ShoppingCart, Percent } from "lucide-react";
 
-export function Dashboard() {
+export const Dashboard = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

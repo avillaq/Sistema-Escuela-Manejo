@@ -4,7 +4,7 @@ import { Menu, X, Bell, User, LogOut, Settings, Home, BarChart2, Users, FileText
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
-export function DashboardLayout() {
+export const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();

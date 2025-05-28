@@ -15,12 +15,12 @@ export const setupInterceptors = (useAuthStore) => {
       const { access_token, setLogout } = useAuthStore.getState();
   
       if (access_token) {
-        const tokenData = jwtDecode(access_token);
+        
+        /*const tokenData = jwtDecode(access_token);
         const isExpired = tokenData.exp * 1000 < Date.now();
         if (isExpired) {
           setLogout();
-        }
-        
+        }*/
         config.headers.Authorization = `Bearer ${access_token}`;
       }
       return config;

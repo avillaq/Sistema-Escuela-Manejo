@@ -64,3 +64,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+:root {
+  --font-family: "system-ui", "BlinkMacSystemFont", "-apple-system", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "sans-serif";
+}
+
+*,*:before,*:after {
+  box-sizing: inherit;
+}
+html {
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+body {
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  color: #000;
+  /* overflow-x: hidden; */
+}
+
+p, h1, h2{
+  margin: 0;
+}  

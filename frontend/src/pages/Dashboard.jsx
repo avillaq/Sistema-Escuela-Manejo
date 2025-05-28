@@ -1,52 +1,66 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
+import { StatCard, ChartCard, SimpleBarChart, DonutChart } from "../components/dashboard/DashboardCards";
+import { DataTable } from "../components/dashboard/DataTable";
+import { DollarSign, Users, ShoppingCart, Percent } from "lucide-react";
 
 export function Dashboard() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Building Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-          </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard 
+          title="Total Revenue" 
+          value="$45,231.89" 
+          change="12.5%" 
+          icon={<DollarSign size={20} />} 
+          trend="up"
+        />
+        <StatCard 
+          title="Active Users" 
+          value="2,342" 
+          change="8.1%" 
+          icon={<Users size={20} />} 
+          trend="up"
+        />
+        <StatCard 
+          title="New Orders" 
+          value="1,234" 
+          change="5.4%" 
+          icon={<ShoppingCart size={20} />} 
+          trend="down"
+        />
+        <StatCard 
+          title="Conversion Rate" 
+          value="2.83%" 
+          change="1.2%" 
+          icon={<Percent size={20} />} 
+          trend="up"
+        />
+      </div>
+      
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChartCard title="Weekly Sales">
+          <SimpleBarChart />
+        </ChartCard>
+        <ChartCard title="Traffic Sources">
+          <DonutChart />
+        </ChartCard>
+      </div>
+      
+      {/* Table */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold">Recent Customers</h2>
+        <DataTable />
+      </div>
+    </div>
+  );
 }
+
+
+
+
+
+
+

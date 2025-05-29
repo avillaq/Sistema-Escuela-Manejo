@@ -1,7 +1,7 @@
 import { Chip, User, Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '../../components/data-table';
-import { customers } from '../../data/customers-data';
+import { DataTable } from '@/components/data-table';
+import { customers } from '@/data/customers-data';
 
 export const Customers = () => {
   const columns = [

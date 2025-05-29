@@ -1,7 +1,7 @@
 import { Chip, Button, Card, CardBody, CardFooter, Image } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '../../components/data-table';
-import { products } from '../../data/products-data';
+import { DataTable } from '@/components/data-table';
+import { products } from '@/data/products-data';
 import { useState } from 'react';
 
 export const Products = () => {

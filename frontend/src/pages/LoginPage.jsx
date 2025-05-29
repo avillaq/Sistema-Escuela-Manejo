@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, Navigate } from "react-router";
 import { Card, CardBody, CardHeader, Input, Button, Link } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useAuthStore } from "../store/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import { motion } from "framer-motion";
 import { useState } from "react";
 

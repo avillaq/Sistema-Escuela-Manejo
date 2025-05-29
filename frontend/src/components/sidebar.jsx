@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router';
 import { Icon } from '@iconify/react';
 import { Divider } from '@heroui/react';
 import { ThemeSwitcher } from './theme-switcher';
-import { useAuthStore } from '../store/auth-store';
+import { useAuthStore } from '@/store/auth-store';
 
 const NavItem = ({ to, icon, label }) => {
   return (

@@ -1,12 +1,12 @@
 import { Card, CardBody, CardHeader, Divider, Tabs, Tab } from '@heroui/react';
-import { AreaChartCard } from '../../components/area-chart';
-import { BarChartCard } from '../../components/bar-chart';
+import { AreaChartCard } from '@/components/area-chart';
+import { BarChartCard } from '@/components/bar-chart';
 import { 
   trafficData, 
   deviceData, 
   conversionData, 
   channelData 
-} from '../../data/analytics-data';
+} from '@/data/analytics-data';
 import { useState } from 'react';
 
 export const Analytics = () => {

@@ -1,9 +1,9 @@
 import { Card, CardBody, CardHeader, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { StatsCard } from '../../components/stats-card';
-import { AreaChartCard } from '../../components/area-chart';
-import { BarChartCard } from '../../components/bar-chart';
-import { revenueData, visitsData, topProducts } from '../../data/dashboard-data';
+import { StatsCard } from '@/components/stats-card';
+import { AreaChartCard } from '@/components/area-chart';
+import { BarChartCard } from '@/components/bar-chart';
+import { revenueData, visitsData, topProducts } from '@/data/dashboard-data';
 
 export const Dashboard = () => {
   return (

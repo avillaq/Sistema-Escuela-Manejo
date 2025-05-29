@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, useNavigate, useHref } from 'react-router';
 import { HeroUIProvider } from "@heroui/react";
 import { publicRoutes, protectedRoutes } from './routes';
-import { DashboardLayout } from '../layout/DashboardLayout';
-import { ProtectedRoute } from '../routes/ProtectedRoute';
+import { DashboardLayout } from '@/layout/DashboardLayout';
+import { ProtectedRoute } from '@/routes/ProtectedRoute';
 
 
 const NextUIRouteProvider = () => {

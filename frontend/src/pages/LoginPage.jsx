@@ -1,31 +1,36 @@
-import { useNavigate, useLocation, Navigate } from 'react-router';
-import { Card, CardBody, CardHeader, Input, Button, Link } from '@heroui/react';
-import { Icon } from '@iconify/react';
-import { useAuthStore } from '../store/auth-store';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useNavigate, useLocation, Navigate } from "react-router";
+import { Card, CardBody, CardHeader, Input, Button, Link } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { useAuthStore } from "../store/auth-store";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export const LoginPage = () => {
-  const [username, setUserName] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [username, setUserName] = useState("admin");
+  const [password, setPassword] = useState("admin");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   
   const history = useNavigate();
   const location = useLocation();
   const { isAuthenticated, login } = useAuthStore();
   
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || "/dashboard";
   
-  // If already authenticated, Navigate to dashboard
   if (isAuthenticated) {
     return <Navigate to={from} />;
   }
   
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
+
+    if (username.trim() === "" || password.trim() === "") {
+      setError("Por favor, completa todos los campos.");
+      setIsLoading(false);
+      return;
+    }
     
     try {
       const success = await login(username, password);
@@ -33,10 +38,10 @@ export const LoginPage = () => {
       if (success) {
         history.replace(from);
       } else {
-        setError('Usuario or contraseña invalida. Intenta admin / admin');
+        setError("Usuario or contraseña invalida. Intenta admin / admin");
       }
     } catch (err) {
-      setError('Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.');
+      setError("Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +67,7 @@ export const LoginPage = () => {
           <CardBody className="py-6">
             <form onSubmit={handleLogin} className="space-y-6">
               {error && (
-                <div className="p-3 rounded-md bg-danger-100 text-danger-700 text-sm">
+                <div className="p-3 rounded-md bg-danger-100 text-danger-700 text-sm text-center">
                   {error}
                 </div>
               )}
@@ -103,7 +108,7 @@ export const LoginPage = () => {
                 fullWidth 
                 isLoading={isLoading}
               >
-                {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
+                {isLoading ? "Ingresando..." : "Iniciar sesión"}
               </Button>
             </form>
           </CardBody>

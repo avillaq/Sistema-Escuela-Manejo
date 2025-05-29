@@ -1,16 +1,18 @@
-import { Dashboard } from '@/pages/Dashboard';
+import { Dashboard } from '../pages/admin/Dashboard';
 import { Navigate } from 'react-router';
-import { Analytics } from '@/pages/Analytics';
-import { Customers } from '@/pages/Customers';
-import { Reports } from '@/pages/Reports';
-import { Settings } from '@/pages/Settings';
-import { Login } from '@/pages/Login';
+import { Analytics } from '../pages/admin/Analytics';
+import { Customers } from '../pages/admin/Customers';
+import { Products } from '../pages/admin/Products';
+import { Settings } from '../pages/admin/Settings';
+import { LoginPage } from '../pages/LoginPage';
+
+const ToDashboard = () => { return <Navigate to="/dashboard" replace />; };
 
 // Rutas publicas
 export const publicRoutes = [
   {
     path: '/login',
-    element: Login,
+    element: LoginPage,
   },
 ];
 
@@ -18,7 +20,7 @@ export const publicRoutes = [
 export const protectedRoutes = [
   {
     path: '/',
-    element: () => <Navigate to="/dashboard" replace />,
+    element: ToDashboard,
   },
   {
     path: '/dashboard',
@@ -33,8 +35,8 @@ export const protectedRoutes = [
     element: Customers,
   },
   {
-    path: '/reports',
-    element: Reports,
+    path: '/products',
+    element: Products,
   },
   {
     path: '/settings',
@@ -42,6 +44,6 @@ export const protectedRoutes = [
   },
   {
     path: '*',
-    element: () => <Navigate to="/dashboard" replace />,
+    element: ToDashboard,
   },
 ];

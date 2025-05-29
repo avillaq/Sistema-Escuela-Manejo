@@ -1,11 +1,15 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
-import { publicRoutes, protectedRoutes } from '@/routes/routes';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { BrowserRouter, Routes, Route, useNavigate, useHref } from 'react-router';
+import { HeroUIProvider } from "@heroui/react";
+import { publicRoutes, protectedRoutes } from './routes';
+import { DashboardLayout } from '../layout/DashboardLayout';
+import { ProtectedRoute } from '../routes/ProtectedRoute';
 
-export const RouterProvider = () => {
+
+const NextUIRouteProvider = () => {
+  const navigate = useNavigate();
+
   return (
-    <BrowserRouter>
+    <HeroUIProvider navigate={navigate} useHref={useHref}>
       <Routes>
         {/* Rutas públicas */}
         {publicRoutes.map(({ path, element: Element }) => (
@@ -15,9 +19,9 @@ export const RouterProvider = () => {
             element={<Element />}
           />
         ))}
-        
+
         {/* Rutas protegidas con DashboardLayout */}
-        <Route 
+        <Route
           element={
             <ProtectedRoute>
               <DashboardLayout />
@@ -33,6 +37,15 @@ export const RouterProvider = () => {
           ))}
         </Route>
       </Routes>
+    </HeroUIProvider>
+  )
+}
+
+export const RouterProvider = () => {
+
+  return (
+    <BrowserRouter>
+      <NextUIRouteProvider />
     </BrowserRouter>
   );
 };

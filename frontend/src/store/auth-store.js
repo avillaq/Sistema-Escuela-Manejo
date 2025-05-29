@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Mock user data - in a real app, this would come from an API
 const mockUser = {
   id: 1,
   name: 'Admin User',
@@ -19,13 +18,10 @@ export const useAuthStore = create()(
       
       initialize: () => set({ loading: false }),
 
-      login: async (email, password) => {
-        // In a real app, you would make an API call here
+      login: async (username, password) => {
         return new Promise((resolve) => {
-          // Simulate API delay
           setTimeout(() => {
-            // Simple validation - in a real app, this would be handled by your backend
-            if (email === 'admin@example.com' && password === 'password') {
+            if (username === 'admin' && password === 'admin') {
               set({
                 isAuthenticated: true,
                 user: mockUser,

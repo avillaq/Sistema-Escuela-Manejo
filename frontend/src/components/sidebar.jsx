@@ -6,9 +6,9 @@ import { useAuthStore } from '@/store/auth-store';
 
 const NavItem = ({ to, icon, label }) => {
   return (
-    <NavLink 
-      to={to} 
-      className={({ isActive }) => 
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
         isActive ? "sidebar-link active" : "sidebar-link"
       }
     >
@@ -21,12 +21,11 @@ const NavItem = ({ to, icon, label }) => {
 export const Sidebar = ({ isOpen }) => {
   const location = useLocation();
   const { user } = useAuthStore();
-  
+
   return (
-    <aside 
-      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${
-        isOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
-      }`}
+    <aside
+      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${isOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
+        }`}
     >
       <div className="p-4 flex items-center justify-between">
         <div className={`flex items-center gap-2 ${!isOpen && 'md:hidden'}`}>
@@ -41,9 +40,9 @@ export const Sidebar = ({ isOpen }) => {
           </div>
         )}
       </div>
-      
+
       <Divider />
-      
+
       <div className="flex-1 py-4 flex flex-col">
         <div className={`px-3 mb-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
           Principal
@@ -53,8 +52,10 @@ export const Sidebar = ({ isOpen }) => {
           <NavItem to="/analytics" icon="lucide:bar-chart" label={isOpen ? 'Analytics' : ''} />
           <NavItem to="/customers" icon="lucide:users" label={isOpen ? 'Customers' : ''} />
           <NavItem to="/products" icon="lucide:package" label={isOpen ? 'Products' : ''} />
+          <NavItem to="/users" icon="lucide:user-check" label={isOpen ? 'Usuarios' : ''} />
+
         </nav>
-        
+
         <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
           Configuración
         </div>
@@ -62,7 +63,7 @@ export const Sidebar = ({ isOpen }) => {
           <NavItem to="/settings" icon="lucide:settings" label={isOpen ? 'Settings' : ''} />
         </nav>
       </div>
-      
+
       <div className="p-4 border-t border-divider">
         <div className={`flex items-center justify-between ${!isOpen && 'md:hidden'}`}>
           <div className="flex items-center gap-2">

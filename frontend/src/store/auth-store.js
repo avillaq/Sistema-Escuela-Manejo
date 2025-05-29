@@ -15,6 +15,7 @@ export const useAuthStore = create()(
       user: null,
       token: null,
       loading: true,
+      rol: '',
       
       initialize: () => set({ loading: false }),
 
@@ -26,7 +27,8 @@ export const useAuthStore = create()(
                 isAuthenticated: true,
                 user: mockUser,
                 token: 'mock-jwt-token',
-                loading: false
+                loading: false,
+                rol: username
               });
               resolve(true);
             } else {

@@ -60,7 +60,7 @@ export const LoginPage = () => {
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-2">
               <Icon icon="lucide:layout-dashboard" className="text-white" width={24} height={24} />
             </div>
-            <h1 className="text-2xl font-bold text-center">Bienvenido</h1>
+            <h1 className="text-2xl font-bold text-center">Escuela de Manejo Jesus Nazareno</h1>
             <p className="text-default-500 text-center">Ingresa tus credenciales para acceder al dashboard</p>
           </CardHeader>
           

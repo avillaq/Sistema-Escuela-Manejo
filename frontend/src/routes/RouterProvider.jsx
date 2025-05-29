@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate, useHref } from 'react-router';
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { publicRoutes, protectedRoutes } from './routes';
 import { DashboardLayout } from '@/layout/DashboardLayout';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
@@ -10,6 +10,7 @@ const NextUIRouteProvider = () => {
 
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
+      <ToastProvider />
       <Routes>
         {/* Rutas públicas */}
         {publicRoutes.map(({ path, element: Element }) => (

@@ -12,6 +12,7 @@ class CrearMatriculaSchema(Schema):
         min=1.0,
         error="La tarifa por hora debe ser al menos 1.0 soles"
     ))  # Opcional, solo para por_hora
+    categoria = fields.Str(required=True, validate=validate.OneOf(["A-I", "A-II"]))
 
 class MatriculaSchema(Schema):
     id = fields.Int()
@@ -25,3 +26,4 @@ class MatriculaSchema(Schema):
     fecha_limite = fields.DateTime()
     estado_pago = fields.Str()
     estado_clases = fields.Str()
+    categoria = fields.Str()

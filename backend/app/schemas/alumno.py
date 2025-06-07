@@ -7,7 +7,6 @@ class AlumnoSchema(Schema):
     dni = fields.Str()
     telefono = fields.Str()
     email = fields.Email()
-    categoria = fields.Str()
     activo = fields.Bool()
     
 class CrearAlumnoSchema(Schema):
@@ -22,7 +21,6 @@ class CrearAlumnoSchema(Schema):
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
     email = fields.Email(required=True)
-    categoria = fields.Str(required=True, validate=validate.OneOf(["A-I", "A-II"]))
 
 class ActualizarAlumnoSchema(Schema):
     nombre = fields.Str()

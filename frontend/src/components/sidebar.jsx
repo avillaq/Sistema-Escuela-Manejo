@@ -21,6 +21,75 @@ const NavItem = ({ to, icon, label }) => {
 export const Sidebar = ({ isOpen }) => {
   const location = useLocation();
   const { user } = useAuthStore();
+  const rol = user?.rol || "admin";
+
+  const renderNavItems = () => {
+    if (rol === "admin") {
+      return (
+        <>
+          <div className={`px-3 mb-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Principal
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
+            {/* <NavItem to="/calendario" icon="lucide:calendar" label={isOpen ? 'Calendario' : ''} /> */}
+            {/* <NavItem to="/reportes" icon="lucide:bar-chart" label={isOpen ? 'Reportes' : ''} /> */}
+          </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Gestión de Usuarios
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/alumnos" icon="lucide:graduation-cap" label={isOpen ? 'Alumnos' : ''} />
+            <NavItem to="/instructores" icon="lucide:user-check" label={isOpen ? 'Instructores' : ''} />
+            <NavItem to="/administradores" icon="lucide:shield" label={isOpen ? 'Administradores' : ''} />
+          </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Gestión Académica
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/matriculas" icon="lucide:file-text" label={isOpen ? 'Matrículas' : ''} />
+            <NavItem to="/asistencias" icon="lucide:check-circle" label={isOpen ? 'Asistencias' : ''} />
+            <NavItem to="/tickets" icon="lucide:ticket" label={isOpen ? 'Tickets' : ''} />
+          </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Recursos
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/autos" icon="lucide:car" label={isOpen ? 'Autos' : ''} />
+            {/* <NavItem to="/bloques" icon="lucide:clock" label={isOpen ? 'Bloques' : ''} /> */}
+          </nav>
+        </>
+      );
+    }
+    if (rol === "alumno") {
+      return (
+        <>
+          <div className={`px-3 mb-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Principal
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/mi-dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
+            <NavItem to="/mi-calendario" icon="lucide:calendar" label={isOpen ? 'Calendario' : ''} />
+          </nav>
+        </>
+      );
+    }
+    if (rol === "instructor") {
+      return (
+        <>
+          <div className={`px-3 mb-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Principal
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
+            <NavItem to="/tickets" icon="lucide:ticket" label={isOpen ? 'Tickets' : ''} />
+          </nav>
+        </>
+      );
+    }
+    return null;
+  }
+
 
   return (
     <aside
@@ -44,17 +113,7 @@ export const Sidebar = ({ isOpen }) => {
       <Divider />
 
       <div className="flex-1 py-4 flex flex-col">
-        <div className={`px-3 mb-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
-          Principal
-        </div>
-        <nav className="space-y-1 px-2">
-          <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
-          <NavItem to="/analytics" icon="lucide:bar-chart" label={isOpen ? 'Analytics' : ''} />
-          <NavItem to="/customers" icon="lucide:users" label={isOpen ? 'Customers' : ''} />
-          <NavItem to="/products" icon="lucide:package" label={isOpen ? 'Products' : ''} />
-          <NavItem to="/users" icon="lucide:user-check" label={isOpen ? 'Usuarios' : ''} />
-
-        </nav>
+        {renderNavItems()}
 
         <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
           Configuración

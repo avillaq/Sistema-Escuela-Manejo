@@ -1,11 +1,23 @@
-import { Dashboard } from '@/pages/admin/Dashboard';
 import { Navigate } from 'react-router';
+
+// Rutas publicas
+import { LoginPage } from '@/pages/LoginPage';
+
+// Rutas para el administrador
+import { Dashboard } from '@/pages/admin/Dashboard';
+import { Alumnos } from '@/pages/admin/Alumnos';
+import { Instructores } from '@/pages/admin/Instructores';
+import { Administradores } from '@/pages/admin/Administradores';
+import { Matriculas } from '@/pages/admin/Matriculas';
+import { Asistencias } from '@/pages/admin/Asistencias';
+import { Tickets } from '@/pages/admin/Tickets';
+import { Autos } from '@/pages/admin/Autos';
 import { Analytics } from '@/pages/admin/Analytics';
 import { Customers } from '@/pages/admin/Customers';
 import { Products } from '@/pages/admin/Products';
 import { Settings } from '@/pages/admin/Settings';
 import { Usuarios } from '@/pages/admin/Usuarios';
-import { LoginPage } from '@/pages/LoginPage';
+import { Calendar } from '@/pages/Calendar';
 
 const ToDashboard = () => { return <Navigate to="/dashboard" replace />; };
 
@@ -28,6 +40,34 @@ export const protectedRoutes = [
     element: Dashboard,
   },
   {
+    path: '/alumnos',
+    element: Alumnos,
+  },
+  {
+    path: '/instructores',
+    element: Instructores,
+  }, 
+  {
+    path: '/administradores',
+    element: Administradores,
+  },
+  {
+    path: '/matriculas',
+    element: Matriculas,
+  },
+  {
+    path: '/asistencias',
+    element: Asistencias,
+  },
+  {
+    path: '/tickets',
+    element: Tickets,
+  },
+  {
+    path: '/autos',
+    element: Autos,
+  },
+  {
     path: '/analytics',
     element: Analytics,
   },
@@ -42,6 +82,10 @@ export const protectedRoutes = [
   {
     path: '/products',
     element: Products,
+  },
+  {
+    path: '/calendar',
+    element: Calendar,
   },
   {
     path: '/settings',

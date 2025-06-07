@@ -16,25 +16,14 @@ export const Header = ({ toggleSidebar }) => {
         >
           <Icon icon="lucide:menu" width={20} height={20} />
         </Button>
-        <div className="hidden md:block w-64">
-          <Input
-            placeholder="Search..."
-            startContent={<Icon icon="lucide:search" className="text-default-400" />}
-            size="sm"
-            radius="lg"
-            classNames={{
-              inputWrapper: "bg-default-100"
-            }}
-          />
-        </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <Button isIconOnly variant="light" aria-label="Notifications" className="relative">
+        {/* <Button isIconOnly variant="light" aria-label="Notifications" className="relative">
           <Badge content="5" color="danger" shape="circle" size="sm">
             <Icon icon="lucide:bell" width={20} height={20} />
           </Badge>
-        </Button>
+        </Button> */}
 
         <Dropdown placement="bottom-end">
           <DropdownTrigger>

@@ -8,11 +8,7 @@ import {
   Chip
 } from '@heroui/react';
 
-export const UserViewModal = ({
-  isOpen,
-  onOpenChange,
-  user
-}) => {
+export const UserViewModal = ({ isOpen, onOpenChange, user }) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -48,26 +44,14 @@ export const UserViewModal = ({
                     <p className="text-sm text-default-500">DNI</p>
                     <p className="font-medium">{user.dni}</p>
                   </div>
-
+                  <div>
+                    <p className="text-sm text-default-500">Teléfono</p>
+                    <p className="font-medium">{user.telefono}</p>
+                  </div>
                   <div>
                     <p className="text-sm text-default-500">Email</p>
                     <p className="font-medium">{user.email}</p>
                   </div>
-
-                  <div>
-                    <p className="text-sm text-default-500">Género</p>
-                    <p className="font-medium">{user.genero}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-default-500">Departamento</p>
-                    <p className="font-medium">
-                      <Chip size="sm" variant="flat" color="primary">
-                        {user.departamento}
-                      </Chip>
-                    </p>
-                  </div>
-
                   <div>
                     <p className="text-sm text-default-500">Fecha de Registro</p>
                     <p className="font-medium">{new Date(user.fechaRegistro).toLocaleDateString()}</p>

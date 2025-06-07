@@ -1,27 +1,23 @@
-import { 
-  Modal, 
-  ModalContent, 
-  ModalHeader, 
-  ModalBody, 
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
   ModalFooter,
   Button
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 
-export const UserDeleteModal = ({ 
-  isOpen, 
-  onOpenChange,
-  user,
-  onConfirmDelete
-}) => {
+export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete }) => {
+  
   const handleDelete = () => {
     onConfirmDelete(user.id);
     onOpenChange(false);
   };
-  
+
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       placement="center"
       size="md"

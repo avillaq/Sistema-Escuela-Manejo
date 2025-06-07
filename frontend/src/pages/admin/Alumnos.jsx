@@ -4,10 +4,6 @@ import {
   CardBody,
   Chip,
   Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   useDisclosure,
   Select,
   SelectItem,
@@ -41,30 +37,24 @@ export const Alumnos = () => {
     onOpenChange: onDeleteOpenChange
   } = useDisclosure();
 
-
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(users);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // Filter users based on selected filters
+  // Filtrar usuarios según estado y búsqueda
   const filteredUsers = useMemo(() => {
     return userData.filter(user => {
-      // Filter by department
-      if (selectedDepartment !== "all" && user.departamento !== selectedDepartment) {
+
+      // por estado
+      if (selectedEstado === "activo" && !user.activo) {
+        return false;
+      }
+      if (selectedEstado === "inactivo" && user.activo) {
         return false;
       }
 
-      // Filter by status
-      if (selectedStatus === "active" && !user.activo) {
-        return false;
-      }
-      if (selectedStatus === "inactive" && user.activo) {
-        return false;
-      }
-
-      // Filter by search query
+      // por búsqueda
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
@@ -77,12 +67,14 @@ export const Alumnos = () => {
 
       return true;
     });
-  }, [selectedDepartment, selectedStatus, searchQuery, userData]);
+  }, [selectedEstado, searchQuery, userData]);
 
-  // Get unique departments for filter dropdown
-  const departments = useMemo(() => {
-    const depts = new Set(userData.map(user => user.departamento));
-    return Array.from(depts);
+  const estadisticas = useMemo(() => {
+    const total = userData.length;
+    const activos = userData.filter(user => user.activo).length;
+    const inactivos = userData.filter(user => !user.activo).length;
+
+    return { total, activos, inactivos };
   }, [userData]);
 
   // Handle añadir usuario
@@ -94,7 +86,6 @@ export const Alumnos = () => {
       ...newUser,
       id,
       fechaRegistro: today,
-      email: `${newUser.nombre.toLowerCase()}.${newUser.apellidos.toLowerCase().split(' ')[0]}@example.com`
     };
 
     setUserData([...userData, user]);
@@ -103,6 +94,7 @@ export const Alumnos = () => {
       title: "Usuario añadido",
       description: `${user.nombre} ${user.apellidos} ha sido añadido correctamente.`,
       severity: "success",
+      color: "success",
     });
   };
 
@@ -118,6 +110,7 @@ export const Alumnos = () => {
       title: "Usuario actualizado",
       description: `Los datos de ${updatedUser.nombre} ${updatedUser.apellidos} han sido actualizados.`,
       severity: "success",
+      color: "success",
     });
   };
 
@@ -132,6 +125,7 @@ export const Alumnos = () => {
       title: "Usuario eliminado",
       description: `${deletedUser?.nombre} ${deletedUser?.apellidos} ha sido eliminado correctamente.`,
       severity: "danger",
+      color: "success",
     });
   };
 
@@ -246,7 +240,7 @@ export const Alumnos = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">Total Alumnos</p>
-              <p className="text-2xl font-semibold text-primary-700">{users.length}</p>
+              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -259,7 +253,7 @@ export const Alumnos = () => {
             <div>
               <p className="text-sm text-success-700">Alumnos Activos</p>
               <p className="text-2xl font-semibold text-success-700">
-                {users.filter(user => user.activo).length}
+                {estadisticas.activos}
               </p>
             </div>
           </div>
@@ -273,7 +267,7 @@ export const Alumnos = () => {
             <div>
               <p className="text-sm text-danger-700">Alumnos Inactivos</p>
               <p className="text-2xl font-semibold text-danger-700">
-                {users.filter(user => !user.activo).length}
+                {estadisticas.inactivos}
               </p>
             </div>
           </div>
@@ -294,13 +288,13 @@ export const Alumnos = () => {
               <Select
                 label="Estado"
                 placeholder="Todos los estados"
-                selectedKeys={[selectedStatus]}
+                selectedKeys={[selectedEstado]}
                 className="w-full md:w-1/2"
-                onChange={(e) => setSelectedStatus(e.target.value)}
+                onChange={(e) => setSelectedEstado(e.target.value)}
               >
-                <SelectItem key="all" value="all">Todos los estados</SelectItem>
-                <SelectItem key="active" value="active">Activos</SelectItem>
-                <SelectItem key="inactive" value="inactive">Inactivos</SelectItem>
+                <SelectItem key="todos" value="todos">Todos los estados</SelectItem>
+                <SelectItem key="activo" value="activo">Activos</SelectItem>
+                <SelectItem key="inactivo" value="inactivo">Inactivos</SelectItem>
               </Select>
             </div>
           </div>

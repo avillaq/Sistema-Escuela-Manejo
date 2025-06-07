@@ -8,7 +8,7 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 
-export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete }) => {
+export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, tipo = "Usuario" }) => {
   
   const handleDelete = () => {
     onConfirmDelete(user.id);
@@ -34,7 +34,7 @@ export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete })
                   <Icon icon="lucide:trash" className="text-danger" width={28} height={28} />
                 </div>
                 <div className="text-center">
-                  <h3 className="text-lg font-semibold">¿Eliminar usuario?</h3>
+                  <h3 className="text-lg font-semibold">{`¿Eliminar ${tipo}?`}</h3>
                   <p className="text-default-500 mt-1">
                     ¿Estás seguro de que deseas eliminar a <span className="font-medium">{user.nombre} {user.apellidos}</span>?
                   </p>

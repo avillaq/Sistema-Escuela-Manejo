@@ -12,7 +12,7 @@ import {
   Checkbox
 } from '@heroui/react';
 
-export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, initialData }) => {
+export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, initialData, tipo = "Usuario" }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -130,7 +130,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              {editMode ? 'Editar Usuario' : 'Añadir Nuevo Usuario'}
+              {editMode ? `Editar ${tipo}` : `Añadir Nuevo ${tipo}`}
             </ModalHeader>
             <ModalBody>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -179,14 +179,14 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
                   onValueChange={(value) => handleChange('email', value)}
                   isInvalid={!!errors.email}
                   errorMessage={errors.email}
-                />          
+                />
                 <div className="md:col-span-2">
                   <Checkbox
                     isSelected={formData.activo}
                     onValueChange={(value) => handleChange('activo', value)}
                     isDisabled={!editMode}
                   >
-                    Usuario Activo
+                    {`${tipo} Activo`}
                   </Checkbox>
                 </div>
               </div>

@@ -18,25 +18,16 @@ import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
 
 export const Alumnos = () => {
+  const tipo = "Alumno";
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   // Modales para ver, editar y eliminar usuarios
-  const {
-    isOpen: isViewOpen,
-    onOpen: onViewOpen,
-    onOpenChange: onViewOpenChange
-  } = useDisclosure();
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onOpenChange: onEditOpenChange
-  } = useDisclosure();
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onOpenChange: onDeleteOpenChange
-  } = useDisclosure();
+  const { isOpen: isViewOpen, onOpen: onViewOpen, onOpenChange: onViewOpenChange } = useDisclosure();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange } = useDisclosure();
 
+  // Estados para filtrar usuarios
   const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(users);
@@ -91,7 +82,7 @@ export const Alumnos = () => {
     setUserData([...userData, user]);
 
     addToast({
-      title: "Usuario añadido",
+      title: `${tipo} añadido`,
       description: `${user.nombre} ${user.apellidos} ha sido añadido correctamente.`,
       severity: "success",
       color: "success",
@@ -107,7 +98,7 @@ export const Alumnos = () => {
     setUserData(updatedUsers);
 
     addToast({
-      title: "Usuario actualizado",
+      title: `${tipo} actualizado`,
       description: `Los datos de ${updatedUser.nombre} ${updatedUser.apellidos} han sido actualizados.`,
       severity: "success",
       color: "success",
@@ -122,7 +113,7 @@ export const Alumnos = () => {
     setUserData(updatedUsers);
 
     addToast({
-      title: "Usuario eliminado",
+      title: `${tipo} eliminado`,
       description: `${deletedUser?.nombre} ${deletedUser?.apellidos} ha sido eliminado correctamente.`,
       severity: "danger",
       color: "success",
@@ -228,7 +219,7 @@ export const Alumnos = () => {
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}
           onPress={onOpen}
         >
-          Añadir Usuario
+          {`Añadir ${tipo}`}
         </Button>
       </div>
 
@@ -278,7 +269,7 @@ export const Alumnos = () => {
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <Input
-              placeholder="Buscar usuario..."
+              placeholder={`Buscar ${tipo}`}
               value={searchQuery}
               onValueChange={setSearchQuery}
               startContent={<Icon icon="lucide:search" className="text-default-400" />}
@@ -313,6 +304,7 @@ export const Alumnos = () => {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         onAddUser={handleAddUser}
+        tipo={tipo}
       />
 
       {/* Modal ver usuario */}
@@ -321,6 +313,7 @@ export const Alumnos = () => {
           isOpen={isViewOpen}
           onOpenChange={onViewOpenChange}
           user={selectedUser}
+          tipo={tipo}
         />
       )}
 
@@ -332,6 +325,7 @@ export const Alumnos = () => {
           onAddUser={handleUpdateUser}
           editMode={true}
           initialData={selectedUser}
+          tipo={tipo}
         />
       )}
 
@@ -342,6 +336,7 @@ export const Alumnos = () => {
           onOpenChange={onDeleteOpenChange}
           user={selectedUser}
           onConfirmDelete={handleDeleteUser}
+          tipo={tipo}
         />
       )}
     </div>

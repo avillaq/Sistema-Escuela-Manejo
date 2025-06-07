@@ -8,7 +8,7 @@ import {
   Chip
 } from '@heroui/react';
 
-export const UserViewModal = ({ isOpen, onOpenChange, user }) => {
+export const UserViewModal = ({ isOpen, onOpenChange, user, tipo = "Usuario" }) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -20,7 +20,7 @@ export const UserViewModal = ({ isOpen, onOpenChange, user }) => {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Detalles del Usuario
+              {`Detalles del ${tipo}`}
             </ModalHeader>
             <ModalBody>
               <div className="space-y-6">

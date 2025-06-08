@@ -1,11 +1,26 @@
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  timeout: 10000,
   endpoints: {
+    // Auth
     auth: {
-      login: "/auth/login",
-      logout: "/auth/logout",
-      register: "/auth/register",
-      refresh: "/auth/refresh",
+      login: '/auth/login',
+      me: '/auth/me'
     },
+    // Usuarios
+    alumnos: '/alumnos',
+    instructores: '/instructores',
+    administradores: '/administradores',
+    // Academico
+    matriculas: '/matriculas',
+    pagos: '/pagos',
+    asistencias: '/asistencias',
+    tickets: '/tickets',
+    // Recursos
+    autos: '/autos',
+    bloques: '/bloques',
+    reservas: '/reservas',
+    // Reportes
+    reportes: '/reportes'
   }
 };

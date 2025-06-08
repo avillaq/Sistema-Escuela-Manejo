@@ -8,6 +8,7 @@ class AlumnoSchema(Schema):
     telefono = fields.Str()
     email = fields.Email()
     activo = fields.Bool()
+    fecha_creado = fields.DateTime()
     
 class CrearAlumnoSchema(Schema):
     nombre = fields.Str(required=True)
@@ -20,15 +21,18 @@ class CrearAlumnoSchema(Schema):
         r'^\d{9}$', 
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
-    email = fields.Email(required=True)
+    email = fields.Email()
 
 class ActualizarAlumnoSchema(Schema):
     nombre = fields.Str()
     apellidos = fields.Str()
+    dni = fields.Str(required=True, validate=validate.Regexp(
+        r'^\d{8}$', 
+        error="El DNI debe contener exactamente 8 dígitos numéricos."
+    ))
     telefono = fields.Str(required=True, validate=validate.Regexp(
         r'^\d{9}$', 
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
     email = fields.Email()
-    categoria = fields.Str(validate=validate.OneOf(["A-I", "A-II"]))
     activo = fields.Bool(validate=validate.OneOf([True, False]))

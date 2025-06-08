@@ -5,47 +5,42 @@ const mockUser = {
   id: 1,
   name: 'Admin User',
   email: 'admin@example.com',
-  avatar: 'https://img.heroui.chat/image/avatar?w=200&h=200&u=1'
 };
 
 export const useAuthStore = create()(
   persist(
     (set) => ({
       isAuthenticated: false,
-      user: null,
+      id: null,
       token: null,
       loading: true,
       rol: '',
-      
+
       initialize: () => set({ loading: false }),
 
-    login: (data) => {
-      set({
-        isAuthenticated: true,
-        user: {
+      login: (data) => {
+        set({
+          isAuthenticated: true,
           id: data.usuario_id,
-          name: mockUser.name,
-          email: mockUser.email,
-          avatar: mockUser.avatar
-        },
-        token: data.access_token,
-        loading: false,
-        rol: data.rol
-      });
-    },
+          rol: data.rol,
+          token: data.access_token,
+          loading: false
+        });
+      },
       logout: () => {
         set({
           isAuthenticated: false,
-          user: null,
-          token: null
+          id: null,
+          rol: '',
+          token: null,
+          loading: false
         });
       }
     }),
     {
       name: 'auth-storage', // unique name for localStorage
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
-        user: state.user,
         token: state.token
       })
     }

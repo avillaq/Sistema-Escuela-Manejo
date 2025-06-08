@@ -7,12 +7,12 @@ import {
   ModalFooter,
   Button,
   Input,
-  Select,
-  SelectItem,
-  Checkbox
+  Checkbox,
 } from '@heroui/react';
+import { alumnosService } from '@/service/apiService';
 
-export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, initialData, tipo = "Usuario" }) => {
+
+export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, dataInicial, tipo = "Usuario" }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -26,19 +26,19 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
 
   // Se inicializa el formulario con datos por defecto
   useEffect(() => {
-    if (editMode && initialData) {
+    if (editMode && dataInicial) {
       setFormData({
-        nombre: initialData.nombre,
-        apellidos: initialData.apellidos,
-        dni: initialData.dni,
-        telefono: initialData.telefono,
-        email: initialData.email,
-        activo: initialData.activo,
+        nombre: dataInicial.nombre,
+        apellidos: dataInicial.apellidos,
+        dni: dataInicial.dni,
+        telefono: dataInicial.telefono,
+        email: dataInicial.email,
+        activo: dataInicial.activo,
       });
     } else {
       resetForm();
     }
-  }, [editMode, initialData, isOpen]);
+  }, [editMode, dataInicial, isOpen]);
 
   const handleChange = (field, value) => {
     setFormData({
@@ -84,20 +84,38 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validarForm()) {
-      if (editMode && initialData) {
+      if (editMode && dataInicial) {
         // Actualizar usuario existente
+        const result = await alumnosService.update(dataInicial.id, formData);
+        if (result.success) {
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            ...result.data,
+          }));
+        } else {
+          alert(result.message || 'Error al actualizar el usuario');
+          return;
+        }
+
         const updatedUser = {
-          ...initialData,
-          ...formData
+          ...dataInicial,
+          ...formData,
         };
         onAddUser(updatedUser);
       } else {
-        // Añadir nuevo usuario
-        onAddUser(formData);
+        // Añadir nuevo usuario - crear objeto sin 'activo'
+        const { activo, ...formDataEnviar } = formData;
+        const result = await alumnosService.create(formDataEnviar);
+        if (result.success) {
+          onAddUser(formData);
+          onOpenChange(false);
+        } else {
+          alert(result.message || 'Error al añadir el usuario');
+          return;
+        }
       }
-      onOpenChange(false);
     }
   };
 

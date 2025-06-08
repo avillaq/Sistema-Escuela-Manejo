@@ -3,7 +3,7 @@ import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, A
 import { useAuthStore } from '@/store/auth-store';
 
 export const Header = ({ toggleSidebar }) => {
-  const { user, rol , logout } = useAuthStore();
+  const { rol , logout } = useAuthStore();
 
   return (
     <header className="bg-content1 border-b border-divider h-16 flex items-center px-4 justify-between">
@@ -37,7 +37,7 @@ export const Header = ({ toggleSidebar }) => {
                 color="primary"
                 icon={<Icon icon="lucide:user" width={20} height={20} />}
               />
-              <span className="hidden md:inline">{rol? rol : "Admin" }</span>
+              <span className="hidden md:inline">{rol? rol : "Usuario" }</span>
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">
@@ -48,7 +48,7 @@ export const Header = ({ toggleSidebar }) => {
               color="danger"
               onPress={logout}
             >
-              Log Out
+              Cerrar sesión
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>

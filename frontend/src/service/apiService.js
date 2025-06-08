@@ -20,7 +20,7 @@ const handleResponse = async (apiCall) => {
 export const alumnosService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.alumnos)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos}/${id}`)),
-  create: (data) => handleResponse(() => api.post(API_CONFIG.endpoints.alumnos, data)),
+  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.alumnos}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.alumnos}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.alumnos}/${id}`)),
   getActivos: () => handleResponse(() => api.get(API_CONFIG.endpoints.alumnos, { params: { activo: true } }))

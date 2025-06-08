@@ -25,7 +25,6 @@ def crear_alumno(data):
         dni=dni,
         telefono=data["telefono"],
         email=data["email"],
-        categoria=data["categoria"]
     )
     db.session.add(alumno)
     db.session.commit()
@@ -37,7 +36,7 @@ def listar_alumnos():
 def actualizar_alumno(alumno_id, data):
     alumno = Alumno.query.get_or_404(alumno_id)
 
-    for campo in ["nombre", "apellidos", "telefono", "email", "categoria", "activo"]:
+    for campo in ["nombre", "apellidos", "telefono", "email", "dni", "activo"]:
         if campo in data:
             setattr(alumno, campo, data[campo])
     

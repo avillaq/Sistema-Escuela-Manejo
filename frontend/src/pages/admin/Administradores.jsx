@@ -324,7 +324,7 @@ export const Administradores = () => {
           onOpenChange={onEditOpenChange}
           onAddUser={handleUpdateUser}
           editMode={true}
-          initialData={selectedUser}
+          dataInicial={selectedUser}
           tipo={tipo}
         />
       )}

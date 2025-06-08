@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
@@ -16,6 +16,7 @@ import { users } from '@/data/users-data';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
+import { alumnosService } from '@/service/apiService';
 
 export const Alumnos = () => {
   const tipo = "Alumno";
@@ -30,8 +31,26 @@ export const Alumnos = () => {
   // Estados para filtrar usuarios
   const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userData, setUserData] = useState(users);
+  const [userData, setUserData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Cargar usuarios al montar el componente
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const result = await alumnosService.getAll();
+      if (result.success) {
+        setUserData(result.data);
+      } else {
+        addToast({
+          title: "Error al cargar usuarios",
+          description: result.error || "No se pudieron cargar los usuarios.",
+          severity: "error",
+          color: "danger",
+        });
+      }
+    }
+    fetchUsers();
+  }, []);
 
   // Filtrar usuarios según estado y búsqueda
   const filteredUsers = useMemo(() => {
@@ -76,7 +95,7 @@ export const Alumnos = () => {
     const user = {
       ...newUser,
       id,
-      fechaRegistro: today,
+      fecha_creado: today,
     };
 
     setUserData([...userData, user]);
@@ -105,10 +124,13 @@ export const Alumnos = () => {
     });
   };
 
-  // Handle eliminar usuario
+  // Handle eliminar usuario // TODO : revisar si se debe eliminar o desactivar
   const handleDeleteUser = (userId) => {
-    const updatedUsers = userData.filter(user => user.id !== userId);
     const deletedUser = userData.find(user => user.id === userId);
+    if (!deletedUser) return;
+    const updatedUsers = userData.map(user =>
+      user.id === userId ? { ...user, activo: false } : user
+    );
 
     setUserData(updatedUsers);
 
@@ -168,7 +190,7 @@ export const Alumnos = () => {
       key: "fechaRegistro",
       label: "FECHA REGISTRO",
       render: (user) => {
-        const date = new Date(user.fechaRegistro);
+        const date = new Date(user.fecha_creado);
         return date.toLocaleDateString();
       }
     },
@@ -324,7 +346,7 @@ export const Alumnos = () => {
           onOpenChange={onEditOpenChange}
           onAddUser={handleUpdateUser}
           editMode={true}
-          initialData={selectedUser}
+          dataInicial={selectedUser}
           tipo={tipo}
         />
       )}

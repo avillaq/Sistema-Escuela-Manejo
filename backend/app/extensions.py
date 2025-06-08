@@ -29,7 +29,7 @@ cors = CORS(
                 os.getenv('DEVELOPMENT_HOST'),
                 os.getenv('PRODUCTION_HOST')
             ],
-            "methods": ["GET", "POST", "PUT", "DELETE"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Range", "X-Content-Range"],
             "supports_credentials": True

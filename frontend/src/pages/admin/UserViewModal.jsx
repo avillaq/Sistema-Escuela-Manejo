@@ -54,7 +54,7 @@ export const UserViewModal = ({ isOpen, onOpenChange, user, tipo = "Usuario" }) 
                   </div>
                   <div>
                     <p className="text-sm text-default-500">Fecha de Registro</p>
-                    <p className="font-medium">{new Date(user.fechaRegistro).toLocaleDateString()}</p>
+                    <p className="font-medium">{new Date(user.fecha_creado).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>

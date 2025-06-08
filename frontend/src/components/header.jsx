@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Badge } from '@heroui/react';
+import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, Badge } from '@heroui/react';
 import { useAuthStore } from '@/store/auth-store';
 
 export const Header = ({ toggleSidebar }) => {
@@ -32,8 +32,13 @@ export const Header = ({ toggleSidebar }) => {
               className="flex items-center gap-2"
               endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
             >
-              <Icon icon="lucide:user" width={16} height={16} />
-              <span className="hidden md:inline">{rol}</span>
+              <Avatar
+                size="sm"
+                isBordered
+                color="primary"
+                icon={<Icon icon="lucide:user" width={20} height={20} />}
+              />
+              <span className="hidden md:inline">{rol? rol : "Admin" }</span>
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">

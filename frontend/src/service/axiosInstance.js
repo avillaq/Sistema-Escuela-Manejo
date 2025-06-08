@@ -1,16 +1,19 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { API_CONFIG } from "@/config/api.config";
+import { useAuthStore } from '@/store/auth-store';
+import { addToast } from '@heroui/react';
 
-export const axiosInstance = axios.create({
+export const api = axios.create({
   baseURL: API_CONFIG.baseUrl,
+  timeout: API_CONFIG.timeout,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 export const setupInterceptors = (useAuthStore) => {
-  axiosInstance.interceptors.request.use(
+  api.interceptors.request.use(
     async (config) => {
       const { access_token, setLogout } = useAuthStore.getState();
   

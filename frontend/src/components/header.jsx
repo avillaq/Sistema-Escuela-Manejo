@@ -34,7 +34,6 @@ export const Header = ({ toggleSidebar }) => {
             >
               <Avatar
                 size="sm"
-                isBordered
                 color="primary"
                 icon={<Icon icon="lucide:user" width={20} height={20} />}
               />

@@ -93,7 +93,7 @@ export const Sidebar = ({ isOpen }) => {
 
   return (
     <aside
-      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${isOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
+      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${isOpen ? 'w-52' : 'w-0 md:w-16 overflow-hidden'
         }`}
     >
       <div className="p-4 flex items-center justify-between">
@@ -124,20 +124,7 @@ export const Sidebar = ({ isOpen }) => {
       </div>
 
       <div className="p-4 border-t border-divider">
-        <div className={`flex items-center justify-between ${!isOpen && 'md:hidden'}`}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-default-100 flex items-center justify-center">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
-              ) : (
-                <Icon icon="lucide:user" width={16} height={16} />
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium">{user?.name || "Admin User"}</p>
-              <p className="text-xs text-default-500">{user?.email || "admin@example.com"}</p>
-            </div>
-          </div>
+        <div className={`flex items-center justify-center ${!isOpen && 'md:hidden'}`}>
           <ThemeSwitcher />
         </div>
         {!isOpen && (

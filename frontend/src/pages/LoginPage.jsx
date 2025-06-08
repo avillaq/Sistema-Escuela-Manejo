@@ -4,10 +4,11 @@ import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/auth-store";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { authService } from "@/service/apiService";
 
 export const LoginPage = () => {
-  const [username, setUserName] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const [username, setUserName] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   
@@ -33,12 +34,13 @@ export const LoginPage = () => {
     }
     
     try {
-      const success = await login(username, password);
-      
-      if (success) {
+      const result = await authService.login(username, password);
+      if (result.success) {
+        console.log(result)
+        login(result.data);
         history.replace(from);
       } else {
-        setError("Usuario or contraseña invalida. Intenta admin / admin");
+        setError("Usuario or contraseña invalida");
       }
     } catch (err) {
       setError("Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");

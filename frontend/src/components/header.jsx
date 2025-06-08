@@ -1,9 +1,9 @@
 import { Icon } from '@iconify/react';
-import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, Badge } from '@heroui/react';
+import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Badge } from '@heroui/react';
 import { useAuthStore } from '@/store/auth-store';
 
 export const Header = ({ toggleSidebar }) => {
-  const { user, logout } = useAuthStore();
+  const { user, rol , logout } = useAuthStore();
 
   return (
     <header className="bg-content1 border-b border-divider h-16 flex items-center px-4 justify-between">
@@ -32,22 +32,11 @@ export const Header = ({ toggleSidebar }) => {
               className="flex items-center gap-2"
               endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
             >
-              <Avatar
-                src={user?.avatar || "https://img.heroui.chat/image/avatar?w=200&h=200&u=1"}
-                size="sm"
-                isBordered
-                color="primary"
-              />
-              <span className="hidden md:inline">{user?.name || "Admin"}</span>
+              <Icon icon="lucide:user" width={16} height={16} />
+              <span className="hidden md:inline">{rol}</span>
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">
-            <DropdownItem key="profile" startContent={<Icon icon="lucide:user" width={18} height={18} />}>
-              Profile
-            </DropdownItem>
-            <DropdownItem key="settings" startContent={<Icon icon="lucide:settings" width={18} height={18} />}>
-              Settings
-            </DropdownItem>
             <DropdownItem
               key="logout"
               startContent={<Icon icon="lucide:log-out" width={18} height={18} />}

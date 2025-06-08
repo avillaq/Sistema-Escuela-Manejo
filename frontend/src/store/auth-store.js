@@ -19,24 +19,20 @@ export const useAuthStore = create()(
       
       initialize: () => set({ loading: false }),
 
-      login: async (username, password) => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            if (username === 'admin' && password === 'admin') {
-              set({
-                isAuthenticated: true,
-                user: mockUser,
-                token: 'mock-jwt-token',
-                loading: false,
-                rol: username
-              });
-              resolve(true);
-            } else {
-              resolve(false);
-            }
-          }, 800);
-        });
-      },
+    login: (data) => {
+      set({
+        isAuthenticated: true,
+        user: {
+          id: data.usuario_id,
+          name: mockUser.name,
+          email: mockUser.email,
+          avatar: mockUser.avatar
+        },
+        token: data.access_token,
+        loading: false,
+        rol: data.rol
+      });
+    },
       logout: () => {
         set({
           isAuthenticated: false,

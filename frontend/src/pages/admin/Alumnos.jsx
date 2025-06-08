@@ -230,7 +230,7 @@ export const Alumnos = () => {
               <Icon icon="lucide:users" className="text-primary-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-primary-700">Total Alumnos</p>
+              <p className="text-sm text-primary-700">{`Total ${tipo}s`}</p>
               <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
             </div>
           </div>
@@ -242,7 +242,7 @@ export const Alumnos = () => {
               <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-success-700">Alumnos Activos</p>
+              <p className="text-sm text-success-700">{`${tipo}s Activos`}</p>
               <p className="text-2xl font-semibold text-success-700">
                 {estadisticas.activos}
               </p>
@@ -256,7 +256,7 @@ export const Alumnos = () => {
               <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-danger-700">Alumnos Inactivos</p>
+              <p className="text-sm text-danger-700">{`${tipo}s Inactivos`}</p>
               <p className="text-2xl font-semibold text-danger-700">
                 {estadisticas.inactivos}
               </p>

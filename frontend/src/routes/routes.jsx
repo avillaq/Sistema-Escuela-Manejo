@@ -9,6 +9,8 @@ import { Alumnos } from '@/pages/admin/Alumnos';
 import { Instructores } from '@/pages/admin/Instructores';
 import { Administradores } from '@/pages/admin/Administradores';
 import { Matriculas } from '@/pages/admin/Matriculas';
+import { MatriculaForm } from '@/pages/admin/MatriculaForm';
+import { MatriculaDetalle } from '@/pages/admin/MatriculaDetalle';
 import { Asistencias } from '@/pages/admin/Asistencias';
 import { Tickets } from '@/pages/admin/Tickets';
 import { Autos } from '@/pages/admin/Autos';
@@ -54,6 +56,18 @@ export const protectedRoutes = [
   {
     path: '/matriculas',
     element: Matriculas,
+  },
+  {
+    path: '/matriculas/nueva',
+    element: MatriculaForm,
+  },
+  {
+    path: '/matriculas/:id',
+    element: MatriculaDetalle,
+  },
+  {
+    path: '/matriculas/:id/editar',
+    element: MatriculaForm,
   },
   {
     path: '/asistencias',

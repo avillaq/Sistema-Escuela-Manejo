@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, ValidationError
 
 class InstructorSchema(Schema):
     id = fields.Int()
@@ -10,6 +10,15 @@ class InstructorSchema(Schema):
     activo = fields.Bool()
     fecha_creado = fields.DateTime()
 
+def email_opcional(value):
+    if value == "":
+        return value
+    try:
+        validador_email = validate.Email() 
+        return validador_email(value)
+    except ValidationError as e:
+        raise ValidationError("Debe ser un correo electrónico válido o dejarse vacío.")
+    
 class CrearInstructorSchema(Schema):
     nombre = fields.Str(required=True)
     apellidos = fields.Str(required=True)
@@ -21,7 +30,7 @@ class CrearInstructorSchema(Schema):
         r'^\d{9}$', 
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
-    email = fields.Email()
+    email = fields.Str(validate=email_opcional)
 
 class ActualizarInstructorSchema(Schema):
     nombre = fields.Str()
@@ -34,5 +43,5 @@ class ActualizarInstructorSchema(Schema):
         r'^\d{9}$', 
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
-    email = fields.Email()
+    email = fields.Str(validate=email_opcional)
     activo = fields.Bool(validate=validate.OneOf([True, False]))

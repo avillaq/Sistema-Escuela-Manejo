@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
@@ -12,10 +12,10 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { DataTable } from '@/components/data-table';
-import { users } from '@/data/users-data';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
+import { instructoresService } from '@/service/apiService';
 
 export const Instructores = () => {
   const tipo = "Instructor";
@@ -30,8 +30,28 @@ export const Instructores = () => {
   // Estados para filtrar usuarios
   const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userData, setUserData] = useState(users);
+  const [userData, setUserData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Cargar usuarios al montar el componente
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const result = await instructoresService.getAll();
+      if (result.success) {
+        setUserData(result.data);
+        console.log("Usuarios cargados:", result.data);
+        
+      } else {
+        addToast({
+          title: "Error al cargar usuarios",
+          description: result.error || "No se pudieron cargar los usuarios.",
+          severity: "error",
+          color: "danger",
+        });
+      }
+    }
+    fetchUsers();
+  }, []);
 
   // Filtrar usuarios según estado y búsqueda
   const filteredUsers = useMemo(() => {
@@ -105,10 +125,13 @@ export const Instructores = () => {
     });
   };
 
-  // Handle eliminar usuario
+  // Handle eliminar usuario (aqui se solo se desactiva) // TODO : revisar si se debe eliminar o desactivar  
   const handleDeleteUser = (userId) => {
-    const updatedUsers = userData.filter(user => user.id !== userId);
     const deletedUser = userData.find(user => user.id === userId);
+    if (!deletedUser) return;
+    const updatedUsers = userData.map(user =>
+      user.id === userId ? { ...user, activo: false } : user
+    );
 
     setUserData(updatedUsers);
 
@@ -168,7 +191,9 @@ export const Instructores = () => {
       key: "fechaRegistro",
       label: "FECHA REGISTRO",
       render: (user) => {
-        const date = new Date(user.fechaRegistro);
+        const date = new Date(user.fecha_creado);
+        console.log("Fecha de registro:", date);
+        
         return date.toLocaleDateString();
       }
     },
@@ -305,6 +330,7 @@ export const Instructores = () => {
         onOpenChange={onOpenChange}
         onAddUser={handleAddUser}
         tipo={tipo}
+        service={instructoresService}
       />
 
       {/* Modal ver usuario */}
@@ -326,6 +352,7 @@ export const Instructores = () => {
           editMode={true}
           dataInicial={selectedUser}
           tipo={tipo}
+          service={instructoresService}
         />
       )}
 
@@ -337,6 +364,7 @@ export const Instructores = () => {
           user={selectedUser}
           onConfirmDelete={handleDeleteUser}
           tipo={tipo}
+          service={instructoresService}
         />
       )}
     </div>

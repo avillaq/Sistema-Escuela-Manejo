@@ -8,11 +8,10 @@ import {
   Button,
   Input,
   Checkbox,
+  form,
 } from '@heroui/react';
-import { alumnosService } from '@/service/apiService';
 
-
-export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, dataInicial, tipo = "Usuario" }) => {
+export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, dataInicial, tipo = "Usuario", service }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -76,9 +75,10 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
     } else if (!/^\d{9}$/.test(formData.telefono)) {
       newErrors.telefono = 'El teléfono debe tener 9 números';
     }
+    console.log("Datos a enviar:", formData);
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'El email debe ser válido';
-    }
+    } 
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,15 +86,19 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
 
   const handleSubmit = async () => {
     if (validarForm()) {
+      let dataEnviar = { ...formData };
+
       if (editMode && dataInicial) {
         // Actualizar usuario existente
-        const result = await alumnosService.update(dataInicial.id, formData);
+        const result = await service.update(dataInicial.id, dataEnviar);
         if (result.success) {
           setFormData((prevFormData) => ({
             ...prevFormData,
             ...result.data,
           }));
+          onOpenChange(false);
         } else {
+          console.log(result.validationErrors);
           alert(result.message || 'Error al actualizar el usuario');
           return;
         }
@@ -106,13 +110,15 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
         onAddUser(updatedUser);
       } else {
         // Añadir nuevo usuario - crear objeto sin 'activo'
-        const { activo, ...formDataEnviar } = formData;
-        const result = await alumnosService.create(formDataEnviar);
+        delete dataEnviar.activo;
+        const result = await service.create(dataEnviar);
         if (result.success) {
-          onAddUser(formData);
+          onAddUser(result.data);
           onOpenChange(false);
         } else {
-          alert(result.message || 'Error al añadir el usuario');
+          console.log(result.validationErrors.email);
+          
+          alert(result.validationErrors.email || 'Error al añadir el usuario');
           return;
         }
       }
@@ -180,6 +186,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
                   isRequired
                   isInvalid={!!errors.dni}
                   errorMessage={errors.dni}
+                  isDisabled={editMode}
                 />
                 <Input
                   label="Teléfono"

@@ -7,12 +7,11 @@ import {
   Button
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { alumnosService } from '@/service/apiService';
 
-export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, tipo = "Usuario" }) => {
+export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, tipo = "Usuario" , service}) => {
 
   const handleDelete = async () => {
-    result = await alumnosService.delete(user.id);
+    result = await service.delete(user.id);
     if (result.success) {
       onConfirmDelete(user.id);
       onOpenChange(false);

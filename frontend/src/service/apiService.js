@@ -30,7 +30,7 @@ export const alumnosService = {
 export const instructoresService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.instructores)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.instructores}/${id}`)),
-  create: (data) => handleResponse(() => api.post(API_CONFIG.endpoints.instructores, data)),
+  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.instructores}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.instructores}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.instructores}/${id}`)),
   getActivos: () => handleResponse(() => api.get(API_CONFIG.endpoints.instructores, { params: { activo: true } }))
@@ -40,7 +40,7 @@ export const instructoresService = {
 export const administradoresService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.administradores)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.administradores}/${id}`)),
-  create: (data) => handleResponse(() => api.post(API_CONFIG.endpoints.administradores, data)),
+  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.administradores}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.administradores}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.administradores}/${id}`))
 };

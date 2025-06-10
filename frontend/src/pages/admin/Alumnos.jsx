@@ -12,7 +12,6 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { DataTable } from '@/components/data-table';
-import { users } from '@/data/users-data';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -124,7 +123,7 @@ export const Alumnos = () => {
     });
   };
 
-  // Handle eliminar usuario // TODO : revisar si se debe eliminar o desactivar
+  // Handle eliminar usuario (aqui se solo se desactiva) // TODO : revisar si se debe eliminar o desactivar
   const handleDeleteUser = (userId) => {
     const deletedUser = userData.find(user => user.id === userId);
     if (!deletedUser) return;
@@ -327,6 +326,7 @@ export const Alumnos = () => {
         onOpenChange={onOpenChange}
         onAddUser={handleAddUser}
         tipo={tipo}
+        service={alumnosService}
       />
 
       {/* Modal ver usuario */}
@@ -348,6 +348,7 @@ export const Alumnos = () => {
           editMode={true}
           dataInicial={selectedUser}
           tipo={tipo}
+          service={alumnosService}
         />
       )}
 
@@ -359,6 +360,7 @@ export const Alumnos = () => {
           user={selectedUser}
           onConfirmDelete={handleDeleteUser}
           tipo={tipo}
+          service={alumnosService}
         />
       )}
     </div>

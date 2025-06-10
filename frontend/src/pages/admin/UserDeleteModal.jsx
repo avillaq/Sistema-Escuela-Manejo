@@ -11,7 +11,7 @@ import { Icon } from '@iconify/react';
 export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, tipo = "Usuario" , service}) => {
 
   const handleDelete = async () => {
-    result = await service.delete(user.id);
+    const result = await service.delete(user.id);
     if (result.success) {
       onConfirmDelete(user.id);
       onOpenChange(false);

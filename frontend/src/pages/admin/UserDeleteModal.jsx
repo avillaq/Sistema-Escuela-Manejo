@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Modal,
   ModalContent,
@@ -9,8 +10,10 @@ import {
 import { Icon } from '@iconify/react';
 
 export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, tipo = "Usuario" , service}) => {
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
+    setIsLoading(true);
     const result = await service.delete(user.id);
     if (result.success) {
       onConfirmDelete(user.id);
@@ -18,6 +21,7 @@ export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, t
     } else {
       alert(result.error || 'Error al eliminar el usuario');
     }
+    setIsLoading(false);
   };
 
   return (
@@ -53,7 +57,7 @@ export const UserDeleteModal = ({ isOpen, onOpenChange, user, onConfirmDelete, t
               <Button variant="flat" onPress={onClose}>
                 Cancelar
               </Button>
-              <Button color="danger" onPress={handleDelete}>
+              <Button color="danger" onPress={handleDelete} isLoading={isLoading}>
                 Eliminar
               </Button>
             </ModalFooter>

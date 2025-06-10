@@ -8,7 +8,6 @@ import {
   Button,
   Input,
   Checkbox,
-  form,
 } from '@heroui/react';
 
 export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, dataInicial, tipo = "Usuario", service }) => {
@@ -21,6 +20,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
     activo: true,
   });
 
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Se inicializa el formulario con datos por defecto
@@ -85,6 +85,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     if (validarForm()) {
       let dataEnviar = { ...formData };
 
@@ -100,7 +101,6 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
         } else {
           console.log(result.validationErrors);
           alert(result.message || 'Error al actualizar el usuario');
-          return;
         }
 
         const updatedUser = {
@@ -117,12 +117,12 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
           onOpenChange(false);
         } else {
           console.log(result.validationErrors.email);
-          
           alert(result.validationErrors.email || 'Error al añadir el usuario');
-          return;
         }
       }
     }
+    setIsLoading(false);
+    return;
   };
 
   const resetForm = () => {
@@ -135,6 +135,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
       activo: true,
     });
     setErrors({});
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
               <Button variant="flat" onPress={onClose}>
                 Cancelar
               </Button>
-              <Button color="primary" onPress={handleSubmit}>
+              <Button color="primary" onPress={handleSubmit} isLoading={isLoading}>
                 {editMode ? 'Actualizar' : 'Guardar'}
               </Button>
             </ModalFooter>

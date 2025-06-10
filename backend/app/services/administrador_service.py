@@ -23,7 +23,8 @@ def crear_administrador(data):
         nombre=data["nombre"],
         apellidos=data["apellidos"],
         dni=dni,
-        telefono=data["telefono"]
+        telefono=data["telefono"],
+        email=data["email"],
     )
     db.session.add(administrador)
     db.session.commit()
@@ -32,7 +33,7 @@ def crear_administrador(data):
 def actualizar_administrador(administrador_id, data):
     administrador = Administrador.query.get_or_404(administrador_id)
 
-    for campo in ["nombre", "apellidos", "telefono", "activo"]:
+    for campo in ["nombre", "apellidos", "telefono", "email", "dni", "activo"]:
         if campo in data:
             setattr(administrador, campo, data[campo])
     

@@ -23,7 +23,8 @@ def crear_instructor(data):
         nombre=data["nombre"],
         apellidos=data["apellidos"],
         dni=dni,
-        telefono=data["telefono"]
+        telefono=data["telefono"],
+        email=data["email"],
     )
     db.session.add(instructor)
     db.session.commit()
@@ -35,7 +36,7 @@ def listar_instructores():
 def actualizar_instructor(instructor_id, data):
     instructor = Instructor.query.get_or_404(instructor_id)
 
-    for campo in ["nombre", "apellidos", "telefono", "activo"]:
+    for campo in ["nombre", "apellidos", "telefono", "email", "dni", "activo"]:
         if campo in data:
             setattr(instructor, campo, data[campo])
 

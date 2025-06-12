@@ -98,6 +98,15 @@ export const authService = {
   getCurrentUser: () => handleResponse(() => api.get(API_CONFIG.endpoints.auth.me))
 };
 
+// Servicio de paquetes
+export const paquetesService = {
+  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.paquetes)),
+  getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.paquetes}/${id}`)),
+  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.paquetes}/`, data)),
+  update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.paquetes}/${id}`, data)),
+  delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.paquetes}/${id}`))
+};
+
 // Mas servicios que se implementar despues
 export const autosService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.autos)),

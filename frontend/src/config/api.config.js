@@ -17,6 +17,7 @@ export const API_CONFIG = {
     asistencias: '/asistencias',
     tickets: '/tickets',
     // Recursos
+    paquetes: '/paquetes',
     autos: '/autos',
     bloques: '/bloques',
     reservas: '/reservas',

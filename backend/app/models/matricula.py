@@ -19,6 +19,7 @@ class Matricula(db.Model):
     fecha_limite = db.Column(db.DateTime(timezone=True))
     estado_pago = db.Column(db.String(20), default='pendiente')  # 'pendiente', 'completo'
     estado_clases = db.Column(db.String(20), default='pendiente')  # 'pendiente', 'en_progreso', 'completado', 'vencido'
+    horas_completadas = db.Column(db.Integer, default=0)  # Horas de clases completadas
     ultima_modificacion_reserva = db.Column(db.DateTime(timezone=True))
 
     alumno = db.relationship("Alumno", backref="matriculas")

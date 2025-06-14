@@ -26,4 +26,5 @@ class MatriculaSchema(Schema):
     fecha_limite = fields.DateTime()
     estado_pago = fields.Str()
     estado_clases = fields.Str()
+    horas_completadas = fields.Int()
     categoria = fields.Str()

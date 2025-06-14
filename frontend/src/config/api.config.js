@@ -8,7 +8,10 @@ export const API_CONFIG = {
       me: '/auth/me'
     },
     // Usuarios
-    alumnos: '/alumnos',
+    alumnos: {
+      general: '/alumnos',
+      sin_matricula: '/alumnos/sin_matricula',
+    },
     instructores: '/instructores',
     administradores: '/administradores',
     // Academico

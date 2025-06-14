@@ -3,6 +3,7 @@ from app.schemas.alumno import CrearAlumnoSchema, AlumnoSchema, ActualizarAlumno
 from app.services.alumno_service import crear_alumno, listar_alumnos, actualizar_alumno, eliminar_alumno
 import flask_praetorian
 from app.models.alumno import Alumno
+from app.models.matricula import Matricula
  
 alumnos_bp = Blueprint('alumnos', __name__)
 
@@ -49,3 +50,10 @@ def editar_alumno(alumno_id):
 def eliminar_alumno_route(alumno_id):
     eliminar_alumno(alumno_id)
     return jsonify({"mensaje": "Alumno eliminado"}), 200
+
+# Obtener todos los alumnos que no tienen matrícula
+@alumnos_bp.route("/sin_matricula", methods=["GET"])
+#@flask_praetorian.roles_required("admin")
+def obtener_alumnos_sin_matricula():
+    alumnos = Alumno.query.outerjoin(Matricula).filter(Matricula.id.is_(None)).all()
+    return jsonify(ver_schema.dump(alumnos, many=True)), 200

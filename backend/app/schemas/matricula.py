@@ -47,7 +47,7 @@ class PaqueteResumenSchema(Schema):
     horas_total = fields.Int()
     costo_total = fields.Float()
 
-class MatriculaListaSchema(Schema):
+class MatriculaResumenSchema(Schema):
     id = fields.Int()
     alumno = fields.Nested(AlumnoResumenSchema)
     categoria = fields.Str()

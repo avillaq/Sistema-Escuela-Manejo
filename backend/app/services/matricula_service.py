@@ -90,18 +90,31 @@ def obtener_estado_cuenta(id_matricula):
         "fecha_limite": matricula.fecha_limite.strftime("%Y-%m-%d")
     }
 
-def listar_matriculas(): # TODO: agregar filtros y paginación
-    matriculas = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).all()
-    
-    for matricula in matriculas:
+def listar_matriculas(id=None): # TODO: agregar filtros y paginación
+    if id:
+        matricula = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).filter(Matricula.id == id).first_or_404()
+        
         # Calcular pagos realizados
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
         
-        #  atributos temporales
+        # atributos temporales
         matricula.pagos_realizados = float(pagos_realizados)
         matricula.saldo_pendiente = float(matricula.costo_total - pagos_realizados)
-    
-    return matriculas
+        
+        return matricula
+
+    else:  
+        matriculas = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).all()
+        
+        for matricula in matriculas:
+            # Calcular pagos realizados
+            pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
+            
+            #  atributos temporales
+            matricula.pagos_realizados = float(pagos_realizados)
+            matricula.saldo_pendiente = float(matricula.costo_total - pagos_realizados)
+        
+        return matriculas
 
 def eliminar_matricula(matricula_id):
     matricula = Matricula.query.get_or_404(matricula_id)

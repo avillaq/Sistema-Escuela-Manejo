@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, MatriculaListaSchema
+from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, MatriculaResumenSchema
 from app.services.matricula_service import crear_matricula, listar_matriculas, eliminar_matricula, obtener_estado_cuenta
 from app.models.matricula import Matricula
 import flask_praetorian
@@ -7,7 +7,8 @@ import flask_praetorian
 matriculas_bp = Blueprint("matriculas", __name__)
 crear_schema = CrearMatriculaSchema()
 ver_schema = MatriculaSchema()
-lista_schema = MatriculaListaSchema()
+lista_schema = MatriculaResumenSchema()
+individual_schema = MatriculaResumenSchema()
 
 @matriculas_bp.route("/", methods=["POST"])
 #@flask_praetorian.roles_required("admin")
@@ -29,8 +30,8 @@ def obtener_matriculas():
 @matriculas_bp.route("/<int:id>", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
 def obtener_matricula(id):
-    matricula = Matricula.query.get_or_404(id)
-    return ver_schema.dump(matricula), 200
+    matricula = listar_matriculas(id=id)
+    return jsonify(individual_schema.dump(matricula)), 200
 
 @matriculas_bp.route("/<int:id>", methods=["DELETE"])
 #@flask_praetorian.roles_required("admin")

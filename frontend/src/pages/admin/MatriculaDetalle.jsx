@@ -412,6 +412,15 @@ export const MatriculaDetalle = () => {
                   Registrar Pago
                 </Button>
               )}
+              <Button
+                color="primary"
+                variant="flat"
+                className="w-full"
+                startContent={<Icon icon="lucide:calendar" width={16} height={16} />}
+                onPress={() => navigate(`/matriculas/${matricula.id}/reservas`)}
+              >
+                Gestionar Reservas
+              </Button>
 
               <Button
                 color="primary"

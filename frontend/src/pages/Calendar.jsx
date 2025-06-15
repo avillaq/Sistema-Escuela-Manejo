@@ -1,4 +1,4 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardBody,
@@ -17,9 +17,9 @@ import {
 } from '@/data/calendar-data';
 import { ConfirmationModal } from '@/pages/ConfirmationModal';
 
-export const Calendar = () => {
+export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAdminMode = false }) => {
   const { user } = useAuthStore();
-  const userId = user?.id || 1;
+  const userId = propUserId || user?.id || 1;
 
   const [mode, setMode] = useState('view');
   const [timeSlots, setTimeSlots] = useState(generateTimeSlots());
@@ -58,6 +58,18 @@ export const Calendar = () => {
     if (mode === 'view') return;
 
     if (mode === 'reserve') {
+      // Verificar si hay horas restantes (solo para modo admin)
+      if (isAdminMode && horasRestantes <= 0) {
+        addToast({
+          title: "Sin horas disponibles",
+          description: "El alumno no tiene horas restantes para reservar.",
+          severity: "warning",
+          color: "warning",
+        });
+        return;
+      }
+
+
       // Only allow selecting available slots that the user hasn't already reserved
       const slot = timeSlots.find(s => s.id === slotId);
       if (!slot || !slot.isAvailable || userReservations.includes(slotId)) return;
@@ -87,6 +99,18 @@ export const Calendar = () => {
           ? "No has seleccionado ningún horario para reservar."
           : "No has seleccionado ninguna reserva para cancelar.",
         severity: "warning",
+        color: "warning"
+      });
+      return;
+    }
+
+    // Verificar límite de horas para reservas (solo en modo admin)
+    if (mode === 'reserve' && isAdminMode && selectedSlots.length > horasRestantes) {
+      addToast({
+        title: "Límite de horas excedido",
+        description: `Solo puedes reservar ${horasRestantes} hora(s) más.`,
+        severity: "warning",
+        color: "warning"
       });
       return;
     }
@@ -122,6 +146,7 @@ export const Calendar = () => {
         title: "Reservas confirmadas",
         description: `Has reservado ${selectedSlots.length} horario(s) exitosamente.`,
         severity: "success",
+        color: "success"
       });
     } else {
       // Cancel reservations
@@ -139,6 +164,7 @@ export const Calendar = () => {
         title: "Reservas canceladas",
         description: `Has cancelado ${selectedSlots.length} reserva(s) exitosamente.`,
         severity: "danger",
+        color: "danger"
       });
     }
 
@@ -202,47 +228,67 @@ export const Calendar = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Calendario de Reservas</h1>
-          <p className="text-default-500">Gestiona tus reservaciones semanales.</p>
-        </div>
+      {/* Controles solo si no es modo admin o si hay horas disponibles */}
+      {(!isAdminMode || horasRestantes > 0) && (
+        <>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold">
+                {isAdminMode ? 'Gestionar Reservas' : 'Calendario de Reservas'}
+              </h2>
+              <p className="text-default-500">
+                {isAdminMode
+                  ? `Reserva clases para el alumno (${horasRestantes} horas restantes)`
+                  : 'Gestiona tus reservaciones semanales.'
+                }
+              </p>
+            </div>
 
-        <div className="flex gap-2">
-          <Button
-            color="primary"
-            variant={mode === 'reserve' ? 'solid' : 'flat'}
-            startContent={<Icon icon="lucide:plus" width={16} height={16} />}
-            onPress={() => handleModeChange('reserve')}
-          >
-            Reservar
-          </Button>
-          <Button
-            color="danger"
-            variant={mode === 'cancel' ? 'solid' : 'flat'}
-            startContent={<Icon icon="lucide:x" width={16} height={16} />}
-            onPress={() => handleModeChange('cancel')}
-          >
-            Cancelar Reservas
-          </Button>
-        </div>
-      </div>
+            <div className="flex gap-2">
+              <Button
+                color="default"
+                variant={mode === 'view' ? 'solid' : 'flat'}
+                startContent={<Icon icon="lucide:eye" width={16} height={16} />}
+                onPress={() => handleModeChange('view')}
+              >
+                Ver
+              </Button>
+              <Button
+                color="primary"
+                variant={mode === 'reserve' ? 'solid' : 'flat'}
+                startContent={<Icon icon="lucide:plus" width={16} height={16} />}
+                onPress={() => handleModeChange('reserve')}
+              >
+                Reservar
+              </Button>
+              <Button
+                color="danger"
+                variant={mode === 'cancel' ? 'solid' : 'flat'}
+                startContent={<Icon icon="lucide:x" width={16} height={16} />}
+                onPress={() => handleModeChange('cancel')}
+              >
+                Cancelar Reservas
+              </Button>
+            </div>
+          </div>
 
-      {mode !== 'view' && (
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="flat"
-            onPress={handleCancel}
-          >
-            Cancelar
-          </Button>
-          <Button
-            color={mode === 'reserve' ? 'success' : 'danger'}
-            onPress={handleSave}
-          >
-            {mode === 'reserve' ? 'Guardar Reservas' : 'Confirmar Cancelaciones'}
-          </Button>
-        </div>
+          {mode !== 'view' && (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="flat"
+                onPress={handleCancel}
+              >
+                Cancelar
+              </Button>
+              <Button
+                color={mode === 'reserve' ? 'success' : 'danger'}
+                onPress={handleSave}
+              >
+                {mode === 'reserve' ? 'Guardar Reservas' : 'Confirmar Cancelaciones'}
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <Card>

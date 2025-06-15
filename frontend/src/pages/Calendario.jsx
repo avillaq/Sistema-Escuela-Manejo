@@ -34,7 +34,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
 
   // Estados para navegacion semanal
   const [fechaActual, setFechaActual] = useState(new Date());
-  const [semanaActual, setSemanaActual] = useState(0);
+  const [semanaActual, setSemanaActual] = useState(0); // -1, 0, 1
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [modalAccion, setModalAccion] = useState("reservar");
@@ -44,9 +44,12 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     const fechaBase = new Date(fecha);
     fechaBase.setDate(fechaBase.getDate() + (offsetSemana * 7));
 
-    // Obtener el lunes de la semana
-    const diaLunes = fechaBase.getDate() - fechaBase.getDay() + 1;
-    const primerDia = new Date(fechaBase.setDate(diaLunes));
+    // Obtener el lunes de la semana (dia 1)
+    const diaSemana = fechaBase.getDay(); // 0 = domingo, 1 = lunes, etc.
+    const diasHastaLunes = diaSemana === 0 ? -6 : 1 - diaSemana; // Si es domingo, retroceder 6 días
+    
+    const primerDia = new Date(fechaBase);
+    primerDia.setDate(fechaBase.getDate() + diasHastaLunes);
 
     const fechasSemana = [];
     for (let i = 0; i < 7; i++) {
@@ -62,8 +65,9 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const esFechaAnterior = (fecha) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    fecha.setHours(0, 0, 0, 0);
-    return fecha < hoy;
+    const fechaComparar = new Date(fecha);
+    fechaComparar.setHours(0, 0, 0, 0);
+    return fechaComparar < hoy;
   };
 
   // verificar si es el dia actual
@@ -104,7 +108,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     };
 
     fetchBloquesDisponibles();
-  }, []);
+  }, [semanaActual]); // Recargar cuando cambia la semana
 
   // Notificar cambios en las reservas seleccionadas
   useEffect(() => {
@@ -140,10 +144,15 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   // Obtener bloque para una fecha y hora especifica
   const obtenerBloque = (fecha, hora) => {
     return bloques.find(bloque => {
-      const fechaBloque = new Date(bloque.fecha);
+      // Convertir fecha del backend (YYYY-MM-DD) a objeto Date para comparar
+      const fechaBloque = new Date(bloque.fecha + 'T00:00:00'); // Forzar timezone local
       const horaBloque = parseInt(bloque.hora_inicio.split(':')[0]);
 
-      return fechaBloque.toDateString() === fecha.toDateString() && horaBloque === hora;
+      const fechaSlot = new Date(fecha);
+      fechaSlot.setHours(0, 0, 0, 0);
+      fechaBloque.setHours(0, 0, 0, 0);
+
+      return fechaBloque.getTime() === fechaSlot.getTime() && horaBloque === hora;
     });
   };
 
@@ -376,21 +385,30 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
 
   // Navegacion de semanas
   const irSemanaAnterior = () => {
-    if (semanaActual > 0) {
+    if (semanaActual > -1) {
       setSemanaActual(prev => prev - 1);
       setSlotsSeleccionados([]);
     }
   };
 
   const irSemanaProxima = () => {
-    setSemanaActual(prev => prev + 1);
-    setSlotsSeleccionados([]);
+    if (semanaActual < 1) {
+      setSemanaActual(prev => prev + 1);
+      setSlotsSeleccionados([]);
+    }
   };
 
   // Formatear fecha para mostrar
   const formatearFecha = (fecha) => {
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return `${fecha.getDate()} ${meses[fecha.getMonth()]}`;
+  };
+
+  // Obtener texto para mostrar la semana actual
+  const obtenerTextoSemana = () => {
+    if (semanaActual === -1) return 'Semana Anterior';
+    if (semanaActual === 0) return 'Semana Actual';
+    if (semanaActual === 1) return 'Semana Siguiente';
   };
 
   if (isLoadingBloques) {
@@ -500,13 +518,13 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                 variant="flat"
                 isIconOnly
                 onPress={irSemanaAnterior}
-                isDisabled={semanaActual === 0}
+                isDisabled={semanaActual === -1}
               >
                 <Icon icon="lucide:chevron-left" width={16} height={16} />
               </Button>
 
               <span className="text-sm font-medium text-default-600 min-w-[120px] text-center">
-                {semanaActual === 0 ? 'Semana Actual' : `Semana +${semanaActual}`}
+                {obtenerTextoSemana()}
               </span>
 
               <Button
@@ -514,6 +532,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                 variant="flat"
                 isIconOnly
                 onPress={irSemanaProxima}
+                isDisabled={semanaActual === 1}
               >
                 <Icon icon="lucide:chevron-right" width={16} height={16} />
               </Button>
@@ -570,7 +589,6 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                     </div>
                     {HORAS.map(hora => {
                       if (diaIndex === 6 && hora >= 12) {
-                        // Domingo solo hasta mediodia
                         return <div key={`${dia}-${hora}`} className="h-14 sm:h-14 md:h-16 bg-default-50 border-b border-default-200"></div>;
                       }
 

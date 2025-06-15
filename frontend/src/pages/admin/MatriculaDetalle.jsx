@@ -13,6 +13,7 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { PagoModal } from '@/pages/admin/PagoModal';
+import { matriculasService } from '@/service/apiService';
 
 // Mock data para cargar la matrícula
 const getMatriculaById = (id) => {
@@ -74,10 +75,9 @@ export const MatriculaDetalle = () => {
   useEffect(() => {
     const loadMatricula = async () => {
       try {
-        // TODO: Reemplazar con llamada al backend
-        const data = getMatriculaById(1);
-        if (data) {
-          setMatricula(data);
+        const result = await matriculasService.getById(id);
+        if (result.success) {
+          setMatricula(result.data);
         } else {
           addToast({
             title: "Error",
@@ -108,14 +108,12 @@ export const MatriculaDetalle = () => {
   // Manejar cuando se registra un nuevo pago
   const handlePagoRegistrado = (nuevoPago) => {
     // Actualizar la matrícula con el nuevo pago
-    const nuevosPayos = [...matricula.pagos, nuevoPago];
     const nuevosPagosRealizados = matricula.pagos_realizados + nuevoPago.monto;
     const nuevoSaldoPendiente = matricula.costo_total - nuevosPagosRealizados;
     const nuevoEstadoPago = nuevoSaldoPendiente <= 0 ? 'completo' : 'pendiente';
 
     const matriculaActualizada = {
       ...matricula,
-      pagos: nuevosPayos,
       pagos_realizados: nuevosPagosRealizados,
       saldo_pendiente: nuevoSaldoPendiente,
       estado_pago: nuevoEstadoPago
@@ -289,7 +287,7 @@ export const MatriculaDetalle = () => {
                     </div>
                     <div>
                       <p className="text-sm text-default-500">Tipo de Auto</p>
-                      <p className="font-medium">{matricula.paquete.tipo_auto}</p>
+                      <p className="font-medium">{matricula.paquete.tipo_auto.tipo}</p>
                     </div>
                     <div>
                       <p className="text-sm text-default-500">Horas Totales</p>

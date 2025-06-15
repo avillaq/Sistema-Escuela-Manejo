@@ -11,6 +11,7 @@ import {
   Chip
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
+import { pagosService } from '@/service/apiService';
 
 export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado }) => {
   const [monto, setMonto] = useState('');
@@ -44,8 +45,7 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
   // Manejar cambios en el monto
   const handleMontoChange = (value) => {
     setMonto(value);
-    
-    // Limpiar error del campo
+
     if (errors.monto) {
       setErrors({ ...errors, monto: '' });
     }
@@ -58,28 +58,24 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
     setIsLoading(true);
 
     try {
-      // Preparar datos del pago
       const pagoData = {
         id_matricula: matricula.id,
-        monto: parseFloat(monto),
-        fecha: new Date().toISOString().split('T')[0] // Fecha actual
-      };
-
-      // TODO: Enviar al backend
-      console.log('Datos del pago a enviar:', pagoData);
-
-      // Simular el pago creado (después vendrá del backend)
-      const nuevoPago = {
-        id: Date.now(), // Temporal
-        ...pagoData
-      };
-
-      // Notificar al componente padre
-      onPagoRegistrado(nuevoPago);
-
-      // Cerrar modal
-      onOpenChange(false);
-
+        monto: parseFloat(monto)
+      }
+      const pagoResult = await pagosService.create(pagoData);
+      if (pagoResult.success) {
+        onPagoRegistrado(pagoData);
+        // Cerrar modal
+        onOpenChange(false);
+      } else {
+        addToast({
+          title: "Error al registrar pago",
+          description: pagoResult.error || "No se pudo registrar el pago.",
+          severity: "danger",
+          color: "danger",
+        });
+        return;
+      }
     } catch (error) {
       console.error('Error al registrar pago:', error);
       setErrors({ general: 'Ha ocurrido un error al registrar el pago. Intente nuevamente.' });
@@ -88,13 +84,13 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
     }
   };
 
-  // Calcular nuevo saldo después del pago
+  // Calcular nuevo saldo despues del pago
   const nuevoSaldo = matricula.saldo_pendiente - (parseFloat(monto) || 0);
   const montoPago = parseFloat(monto) || 0;
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       placement="center"
       size="md"
@@ -212,15 +208,15 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
             </ModalBody>
 
             <ModalFooter>
-              <Button 
-                variant="flat" 
+              <Button
+                variant="flat"
                 onPress={onClose}
                 isDisabled={isLoading}
               >
                 Cancelar
               </Button>
-              <Button 
-                color="success" 
+              <Button
+                color="success"
                 onPress={handleSubmit}
                 isLoading={isLoading}
                 isDisabled={!monto || parseFloat(monto) <= 0}

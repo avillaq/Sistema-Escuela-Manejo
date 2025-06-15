@@ -10,7 +10,7 @@ import {
   addToast,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Calendar } from '@/pages/Calendar';
+import { Calendario } from '@/pages/Calendario';
 import { matriculasService } from '@/service/apiService';
 
 export const MatriculaReservas = () => {
@@ -133,18 +133,20 @@ export const MatriculaReservas = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Información del Alumno */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Icon icon="lucide:user" width={18} height={18} />
               <h3 className="text-base font-semibold">Alumno</h3>
             </div>
           </CardHeader>
-          <CardBody className="pt-0 space-y-2">
-            <div>
-              <p className="font-medium text-sm">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
-              <p className="text-xs text-default-500">DNI: {matricula.alumno.dni}</p>
+          <CardBody className="pt-0 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
+                <p className="text-xs text-default-500">DNI: {matricula.alumno.dni}</p>
+              </div>
+              <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
             </div>
-            <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
           </CardBody>
         </Card>
 
@@ -227,11 +229,11 @@ export const MatriculaReservas = () => {
           </div>
         </CardHeader>
         <CardBody>
-          <Calendar
+          <Calendario
             userId={matricula.alumno.id}
             matriculaId={matricula.id}
             horasRestantes={horas_total - matricula.horas_completadas}
-            isAdminMode={true}
+            isAdminModo={true}
             onReservasChange={handleReservasChange}
           />
         </CardBody>

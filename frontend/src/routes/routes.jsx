@@ -20,7 +20,6 @@ import { Customers } from '@/pages/admin/Customers';
 import { Products } from '@/pages/admin/Products';
 import { Settings } from '@/pages/admin/Settings';
 import { Usuarios } from '@/pages/admin/Usuarios';
-import { Calendar } from '@/pages/Calendar';
 
 const ToDashboard = () => { return <Navigate to="/dashboard" replace />; };
 
@@ -101,10 +100,6 @@ export const protectedRoutes = [
   {
     path: '/products',
     element: Products,
-  },
-  {
-    path: '/calendar',
-    element: Calendar,
   },
   {
     path: '/settings',

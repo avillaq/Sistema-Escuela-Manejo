@@ -15,74 +15,66 @@ import {
   generateTimeSlots,
   generateUserReservations
 } from '@/data/calendar-data';
-import { ConfirmationModal } from '@/pages/ConfirmationModal';
+import { CalendarioModal } from '@/pages/CalendarioModal';
 
-export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAdminMode = false,onReservasChange }) => {
+export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, isAdminModo = false,onReservasChange }) => {
   const { user } = useAuthStore();
   const userId = propUserId || user?.id || 1;
 
-  const [mode, setMode] = useState("vista");
+  const [modo, setModo] = useState("vista");
   const [timeSlots, setTimeSlots] = useState(generateTimeSlots());
-  const [userReservations, setUserReservations] = useState([]);
-  const [selectedSlots, setSelectedSlots] = useState([]);
+  const [userReservaciones, setUserReservaciones] = useState([]);
+  const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [modalAction, setModalAction] = useState("reservar");
+  const [modalAccion, setModalAccion] = useState("reservar");
 
-  const [selectedSlotsTemp, setSelectedSlotsTemp] = useState([]);
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (onReservasChange) {
-        onReservasChange(selectedSlots.length, mode);
+        onReservasChange(slotsSeleccionados.length, modo);
       }
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [selectedSlots, mode, onReservasChange]);
+  }, [slotsSeleccionados, modo, onReservasChange]);
 
   // Obtenemos las reservas del usuario
   useEffect(() => {
-    const initialReservations = generateUserReservations(userId, timeSlots);
+    const reservacionesIniciales = generateUserReservations(userId, timeSlots);
 
     //  Actualizamos los slots con las reservas iniciales
-    const updatedSlots = [...timeSlots];
-    initialReservations.forEach(reservation => {
-      const slotIndex = updatedSlots.findIndex(slot => slot.id === reservation.timeSlotId);
+    const slotsActualizados = [...timeSlots];
+    reservacionesIniciales.forEach(reservation => {
+      const slotIndex = slotsActualizados.findIndex(slot => slot.id === reservation.timeSlotId);
       if (slotIndex !== -1) {
-        updatedSlots[slotIndex].reservations += 1;
-        if (updatedSlots[slotIndex].reservations >= updatedSlots[slotIndex].maxReservations) {
-          updatedSlots[slotIndex].isAvailable = false;
+        slotsActualizados[slotIndex].reservations += 1;
+        if (slotsActualizados[slotIndex].reservations >= slotsActualizados[slotIndex].maxReservations) {
+          slotsActualizados[slotIndex].isAvailable = false;
         }
       }
     });
 
-    setTimeSlots(updatedSlots);
-    setUserReservations(initialReservations.map(res => res.timeSlotId));
+    setTimeSlots(slotsActualizados);
+    setUserReservaciones(reservacionesIniciales.map(res => res.timeSlotId));
   }, [userId]);
 
-  // Notificar cambios en las reservas seleccionadas
-  useEffect(() => {
-    if (onReservasChange) {
-      onReservasChange(selectedSlots.length, mode);
-    }
-  }, [selectedSlots, mode, onReservasChange]);
-
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    setSelectedSlots([]);
+  const handleCambiarModo = (newMode) => {
+    setModo(newMode);
+    setSlotsSeleccionados([]);
     
-    // Notificar reset de selección
+    // Notificar reset de seleccion
     if (onReservasChange) {
       onReservasChange(0, "vista");
     }
   };
 
   const handleSlotClick = (slotId) => {
-    if (mode === "vista") return;
+    if (modo === "vista") return;
 
-    if (mode === "reservar") {
+    if (modo === "reservar") {
       // Verificar si hay horas restantes (solo para modo admin)
-      if (isAdminMode && horasRestantes <= 0) {
+      if (isAdminModo && horasRestantes <= 0) {
         addToast({
           title: "Sin horas disponibles",
           description: "El alumno no tiene horas restantes para reservar.",
@@ -94,10 +86,10 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
 
       // Solo permitir seleccionar horarios disponibles que el usuario no haya reservado
       const slot = timeSlots.find(s => s.id === slotId);
-      if (!slot || !slot.isAvailable || userReservations.includes(slotId)) return;
+      if (!slot || !slot.isAvailable || userReservaciones.includes(slotId)) return;
 
-      // Verificar límite antes de seleccionar
-      if (isAdminMode && !selectedSlots.includes(slotId) && selectedSlots.length >= horasRestantes) {
+      // Verificar limite antes de seleccionar
+      if (isAdminModo && !slotsSeleccionados.includes(slotId) && slotsSeleccionados.length >= horasRestantes) {
         addToast({
           title: "Límite alcanzado",
           description: `Solo puedes seleccionar ${horasRestantes} hora(s).`,
@@ -107,16 +99,16 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
         return;
       }
 
-      setSelectedSlots(prev =>
+      setSlotsSeleccionados(prev =>
         prev.includes(slotId)
           ? prev.filter(id => id !== slotId)
           : [...prev, slotId]
       );
-    } else if (mode === "cancelar") {
+    } else if (modo === "cancelar") {
       // Solo permitir seleccionar horarios que el usuario haya reservado
-      if (!userReservations.includes(slotId)) return;
+      if (!userReservaciones.includes(slotId)) return;
 
-      setSelectedSlots(prev =>
+      setSlotsSeleccionados(prev =>
         prev.includes(slotId)
           ? prev.filter(id => id !== slotId)
           : [...prev, slotId]
@@ -124,120 +116,119 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
     }
   };
 
-  const handleSave = () => {
-    if (selectedSlots.length === 0) {
+  const handleGuardar = () => {
+    if (slotsSeleccionados.length === 0) {
       addToast({
         title: "Selecciona horarios",
-        description: mode === "reservar" ? "Selecciona al menos un horario." : "Selecciona las reservas a cancelar.",
+        description: modo === "reservar" ? "Selecciona al menos un horario." : "Selecciona las reservas a cancelar.",
         severity: "warning",
         color: "warning"
       });
       return;
     }
 
-    setModalAction(mode === "reservar" ? "reservar" : "cancelar");
+    setModalAccion(modo === "reservar" ? "reservar" : "cancelar");
     onOpen();
   };
 
-  const handleCancel = () => {
-    setSelectedSlots([]);
-    setMode("vista");
+  const handleCancelar = () => {
+    setSlotsSeleccionados([]);
+    setModo("vista");
     
-    // Notificar cancelación
+    // Notificar cancelacion
     if (onReservasChange) {
       onReservasChange(0, "vista");
     }
   };
 
-  const confirmAction = () => {
-    const updatedSlots = [...timeSlots];
-    let updatedUserReservations = [...userReservations];
+  const confirmarAccion = () => {
+    const slotsActualizados = [...timeSlots];
+    let userReservacionesActualizado = [...userReservaciones];
 
-    if (modalAction === "reservar") {
-      // Add new reservations
-      selectedSlots.forEach(slotId => {
-        const slotIndex = updatedSlots.findIndex(slot => slot.id === slotId);
+    if (modalAccion === "reservar") {
+      // se añaden nuevas reservaciones
+      slotsSeleccionados.forEach(slotId => {
+        const slotIndex = slotsActualizados.findIndex(slot => slot.id === slotId);
         if (slotIndex !== -1) {
-          updatedSlots[slotIndex].reservations += 1;
-          if (updatedSlots[slotIndex].reservations >= updatedSlots[slotIndex].maxReservations) {
-            updatedSlots[slotIndex].isAvailable = false;
+          slotsActualizados[slotIndex].reservations += 1;
+          if (slotsActualizados[slotIndex].reservations >= slotsActualizados[slotIndex].maxReservations) {
+            slotsActualizados[slotIndex].isAvailable = false;
           }
         }
       });
 
-      updatedUserReservations = [...updatedUserReservations, ...selectedSlots];
+      userReservacionesActualizado = [...userReservacionesActualizado, ...slotsSeleccionados];
 
       addToast({
         title: "Reservas confirmadas",
-        description: `Has reservado ${selectedSlots.length} horario(s) exitosamente.`,
+        description: `Has reservado ${slotsSeleccionados.length} horario(s) exitosamente.`,
         severity: "success",
         color: "success"
       });
     } else {
-      // Cancel reservations
-      selectedSlots.forEach(slotId => {
-        const slotIndex = updatedSlots.findIndex(slot => slot.id === slotId);
+      // cancelar reservaciones
+      slotsSeleccionados.forEach(slotId => {
+        const slotIndex = slotsActualizados.findIndex(slot => slot.id === slotId);
         if (slotIndex !== -1) {
-          updatedSlots[slotIndex].reservations -= 1;
-          updatedSlots[slotIndex].isAvailable = true;
+          slotsActualizados[slotIndex].reservations -= 1;
+          slotsActualizados[slotIndex].isAvailable = true;
         }
       });
 
-      updatedUserReservations = updatedUserReservations.filter(id => !selectedSlots.includes(id));
+      userReservacionesActualizado = userReservacionesActualizado.filter(id => !slotsSeleccionados.includes(id));
 
       addToast({
         title: "Reservas canceladas",
-        description: `Has cancelado ${selectedSlots.length} reserva(s) exitosamente.`,
+        description: `Has cancelado ${slotsSeleccionados.length} reserva(s) exitosamente.`,
         severity: "danger",
         color: "danger"
       });
     }
 
-    setTimeSlots(updatedSlots);
-    setUserReservations(updatedUserReservations);
-    setSelectedSlots([]);
-    setMode("vista");
+    setTimeSlots(slotsActualizados);
+    setUserReservaciones(userReservacionesActualizado);
+    setSlotsSeleccionados([]);
+    setModo("vista");
     
-    // Notificar finalización
+    // Notificar finalizacion
     if (onReservasChange) {
       onReservasChange(0, "vista");
     }
   };
 
-  const renderTimeSlot = (slotId, day, hour) => {
+  const renderSlotTiempo = (slotId, day, hour) => {
     const slot = timeSlots.find(s => s.id === slotId);
     if (!slot) return null;
 
-    const isUserReservation = userReservations.includes(slotId);
-    const isSelected = selectedSlots.includes(slotId);
-    const isFull = slot.reservations >= slot.maxReservations;
-    const isClickable = mode !== "vista" && 
-      ((mode === "reservar" && slot.isAvailable && !isUserReservation) ||
-       (mode === "cancelar" && isUserReservation));
+    const isUserReservacion = userReservaciones.includes(slotId);
+    const isSeleccionado = slotsSeleccionados.includes(slotId);
+    const isLleno = slot.reservations >= slot.maxReservations;
+    const isClickeable = modo !== "vista" && 
+      ((modo === "reservar" && slot.isAvailable && !isUserReservacion) ||
+       (modo === "cancelar" && isUserReservacion));
 
     let bgColor = "bg-default-100";
     let textColor = "text-default-800";
     let borderColor = "border-divider";
 
-    if (isUserReservation) {
+    if (isUserReservacion) {
       bgColor = "bg-primary-100";
       textColor = "text-primary-700";
       borderColor = "border-primary-200";
     }
 
-    if (isFull && !isUserReservation) {
+    if (isLleno && !isUserReservacion) {
       bgColor = "bg-default-200";
       textColor = "text-default-500";
     }
 
-    if (isSelected) {
-      bgColor = mode === "reservar" ? "bg-success-200" : "bg-danger-200";
-      textColor = mode === "reservar" ? "text-success-700" : "text-danger-700";
-      borderColor = mode === "reservar" ? "border-success-300" : "border-danger-300";
+    if (isSeleccionado) {
+      bgColor = modo === "reservar" ? "bg-success-200" : "bg-danger-200";
+      textColor = modo === "reservar" ? "text-success-700" : "text-danger-700";
+      borderColor = modo === "reservar" ? "border-success-300" : "border-danger-300";
     }
 
-    // Mostrar menos información para reducir la carga visual
-    const formattedHour = hour < 12
+    const horaFormateada = hour < 12
       ? `${hour}:00 AM`
       : hour === 12
         ? "12:00 PM"
@@ -249,18 +240,18 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
         className={`
           p-2 border-2 rounded-lg transition-all duration-200 
           ${bgColor} ${textColor} ${borderColor}
-          ${isClickable ? 'cursor-pointer hover:scale-101 hover:shadow-sm' : 'cursor-default'}
-          ${isSelected ? 'shadow-md' : ''}
+          ${isClickeable ? 'cursor-pointer hover:scale-105 hover:shadow-sm' : 'cursor-default'}
+          ${isSeleccionado ? 'shadow-md' : ''}
         `}
         onClick={() => handleSlotClick(slotId)}
       >
-        <div className="text-xs font-medium">{formattedHour}</div>
+        <div className="text-xs font-medium">{horaFormateada}</div>
         
         <div className="flex items-center justify-between mt-1">
           <span className="text-xs opacity-70">
             {slot.reservations}/{slot.maxReservations}
           </span>
-          {isUserReservation && (
+          {isUserReservacion && (
             <Icon icon="lucide:check" width={10} height={10} />
           )}
         </div>
@@ -271,16 +262,16 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
   return (
     <div className="space-y-4">
       {/* Controles */}
-      {(!isAdminMode || horasRestantes > 0) && (
+      {(!isAdminModo || horasRestantes > 0) && (
         <>
-          {mode === "vista" ? (
+          {modo === "vista" ? (
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <h2 className="text-lg font-semibold">
-                  {isAdminMode ? "Gestionar Reservas" : "Calendario de Reservas"}
+                  {isAdminModo ? "Gestionar Reservas" : "Calendario de Reservas"}
                 </h2>
                 <p className="text-default-500 text-sm">
-                  {isAdminMode
+                  {isAdminModo
                     ? `${horasRestantes} horas disponibles`
                     : "Gestiona tus reservaciones semanales."
                   }
@@ -292,7 +283,7 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
                   color="primary"
                   className="w-full sm:w-auto"
                   startContent={<Icon icon="lucide:plus" width={14} height={14} />}
-                  onPress={() => handleModeChange("reservar")}
+                  onPress={() => handleCambiarModo("reservar")}
                 >
                   Reservar
                 </Button>
@@ -301,7 +292,7 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
                   variant="flat"
                   className="w-full sm:w-auto"
                   startContent={<Icon icon="lucide:x" width={14} height={14} />}
-                  onPress={() => handleModeChange("cancelar")}
+                  onPress={() => handleCambiarModo("cancelar")}
                 >
                   Cancelar Reservas
                 </Button>
@@ -311,16 +302,16 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <h2 className="text-lg font-semibold">
-                  {mode === "reservar" ? "Seleccionar horarios" : "Cancelar reservas"}
+                  {modo === "reservar" ? "Seleccionar horarios" : "Cancelar reservas"}
                 </h2>
                 <div className="flex items-center gap-4">
                   <p className="text-default-500 text-sm">
-                    {selectedSlots.length > 0 
-                      ? `${selectedSlots.length} seleccionado(s)`
+                    {slotsSeleccionados.length > 0 
+                      ? `${slotsSeleccionados.length} seleccionado(s)`
                       : "Haz clic en los horarios"
                     }
                   </p>
-                  {mode === "reservar" && isAdminMode && (
+                  {modo === "reservar" && isAdminModo && (
                     <p className="text-xs text-warning-600">
                       Límite: {horasRestantes} horas
                     </p>
@@ -333,17 +324,17 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
                 <Button
                   variant="flat"
                   className="w-full sm:w-auto"
-                  onPress={handleCancel}
+                  onPress={handleCancelar}
                 >
                   Cancelar
                 </Button>
                 <Button
-                  color={mode === "reservar" ? "success" : "danger"}
+                  color={modo === "reservar" ? "success" : "danger"}
                   className="w-full sm:w-auto"
-                  isDisabled={selectedSlots.length === 0}
-                  onPress={handleSave}
+                  isDisabled={slotsSeleccionados.length === 0}
+                  onPress={handleGuardar}
                 >
-                  {mode === "reservar" ? "Confirmar" : "Eliminar"}
+                  {modo === "reservar" ? "Confirmar" : "Eliminar"}
                 </Button>
               </div>
             </div>
@@ -355,7 +346,7 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between w-full">
             <h3 className="text-lg font-semibold">Horario Semanal</h3>
-            {mode !== "vista" && (
+            {modo !== "vista" && (
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 text-xs text-success-600">
                   <div className="w-3 h-3 bg-success-200 rounded border"></div>
@@ -406,7 +397,7 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
                     const slotId = `${dayIndex}-${hour}`;
                     return (
                       <div key={`${day}-${hour}`} className="h-16">
-                        {renderTimeSlot(slotId, day, hour)}
+                        {renderSlotTiempo(slotId, day, hour)}
                       </div>
                     );
                   })}
@@ -417,12 +408,12 @@ export const Calendar = ({ userId: propUserId, matriculaId, horasRestantes, isAd
         </CardBody>
       </Card>
 
-      <ConfirmationModal
+      <CalendarioModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        action={modalAction}
-        slotsCount={selectedSlots.length}
-        onConfirm={confirmAction}
+        accion={modalAccion}
+        slotsCount={slotsSeleccionados.length}
+        onConfirm={confirmarAccion}
       />
     </div>
   );

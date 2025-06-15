@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Card,
@@ -14,9 +14,10 @@ import {
 import { Icon } from '@iconify/react';
 import { DataTable } from '@/components/data-table';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
+import { matriculasService } from '@/service/apiService';
 
 // Mock data para matrículas
-const matriculasData = [
+const matri = [
   {
     id: 1,
     alumno: { nombre: 'Juan', apellidos: 'Pérez García', dni: '12345678' },
@@ -62,12 +63,33 @@ export const Matriculas = () => {
   const [selectedEstadoPago, setSelectedEstadoPago] = useState("todos");
   const [selectedTipoContratacion, setSelectedTipoContratacion] = useState("todos");
   const [searchQuery, setSearchQuery] = useState("");
-  const [matriculasData_State, setMatriculasData] = useState(matriculasData);
+  const [matriculasData, setMatriculasData] = useState([]);
   const [selectedMatricula, setSelectedMatricula] = useState(null);
+
+
+  useEffect(() => {
+    const fetchMatriculas = async () => {
+      const result = await matriculasService.getAll();
+      if (result.success) {
+        setMatriculasData(result.data);
+        console.log("Matriculas cargadas:", result.data);
+
+      } else {
+        addToast({
+          title: "Error al cargar  las matrículas",
+          description: result.error || "No se pudieron cargar las matrículas.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    }
+    fetchMatriculas();
+  }, []);
+
 
   // Filtrar matriculas
   const filteredMatriculas = useMemo(() => {
-    return matriculasData_State.filter(matricula => {
+    return matriculasData.filter(matricula => {
       // Filtro por estado de clases
       if (selectedEstadoClases !== "todos" && matricula.estado_clases !== selectedEstadoClases) {
         return false;
@@ -83,7 +105,7 @@ export const Matriculas = () => {
         return false;
       }
 
-      // Filtro por búsqueda
+      // Filtro por busqueda
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
@@ -96,33 +118,54 @@ export const Matriculas = () => {
 
       return true;
     });
-  }, [selectedEstadoClases, selectedEstadoPago, selectedTipoContratacion, searchQuery, matriculasData_State]);
+  }, [selectedEstadoClases, selectedEstadoPago, selectedTipoContratacion, searchQuery, matriculasData]);
 
   // Estadisticas
   const estadisticas = useMemo(() => {
-    const total = matriculasData_State.length;
-    const pendientes = matriculasData_State.filter(m => m.estado_clases === 'pendiente').length;
-    const enProgreso = matriculasData_State.filter(m => m.estado_clases === 'en_progreso').length;
-    const completadas = matriculasData_State.filter(m => m.estado_clases === 'completado').length;
-    const ingresosTotales = matriculasData_State.reduce((sum, m) => sum + m.pagos_realizados, 0);
-    const saldosPendientes = matriculasData_State.reduce((sum, m) => sum + m.saldo_pendiente, 0);
+    const total = matriculasData.length;
+    const pendientes = matriculasData.filter(m => m.estado_clases === 'pendiente').length;
+    const enProgreso = matriculasData.filter(m => m.estado_clases === 'en_progreso').length;
+    const completadas = matriculasData.filter(m => m.estado_clases === 'completado').length;
+    const ingresosTotales = matriculasData.reduce((sum, m) => sum + m.pagos_realizados, 0);
+    const saldosPendientes = matriculasData.reduce((sum, m) => sum + m.saldo_pendiente, 0);
 
     return { total, pendientes, enProgreso, completadas, ingresosTotales, saldosPendientes };
-  }, [matriculasData_State]);
+  }, [matriculasData]);
 
   // Handle eliminar matrícula
-  const handleDeleteMatricula = (matriculaId) => {
-    const updatedMatriculas = matriculasData_State.filter(matricula => matricula.id !== matriculaId);
-    const deletedMatricula = matriculasData_State.find(matricula => matricula.id === matriculaId);
+  const handleDeleteMatricula = async (matriculaId) => {
+    if (matriculaId) {
+      const result = await matriculasService.delete(matriculaId);
+      if (result.success) {
+        const updatedMatriculas = matriculasData.filter(matricula => matricula.id !== matriculaId);
+        const deletedMatricula = matriculasData.find(matricula => matricula.id === matriculaId);
 
-    setMatriculasData(updatedMatriculas);
+        setMatriculasData(updatedMatriculas);
 
-    addToast({
-      title: "Matrícula eliminada",
-      description: `La matrícula de ${deletedMatricula?.alumno.nombre} ${deletedMatricula?.alumno.apellidos} ha sido eliminada.`,
-      severity: "danger",
-      color: "success",
-    });
+        addToast({
+          title: "Matrícula eliminada",
+          description: `La matrícula de ${deletedMatricula?.alumno.nombre} ${deletedMatricula?.alumno.apellidos} ha sido eliminada.`,
+          severity: "danger",
+          color: "success",
+        });
+      } else {
+        addToast({
+          title: "Error al eliminar matrícula",
+          description: result.error || "No se pudo eliminar la matrícula.",
+          severity: "danger",
+          color: "danger",
+        });
+        return;
+      }
+    } else {
+      addToast({
+        title: "Error",
+        description: "ID de matrícula no válido.",
+        severity: "danger",
+        color: "danger",
+      });
+      return;
+    }
   };
 
   // Handle modales
@@ -179,7 +222,7 @@ export const Matriculas = () => {
           <p className="font-medium capitalize">{matricula.tipo_contratacion.replace('_', ' ')}</p>
           {matricula.tipo_contratacion === 'paquete' ? (
             <p className="text-xs text-default-500">
-              {matricula.paquete.nombre} - {matricula.paquete.tipo_auto}
+              {matricula.paquete.nombre} - {matricula.paquete.tipo_auto.tipo}
             </p>
           ) : (
             <p className="text-xs text-default-500">
@@ -193,18 +236,18 @@ export const Matriculas = () => {
       key: "progreso",
       label: "PROGRESO",
       render: (matricula) => {
-        const horas_total = matricula.tipo_contratacion === 'paquete' 
-          ? matricula.paquete.horas_total 
+        const horas_total = matricula.tipo_contratacion === 'paquete'
+          ? matricula.paquete.horas_total
           : matricula.horas_contratadas;
         const progreso = getProgreso(matricula.horas_completadas, horas_total);
-        
+
         return (
           <div>
             <p className="text-sm font-medium">{matricula.horas_completadas}/{horas_total} horas</p>
             <div className="flex items-center gap-2">
               <div className="w-16 bg-default-200 rounded-full h-2">
-                <div 
-                  className="bg-primary-500 h-2 rounded-full transition-all" 
+                <div
+                  className="bg-primary-500 h-2 rounded-full transition-all"
                   style={{ width: `${progreso}%` }}
                 ></div>
               </div>
@@ -308,7 +351,7 @@ export const Matriculas = () => {
         </Button>
       </div>
 
-      {/* Tarjetas de estadísticas */}
+      {/* Tarjetas de estadisticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-4">
@@ -359,7 +402,7 @@ export const Matriculas = () => {
         </Card>
       </div>
 
-      {/* Tabla de matrículas */}
+      {/* Tabla de matriculas */}
       <Card>
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -384,7 +427,7 @@ export const Matriculas = () => {
                 <SelectItem key="completado" value="completado">Completado</SelectItem>
                 <SelectItem key="vencido" value="vencido">Vencido</SelectItem>
               </Select>
-              
+
               <Select
                 label="Estado Pago"
                 placeholder="Todos"
@@ -420,7 +463,7 @@ export const Matriculas = () => {
         </CardBody>
       </Card>
 
-      {/* Modal eliminar matrícula */}
+      {/* Modal eliminar matricula */}
       {selectedMatricula && (
         <MatriculaDeleteModal
           isOpen={isDeleteOpen}

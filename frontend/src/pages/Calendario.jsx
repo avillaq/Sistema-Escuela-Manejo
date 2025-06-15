@@ -17,7 +17,7 @@ import {
 } from '@/data/calendar-data';
 import { CalendarioModal } from '@/pages/CalendarioModal';
 
-export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, isAdminModo = false,onReservasChange }) => {
+export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, isAdminModo = false, onReservasChange }) => {
   const { user } = useAuthStore();
   const userId = propUserId || user?.id || 1;
 
@@ -43,7 +43,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   useEffect(() => {
     const reservacionesIniciales = generateUserReservations(userId, timeSlots);
 
-    //  Actualizamos los slots con las reservas iniciales
+    // Actualizamos los slots con las reservas iniciales
     const slotsActualizados = [...timeSlots];
     reservacionesIniciales.forEach(reservation => {
       const slotIndex = slotsActualizados.findIndex(slot => slot.id === reservation.timeSlotId);
@@ -238,7 +238,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       <div
         key={slotId}
         className={`
-          p-2 border-2 rounded-lg transition-all duration-200 
+          p-2 border-2 transition-all duration-200 h-16
           ${bgColor} ${textColor} ${borderColor}
           ${isClickeable ? 'cursor-pointer hover:scale-105 hover:shadow-sm' : 'cursor-default'}
           ${isSeleccionado ? 'shadow-md' : ''}
@@ -342,61 +342,53 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         </>
       )}
 
+      {/* Calendario */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between w-full">
-            <h3 className="text-lg font-semibold">Horario Semanal</h3>
-            {modo !== "vista" && (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-xs text-success-600">
-                  <div className="w-3 h-3 bg-success-200 rounded border"></div>
-                  <span>Seleccionado</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-primary-600">
-                  <div className="w-3 h-3 bg-primary-100 rounded border"></div>
-                  <span>Tus reservas</span>
-                </div>
-              </div>
-            )}
-          </div>
+          <h3 className="text-lg font-semibold">Horario Semanal</h3>
         </CardHeader>
         <CardBody className="pt-0">
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-8 gap-1 min-w-[700px]">
+            <div className="grid grid-cols-8 min-w-[700px]">
               {/* Columna del tiempo */}
-              <div className="col-span-1">
-                <div className="h-10 flex items-center justify-center font-medium text-xs">
+              <div className="col-span-1 bg-default-50">
+                <div className="h-10 flex items-center justify-center font-semibold text-sm text-default-600 border-b border-default-200">
                   Hora
                 </div>
                 {HOURS.map(hour => (
                   <div
                     key={`hour-${hour}`}
-                    className="h-16 flex items-center justify-center text-xs font-medium"
+                    className="h-16 flex flex-col items-center justify-center text-xs font-medium text-default-600 border-b border-default-200"
                   >
-                    {hour < 12
-                      ? `${hour}:00 AM`
-                      : hour === 12
-                        ? "12:00 PM"
-                        : `${hour - 12}:00 PM`
-                    }
+                    <span className="font-semibold">
+                      {hour < 12
+                        ? `${hour}:00`
+                        : hour === 12
+                          ? "12:00"
+                          : `${hour - 12}:00`
+                      }
+                    </span>
+                    <span className="text-[10px] opacity-70">
+                      {hour < 12 ? 'AM' : 'PM'}
+                    </span>
                   </div>
                 ))}
               </div>
 
-              {/* Columnas de los días */}
+              {/* Columnas de los dias */}
               {DAYS.map((day, dayIndex) => (
                 <div key={day} className="col-span-1">
-                  <div className="h-10 flex items-center justify-center font-medium text-xs">
+                  <div className="h-10 flex items-center justify-center font-semibold text-sm text-default-700 border-b border-default-200 bg-default-25">
                     {day}
                   </div>
                   {HOURS.map(hour => {
                     if (dayIndex === 6 && hour >= 12) {
-                      return <div key={`${day}-${hour}`} className="h-16 bg-default-50 rounded-md"></div>;
+                      return <div key={`${day}-${hour}`} className="h-16 bg-default-50 border-b border-default-200"></div>;
                     }
 
                     const slotId = `${dayIndex}-${hour}`;
                     return (
-                      <div key={`${day}-${hour}`} className="h-16">
+                      <div key={`${day}-${hour}`} className="h-16 border-b border-default-200">
                         {renderSlotTiempo(slotId, day, hour)}
                       </div>
                     );

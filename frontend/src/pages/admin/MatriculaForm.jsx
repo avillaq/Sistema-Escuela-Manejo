@@ -13,23 +13,10 @@ import {
   Chip
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-
-// Mock data (después conectarás con tu backend)
-const alumnosDisponibles = [
-  { id: 1, nombre: 'Juan', apellidos: 'Pérez García', dni: '12345678', activo: true },
-  { id: 2, nombre: 'María', apellidos: 'González López', dni: '87654321', activo: true },
-  { id: 3, nombre: 'Carlos', apellidos: 'Rodríguez Díaz', dni: '11223344', activo: true },
-  { id: 4, nombre: 'Ana', apellidos: 'Martínez Silva', dni: '55667788', activo: true },
-];
-
-const paquetesDisponibles = [
-  { id: 1, nombre: 'Básico', tipo_auto: 'Mecánico', horas_total: 15, costo_total: 640.0, categoria: 'A-I' },
-  { id: 2, nombre: 'Intermedio', tipo_auto: 'Mecánico', horas_total: 10, costo_total: 430.0, categoria: 'A-I' },
-  { id: 3, nombre: 'Avanzado', tipo_auto: 'Mecánico', horas_total: 5, costo_total: 220.0, categoria: 'A-I' },
-  { id: 4, nombre: 'Básico', tipo_auto: 'Automático', horas_total: 15, costo_total: 640.0, categoria: 'A-I' },
-  { id: 5, nombre: 'Intermedio', tipo_auto: 'Automático', horas_total: 10, costo_total: 480.0, categoria: 'A-I' },
-  { id: 6, nombre: 'Avanzado', tipo_auto: 'Automático', horas_total: 5, costo_total: 250.0, categoria: 'A-I' },
-];
+import { alumnosService } from '@/service/apiService';
+import { paquetesService } from '@/service/apiService';
+import { matriculasService } from '@/service/apiService';
+import { pagosService } from '@/service/apiService';
 
 export const MatriculaForm = () => {
   const navigate = useNavigate();
@@ -37,62 +24,85 @@ export const MatriculaForm = () => {
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
-    // Alumno
     alumno: null,
-    
-    // Información de la matrícula
     categoria: '',
     tipo_contratacion: '',
-    
-    // Para paquetes
     paquete: null,
-    
-    // Para por horas
     horas_contratadas: '',
     tarifa_por_hora: '',
-    
-    // Pago inicial
     monto_pago: ''
   });
+  const [alumnosDisponibles, setAlumnosDisponibles] = useState([]);
+  const [paquetesDisponibles, setPaquetesDisponibles] = useState([]);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   // Calcular costo total
-  const costoTotal = formData.tipo_contratacion === 'paquete' 
+  const costoTotal = formData.tipo_contratacion === 'paquete'
     ? formData.paquete?.costo_total || 0
     : (parseFloat(formData.horas_contratadas) || 0) * (parseFloat(formData.tarifa_por_hora) || 0);
 
-  // Paquetes filtrados por categoría
-  const paquetesFiltrados = paquetesDisponibles.filter(p => p.categoria === formData.categoria);
+  // Cargar usuarios disponibles y paquetes al montar el componente
+  useEffect(() => {
+    const fetchAlumnosDisponibles = async () => {
+      const result = await alumnosService.getSinMatricula();
+      if (result.success) {
+        setAlumnosDisponibles(result.data);
+      } else {
+        addToast({
+          title: "Error al cargar usuarios",
+          description: result.error || "No se pudieron cargar los usuarios.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    }
+    const fetchPaquetes = async () => {
+      const result = await paquetesService.getAll();
+      if (result.success) {
+        setPaquetesDisponibles(result.data);
+      } else {
+        addToast({
+          title: "Error al cargar paquetes",
+          description: result.error || "No se pudieron cargar los paquetes.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    }
+    fetchAlumnosDisponibles();
+    fetchPaquetes();
+  }, []);
+
 
   useEffect(() => {
     if (isEditing) {
       // Cargar datos de la matrícula para editar
-      // TODO: Implementar carga de datos del backend
+      // TODO: Analiza si en el sistema deberá editar una matrícula existente
     }
   }, [id, isEditing]);
 
   const handleChange = (field, value) => {
-    if (field === 'alumno') {
+    if (field === "alumno") {
       const selectedAlumno = alumnosDisponibles.find(a => a.id.toString() === value);
       setFormData({ ...formData, alumno: selectedAlumno });
-    } else if (field === 'paquete') {
+    } else if (field === "paquete") {
       const selectedPaquete = paquetesDisponibles.find(p => p.id.toString() === value);
       setFormData({ ...formData, paquete: selectedPaquete });
-    } else if (field === 'tipo_contratacion') {
+    } else if (field === "tipo_contratacion") {
       // Reset campos relacionados cuando cambia el tipo
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         tipo_contratacion: value,
         paquete: null,
-        horas_contratadas: '',
-        tarifa_por_hora: ''
+        horas_contratadas: "",
+        tarifa_por_hora: ""
       });
-    } else if (field === 'categoria') {
+    } else if (field === "categoria") {
       // Reset paquete cuando cambia la categoría
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         categoria: value,
         paquete: null
       });
@@ -100,9 +110,8 @@ export const MatriculaForm = () => {
       setFormData({ ...formData, [field]: value });
     }
 
-    // Limpiar error del campo
     if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
+      setErrors({ ...errors, [field]: "" });
     }
   };
 
@@ -111,42 +120,42 @@ export const MatriculaForm = () => {
 
     // Validar alumno
     if (!formData.alumno) {
-      newErrors.alumno = 'Debe seleccionar un alumno';
+      newErrors.alumno = "Debe seleccionar un alumno";
     }
 
-    // Validar categoría
+    // Validar categoria
     if (!formData.categoria) {
-      newErrors.categoria = 'Debe seleccionar una categoría';
+      newErrors.categoria = "Debe seleccionar una categoría";
     }
 
-    // Validar tipo de contratación
+    // Validar tipo de contratacion
     if (!formData.tipo_contratacion) {
-      newErrors.tipo_contratacion = 'Debe seleccionar un tipo de contratación';
+      newErrors.tipo_contratacion = "Debe seleccionar un tipo de contratación";
     }
 
-    // Validaciones específicas por tipo
-    if (formData.tipo_contratacion === 'paquete') {
+    // Validaciones especificas por tipo
+    if (formData.tipo_contratacion === "paquete") {
       if (!formData.paquete) {
-        newErrors.paquete = 'Debe seleccionar un paquete';
+        newErrors.paquete = "Debe seleccionar un paquete";
       }
-      if (formData.categoria === 'A-II') {
-        newErrors.tipo_contratacion = 'Los alumnos A-II solo pueden contratar por horas';
+      if (formData.categoria === "A-II") {
+        newErrors.tipo_contratacion = "Los alumnos A-II solo pueden contratar por horas";
       }
-    } else if (formData.tipo_contratacion === 'por_hora') {
+    } else if (formData.tipo_contratacion === "por_hora") {
       if (!formData.horas_contratadas || formData.horas_contratadas <= 0) {
-        newErrors.horas_contratadas = 'Debe especificar las horas contratadas (mínimo 1)';
+        newErrors.horas_contratadas = "Debe especificar las horas contratadas (minimo 1)";
       }
       if (!formData.tarifa_por_hora || formData.tarifa_por_hora <= 0) {
-        newErrors.tarifa_por_hora = 'Debe especificar la tarifa por hora (mínimo 1.0)';
+        newErrors.tarifa_por_hora = "Debe especificar la tarifa por hora (minimo 1.0)";
       }
     }
 
     // Validar pago inicial
     const montoPago = parseFloat(formData.monto_pago);
     if (!formData.monto_pago || montoPago <= 0) {
-      newErrors.monto_pago = 'Debe ingresar un monto de pago inicial válido';
+      newErrors.monto_pago = "Debe ingresar un monto de pago inicial valido";
     } else if (montoPago > costoTotal) {
-      newErrors.monto_pago = 'El monto no puede ser mayor al costo total';
+      newErrors.monto_pago = "El monto no puede ser mayor al costo total";
     }
 
     setErrors(newErrors);
@@ -164,18 +173,46 @@ export const MatriculaForm = () => {
         id_alumno: formData.alumno.id,
         categoria: formData.categoria,
         tipo_contratacion: formData.tipo_contratacion,
-        ...(formData.tipo_contratacion === 'paquete' 
+        ...(formData.tipo_contratacion === 'paquete'
           ? { id_paquete: formData.paquete.id }
-          : { 
-              horas_contratadas: parseInt(formData.horas_contratadas),
-              tarifa_por_hora: parseFloat(formData.tarifa_por_hora)
-            }
+          : {
+            horas_contratadas: parseInt(formData.horas_contratadas),
+            tarifa_por_hora: parseFloat(formData.tarifa_por_hora)
+          }
         ),
-        monto_pago_inicial: parseFloat(formData.monto_pago)
       };
+      console.log('Datos de matrícula:', matriculaData);
+      
 
-      // TODO: Enviar al backend
-      console.log('Datos a enviar:', matriculaData);
+      const matriculaResult = await matriculasService.create(matriculaData);
+      if (matriculaResult.success) {
+        console.log('Matrícula creada:', matriculaResult.data);
+        const pagoData = {
+          id_matricula: matriculaResult.data.id,
+          monto: parseFloat(formData.monto_pago)
+        }
+
+        const pagoResult = await pagosService.create(pagoData);
+        if (pagoResult.success) {
+          console.log('Pago registrado:', pagoResult.data);
+        } else {
+          addToast({
+            title: "Error al registrar pago",
+            description: pagoResult.error || "No se pudo registrar el pago.",
+            severity: "danger",
+            color: "danger",
+          });
+          return;
+        }
+      } else {
+        addToast({
+          title: "Error al crear matrícula",
+          description: matriculaResult.error || "No se pudo crear la matrícula.",
+          severity: "danger",
+          color: "danger",
+        });
+        return;
+      }
 
       addToast({
         title: isEditing ? "Matrícula actualizada" : "Matrícula creada",
@@ -186,10 +223,12 @@ export const MatriculaForm = () => {
 
       navigate('/matriculas');
     } catch (error) {
+      console.log('Error al procesar matrícula:', error);
+      
       addToast({
         title: "Error",
         description: "Ha ocurrido un error al procesar la matrícula.",
-        severity: "error",
+        severity: "danger",
         color: "danger",
       });
     } finally {
@@ -272,8 +311,8 @@ export const MatriculaForm = () => {
                 isInvalid={!!errors.categoria}
                 errorMessage={errors.categoria}
               >
-                <SelectItem key="A-I" value="A-I">A-I (Categoría Básica)</SelectItem>
-                <SelectItem key="A-II" value="A-II">A-II (Categoría Avanzada)</SelectItem>
+                <SelectItem key="A-I" value="A-I">A-I</SelectItem>
+                <SelectItem key="A-II" value="A-II">A-II</SelectItem>
               </Select>
 
               <Select
@@ -307,9 +346,9 @@ export const MatriculaForm = () => {
                   errorMessage={errors.paquete}
                   isDisabled={!formData.categoria}
                 >
-                  {paquetesFiltrados.map((paquete) => (
+                  {paquetesDisponibles.map((paquete) => (
                     <SelectItem key={paquete.id} value={paquete.id.toString()}>
-                      {paquete.nombre} - {paquete.tipo_auto} ({paquete.horas_total}h - S/ {paquete.costo_total})
+                      {paquete.nombre} - {paquete.tipo_auto.tipo} ({paquete.horas_total}h - S/ {paquete.costo_total})
                     </SelectItem>
                   ))}
                 </Select>
@@ -409,7 +448,7 @@ export const MatriculaForm = () => {
                   <h4 className="font-medium text-sm text-default-600 mb-2">Paquete</h4>
                   <p className="font-medium">{formData.paquete.nombre}</p>
                   <p className="text-sm text-default-500">
-                    {formData.paquete.tipo_auto} • {formData.paquete.horas_total} horas
+                    {formData.paquete.tipo_auto.tipo} • {formData.paquete.horas_total} horas
                   </p>
                 </div>
               )}

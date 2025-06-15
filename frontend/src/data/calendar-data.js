@@ -17,7 +17,7 @@ export const generateTimeSlots = () => {
         id: `${dayIndex}-${hour}`,
         day,
         hour,
-        reservations: Math.floor(Math.random() * 4), // Random number of existing reservations (0-3)
+        reservations: Math.floor(Math.random() * 4)+2, // Random number of existing reservations (0-3)
         maxReservations: 5,
         isAvailable: true
       });

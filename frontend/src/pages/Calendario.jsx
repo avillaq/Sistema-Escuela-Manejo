@@ -25,9 +25,49 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const [timeSlots, setTimeSlots] = useState(generateTimeSlots());
   const [userReservaciones, setUserReservaciones] = useState([]);
   const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
+  
+  // Estados para navegacion semanal
+  const [fechaActual, setFechaActual] = useState(new Date());
+  const [semanaActual, setSemanaActual] = useState(0);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [modalAccion, setModalAccion] = useState("reservar");
+
+  // obtener las fechas de la semana
+  const obtenerFechasSemana = (fecha, offsetSemana = 0) => {
+    const fechaBase = new Date(fecha);
+    fechaBase.setDate(fechaBase.getDate() + (offsetSemana * 7));
+    
+    // Obtener el lunes de la semana
+    const diaLunes = fechaBase.getDate() - fechaBase.getDay() + 1;
+    const primerDia = new Date(fechaBase.setDate(diaLunes));
+    
+    const fechasSemana = [];
+    for (let i = 0; i < 7; i++) {
+      const fecha = new Date(primerDia);
+      fecha.setDate(primerDia.getDate() + i);
+      fechasSemana.push(fecha);
+    }
+    
+    return fechasSemana;
+  };
+
+  // verificar si una fecha es anterior a hoy
+  const esFechaAnterior = (fecha) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    fecha.setHours(0, 0, 0, 0);
+    return fecha < hoy;
+  };
+
+  // verificar si es el dia actual
+  const esDiaActual = (fecha) => {
+    const hoy = new Date();
+    return fecha.toDateString() === hoy.toDateString();
+  };
+
+  // Obtener fechas de la semana actual
+  const fechasSemana = obtenerFechasSemana(fechaActual, semanaActual);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -72,7 +112,21 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const handleSlotClick = (slotId) => {
     if (modo === "vista") return;
 
+    // Verificar si es una fecha anterior (solo para reservar)
     if (modo === "reservar") {
+      const [dayIndex] = slotId.split('-').map(Number);
+      const fechaSlot = fechasSemana[dayIndex];
+      
+      if (esFechaAnterior(fechaSlot)) {
+        addToast({
+          title: "Fecha no válida",
+          description: "No puedes reservar en fechas anteriores al día actual.",
+          severity: "warning",
+          color: "warning",
+        });
+        return;
+      }
+
       // Verificar si hay horas restantes (solo para modo admin)
       if (isAdminModo && horasRestantes <= 0) {
         addToast({
@@ -200,24 +254,31 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     const slot = timeSlots.find(s => s.id === slotId);
     if (!slot) return null;
 
+    const [dayIndex] = slotId.split('-').map(Number);
+    const fechaSlot = fechasSemana[dayIndex];
+    const esFechaVencida = esFechaAnterior(fechaSlot);
+
     const isUserReservacion = userReservaciones.includes(slotId);
     const isSeleccionado = slotsSeleccionados.includes(slotId);
     const isLleno = slot.reservations >= slot.maxReservations;
     const isClickeable = modo !== "vista" &&
-      ((modo === "reservar" && slot.isAvailable && !isUserReservacion) ||
+      ((modo === "reservar" && slot.isAvailable && !isUserReservacion && !esFechaVencida) ||
         (modo === "cancelar" && isUserReservacion));
 
     let bgColor = "bg-default-100";
     let textColor = "text-default-800";
     let borderColor = "border-divider";
 
-    if (isUserReservacion) {
+    // Estilo para fechas vencidas
+    if (esFechaVencida) {
+      bgColor = "bg-default-50";
+      textColor = "text-default-400";
+      borderColor = "border-default-100";
+    } else if (isUserReservacion) {
       bgColor = "bg-primary-100";
       textColor = "text-primary-700";
       borderColor = "border-primary-200";
-    }
-
-    if (isLleno && !isUserReservacion) {
+    } else if (isLleno) {
       bgColor = "bg-default-200";
       textColor = "text-default-500";
     }
@@ -236,6 +297,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         ${bgColor} ${textColor} ${borderColor}
         ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
         ${isSeleccionado ? 'shadow-sm' : ''}
+        ${esFechaVencida ? 'opacity-50' : ''}
         flex flex-col sm:flex-row items-center justify-center sm:justify-between
       `}
         onClick={() => handleSlotClick(slotId)}
@@ -245,12 +307,30 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
           {slot.reservations}/{slot.maxReservations}
         </span>
 
-        {/* Check debajo en móviles, a la derecha en desktop */}
         {isUserReservacion && (
           <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4 mt-0.5 sm:mt-0" />
         )}
       </div>
     );
+  };
+
+  // Navegacion de semanas
+  const irSemanaAnterior = () => {
+    if (semanaActual > 0) {
+      setSemanaActual(prev => prev - 1);
+      setSlotsSeleccionados([]);
+    }
+  };
+
+  const irSemanaProxima = () => {
+    setSemanaActual(prev => prev + 1);
+    setSlotsSeleccionados([]);
+  };
+
+  // Formatear fecha para mostrar
+  const formatearFecha = (fecha) => {
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${fecha.getDate()} ${meses[fecha.getMonth()]}`;
   };
 
   return (
@@ -339,7 +419,35 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       {/* Calendario */}
       <Card>
         <CardHeader className="pb-3">
-          <h3 className="text-lg font-semibold">Horario Semanal</h3>
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-lg font-semibold">Horario Semanal</h3>
+            
+            {/* Navegacion de semanas */}
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="flat"
+                isIconOnly
+                onPress={irSemanaAnterior}
+                isDisabled={semanaActual === 0}
+              >
+                <Icon icon="lucide:chevron-left" width={16} height={16} />
+              </Button>
+              
+              <span className="text-sm font-medium text-default-600 min-w-[120px] text-center">
+                {semanaActual === 0 ? 'Semana Actual' : `Semana +${semanaActual}`}
+              </span>
+              
+              <Button
+                size="sm"
+                variant="flat"
+                isIconOnly
+                onPress={irSemanaProxima}
+              >
+                <Icon icon="lucide:chevron-right" width={16} height={16} />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardBody className="pt-0 px-1 sm:px-6">
           <div className="w-full overflow-x-auto">
@@ -370,27 +478,40 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                 ))}
               </div>
 
-              {/* Columnas de los dias */}
-              {DAYS.map((dia, diaIndex) => (
-                <div key={dia} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
-                  <div className="h-8 sm:h-10 flex items-center justify-center font-semibold text-xs sm:text-sm text-default-700 border-b border-default-200 bg-default-25">
-                    <span className="block sm:hidden text-[10px]">{dia.slice(0, 1)}</span>
-                    <span className="hidden sm:block">{dia}</span>
-                  </div>
-                  {HOURS.map(hour => {
-                    if (diaIndex === 6 && hour >= 12) {
-                      return <div key={`${dia}-${hour}`} className="h-16 sm:h-16 md:h-16 bg-default-50 border-b border-default-200"></div>;
-                    }
+              {/* Columnas de los dias con fechas */}
+              {DAYS.map((dia, diaIndex) => {
+                const fechaDia = fechasSemana[diaIndex];
+                const esHoy = esDiaActual(fechaDia);
+                
+                return (
+                  <div key={dia} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
+                    <div className={`
+                      h-8 sm:h-10 flex flex-col items-center justify-center font-semibold text-xs sm:text-sm border-b border-default-200
+                      ${esHoy ? 'bg-primary-100 text-primary-700' : 'bg-default-25 text-default-700'}
+                    `}>
+                      <span className="block sm:hidden text-[10px]">{dia.slice(0, 1)}</span>
+                      <span className="hidden sm:block text-[10px]">{dia}</span>
+                      
+                      {/* Fecha */}
+                      <span className={`text-[9px] sm:text-[10px] ${esHoy ? 'text-primary-600' : 'text-default-500'}`}>
+                        {formatearFecha(fechaDia)}
+                      </span>
+                    </div>
+                    {HOURS.map(hour => {
+                      if (diaIndex === 6 && hour >= 12) {
+                        return <div key={`${dia}-${hour}`} className="h-16 sm:h-16 md:h-16 bg-default-50 border-b border-default-200"></div>;
+                      }
 
-                    const slotId = `${diaIndex}-${hour}`;
-                    return (
-                      <div key={`${dia}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
-                        {renderSlotTiempo(slotId, dia, hour)}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+                      const slotId = `${diaIndex}-${hour}`;
+                      return (
+                        <div key={`${dia}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
+                          {renderSlotTiempo(slotId, dia, hour)}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </CardBody>

@@ -19,7 +19,7 @@ def crear_reservas(data, por_admin=False):
         total_horas = matricula.paquete.horas_total
     elif matricula.tipo_contratacion == "por_hora":
         total_horas = matricula.horas_contratadas
-    horas_usadas = db.session.query(func.count(Reserva.id)).filter_by(id_matricula=matricula.id).scalar() or 0
+    horas_usadas = matricula.horas_completadas
     nuevas_horas = len(data["reservas"])
     if horas_usadas + nuevas_horas > total_horas:
         raise BadRequest(f"No hay suficientes horas disponibles. Tiene {total_horas - horas_usadas} hora(s) restante(s).")

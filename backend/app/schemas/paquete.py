@@ -1,9 +1,14 @@
 from marshmallow import Schema, fields, validate
 
+class TipoAutoResumenSchema(Schema):
+    id = fields.Int()
+    tipo = fields.Str()
+
 class PaqueteSchema(Schema):
     id = fields.Int()
     nombre = fields.Str()
     id_tipo_auto = fields.Int()
+    tipo_auto = fields.Nested(TipoAutoResumenSchema)
     horas_total = fields.Str()
     costo_total = fields.Float()
 

@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 from app.models.matricula import Matricula
 from app.models.alumno import Alumno
 from app.models.paquete import Paquete
-from app.models.asistencia import Asistencia
-from app.models.reserva import Reserva
 from app.models.pago import Pago
 from app.extensions import db
 from sqlalchemy import func
@@ -21,6 +19,7 @@ def crear_matricula(data):
         raise BadRequest("El alumno ya tiene una matrícula activa")
 
     tipo_contratacion = data["tipo_contratacion"]
+    categoria = data["categoria"]
 
     fecha_matricula = datetime.now()
     fecha_limite = fecha_matricula + timedelta(days=30)
@@ -36,6 +35,7 @@ def crear_matricula(data):
         matricula = Matricula(
             id_alumno=alumno.id,
             id_paquete=id_paquete,
+            categoria=categoria,
             tipo_contratacion="paquete",
             costo_total=paquete.costo_total,
             fecha_limite=fecha_limite,
@@ -56,6 +56,7 @@ def crear_matricula(data):
         matricula = Matricula(
             id_alumno=alumno.id,
             id_paquete=None,  # Sin paquete
+            categoria=categoria,
             tipo_contratacion="por_hora",
             horas_contratadas=horas_contratadas,
             tarifa_por_hora=tarifa_por_hora,
@@ -75,14 +76,7 @@ def obtener_estado_cuenta(id_matricula):
     # Calcular total pagado
     total_pagado = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0
     
-    # Calcular horas tomadas (para matrículas por hora)
-    if matricula.tipo_contratacion == "por_hora":
-        horas_tomadas = db.session.query(func.count(Asistencia.id)).join(Reserva).filter(
-            Reserva.id_matricula == id_matricula,
-            Asistencia.asistio == True
-        ).scalar() or 0
-    else:
-        horas_tomadas = "No aplica"
+    horas_completadas = matricula.horas_completadas
     
     return {
         "matricula_id": matricula.id,
@@ -92,12 +86,22 @@ def obtener_estado_cuenta(id_matricula):
         "saldo_pendiente": matricula.costo_total - total_pagado,
         "estado_pago": matricula.estado_pago,
         "horas_contratadas": matricula.horas_contratadas if matricula.tipo_contratacion == "por_hora" else matricula.paquete.horas_total,
-        "horas_tomadas": horas_tomadas,
+        "horas_completadas": horas_completadas,
         "fecha_limite": matricula.fecha_limite.strftime("%Y-%m-%d")
     }
 
-def listar_matriculas():
-    return Matricula.query.all()  # TODO: agregar filtros y paginación
+def listar_matriculas(): # TODO: agregar filtros y paginación
+    matriculas = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).all()
+    
+    for matricula in matriculas:
+        # Calcular pagos realizados
+        pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
+        
+        #  atributos temporales
+        matricula.pagos_realizados = float(pagos_realizados)
+        matricula.saldo_pendiente = float(matricula.costo_total - pagos_realizados)
+    
+    return matriculas
 
 def eliminar_matricula(matricula_id):
     matricula = Matricula.query.get_or_404(matricula_id)

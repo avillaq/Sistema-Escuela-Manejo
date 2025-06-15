@@ -21,8 +21,8 @@ def poblar_db():
             print("Ya existen tipos de auto en la base de datos. Saltando...")
         else:
             print("Agregando tipos de auto...")
-            tipo_mecanico = TipoAuto(tipo='mecánico')
-            tipo_automatico = TipoAuto(tipo='automático')
+            tipo_mecanico = TipoAuto(tipo='Mecánico')
+            tipo_automatico = TipoAuto(tipo='Automático')
             
             db.session.add_all([tipo_mecanico, tipo_automatico])
             db.session.commit()

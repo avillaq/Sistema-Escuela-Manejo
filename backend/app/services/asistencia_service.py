@@ -39,9 +39,7 @@ def registrar_asistencia(data):
         if auto_ocupado:
             raise BadRequest("El auto ya está asignado a otra clase en ese horario")
 
-        total_asistencias = Asistencia.query.join(Reserva).filter(
-            Reserva.id_matricula == matricula.id
-        ).count()
+        total_asistencias = matricula.horas_completadas
         nuevo_numero_clase = total_asistencias + 1
 
         if matricula.tipo_contratacion == "paquete" and matricula.paquete:
@@ -73,6 +71,9 @@ def registrar_asistencia(data):
             id_auto=data["id_auto"]
         )
         db.session.add(ticket)
+
+        # Actualizar horas completadas en la matricula
+        matricula.horas_completadas = nuevo_numero_clase
             
         if matricula.estado_clases != "completado":
             # Cambiar a "en_progreso" si aún no lo está

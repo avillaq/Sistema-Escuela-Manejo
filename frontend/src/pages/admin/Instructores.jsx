@@ -45,7 +45,7 @@ export const Instructores = () => {
         addToast({
           title: "Error al cargar usuarios",
           description: result.error || "No se pudieron cargar los usuarios.",
-          severity: "error",
+          severity: "danger",
           color: "danger",
         });
       }

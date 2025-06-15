@@ -75,14 +75,14 @@ export const MatriculaDetalle = () => {
     const loadMatricula = async () => {
       try {
         // TODO: Reemplazar con llamada al backend
-        const data = getMatriculaById(id);
+        const data = getMatriculaById(1);
         if (data) {
           setMatricula(data);
         } else {
           addToast({
             title: "Error",
             description: "No se pudo encontrar la matrícula solicitada.",
-            severity: "error",
+            severity: "danger",
             color: "danger",
           });
           navigate('/matriculas');
@@ -91,7 +91,7 @@ export const MatriculaDetalle = () => {
         addToast({
           title: "Error",
           description: "Ha ocurrido un error al cargar los datos.",
-          severity: "error",
+          severity: "danger",
           color: "danger",
         });
         navigate('/matriculas');

@@ -7,9 +7,7 @@ import {
   Button,
   Chip,
   Progress,
-  Divider,
   addToast,
-  useDisclosure,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Calendar } from '@/pages/Calendar';
@@ -20,6 +18,7 @@ export const MatriculaReservas = () => {
   const { id } = useParams();
   const [matricula, setMatricula] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [horasRestantesActuales, setHorasRestantesActuales] = useState(0);
 
   useEffect(() => {
     const loadMatricula = async () => {
@@ -27,6 +26,13 @@ export const MatriculaReservas = () => {
         const result = await matriculasService.getById(id);
         if (result.success) {
           setMatricula(result.data);
+          
+          const horas_total = result.data.tipo_contratacion === "paquete"
+            ? result.data.paquete?.horas_total
+            : result.data.horas_contratadas;
+            
+          const horas_restantes = horas_total - result.data.horas_completadas;
+          setHorasRestantesActuales(horas_restantes);
         } else {
           addToast({
             title: "Error",
@@ -34,7 +40,7 @@ export const MatriculaReservas = () => {
             severity: "danger",
             color: "danger",
           });
-          navigate('/matriculas');
+          navigate("/matriculas");
         }
       } catch (error) {
         addToast({
@@ -43,7 +49,7 @@ export const MatriculaReservas = () => {
           severity: "danger",
           color: "danger",
         });
-        navigate('/matriculas');
+        navigate("/matriculas");
       } finally {
         setIsLoading(false);
       }
@@ -54,14 +60,23 @@ export const MatriculaReservas = () => {
     }
   }, [id, navigate]);
 
-  // Calcular estadísticas
-  const getEstadoClasesColor = (estado) => {
-    switch (estado) {
-      case 'pendiente': return 'warning';
-      case 'en_progreso': return 'primary';
-      case 'completado': return 'success';
-      case 'vencido': return 'danger';
-      default: return 'default';
+  // actualizar horas cuando se seleccionen/deseleccionen reservas
+  const handleReservasChange = (reservasSeleccionadas, tipoAccion) => {
+    const horas_total = matricula.tipo_contratacion === "paquete"
+      ? matricula.paquete?.horas_total
+      : matricula.horas_contratadas;
+    
+    const horas_base = horas_total - matricula.horas_completadas;
+    
+    if (tipoAccion === "reservar") {
+      // Restar las horas seleccionadas temporalmente
+      setHorasRestantesActuales(horas_base - reservasSeleccionadas);
+    } else if (tipoAccion === "cancelar") {
+      // Sumar las horas que se van a liberar temporalmente
+      setHorasRestantesActuales(horas_base + reservasSeleccionadas);
+    } else {
+      // Resetear a las horas originales
+      setHorasRestantesActuales(horas_base);
     }
   };
 
@@ -85,18 +100,16 @@ export const MatriculaReservas = () => {
     return (
       <div className="text-center">
         <p>No se pudo cargar la matrícula.</p>
-        <Button onPress={() => navigate('/matriculas')} className="mt-4">
+        <Button onPress={() => navigate("/matriculas")} className="mt-4">
           Volver a Matrículas
         </Button>
       </div>
     );
   }
 
-  const horas_total = matricula.tipo_contratacion === 'paquete'
+  const horas_total = matricula.tipo_contratacion === "paquete"
     ? matricula.paquete?.horas_total
     : matricula.horas_contratadas;
-
-  const horas_restantes = horas_total - matricula.horas_completadas;
 
   return (
     <div className="space-y-6">
@@ -105,7 +118,7 @@ export const MatriculaReservas = () => {
         <Button
           isIconOnly
           variant="light"
-          onPress={() => navigate('/matriculas')}
+          onPress={() => navigate("/matriculas")}
         >
           <Icon icon="lucide:arrow-left" width={20} height={20} />
         </Button>
@@ -117,151 +130,87 @@ export const MatriculaReservas = () => {
         </div>
       </div>
 
-      {/* Información del Alumno y Progreso */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Información del Alumno */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Icon icon="lucide:user" width={20} height={20} />
-              <h3 className="text-lg font-semibold">Alumno</h3>
+              <Icon icon="lucide:user" width={18} height={18} />
+              <h3 className="text-base font-semibold">Alumno</h3>
             </div>
           </CardHeader>
-          <CardBody className="space-y-3">
+          <CardBody className="pt-0 space-y-2">
             <div>
-              <p className="text-sm text-default-500">Nombre Completo</p>
-              <p className="font-medium">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
+              <p className="font-medium text-sm">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
+              <p className="text-xs text-default-500">DNI: {matricula.alumno.dni}</p>
             </div>
-            <div>
-              <p className="text-sm text-default-500">DNI</p>
-              <p className="font-medium">{matricula.alumno.dni}</p>
-            </div>
-            <div>
-              <p className="text-sm text-default-500">Categoría</p>
-              <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
-            </div>
+            <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
           </CardBody>
         </Card>
 
         {/* Progreso de Clases */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Icon icon="lucide:clock" width={20} height={20} />
-              <h3 className="text-lg font-semibold">Progreso</h3>
+              <Icon icon="lucide:clock" width={18} height={18} />
+              <h3 className="text-base font-semibold">Progreso</h3>
             </div>
           </CardHeader>
-          <CardBody className="space-y-4">
+          <CardBody className="pt-0 space-y-3">
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Horas Completadas</span>
-                <span className="text-sm text-default-500">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-medium">Completadas</span>
+                <span className="text-xs text-default-500">
                   {matricula.horas_completadas}/{horas_total}
                 </span>
               </div>
               <Progress
                 value={getProgreso(matricula.horas_completadas, horas_total)}
                 color="primary"
+                size="sm"
                 className="w-full"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="text-center p-2 bg-success-50 rounded-lg">
-                <p className="text-2xl font-bold text-success-600">{horas_restantes}</p>
-                <p className="text-xs text-success-600">Horas Restantes</p>
-              </div>
-              <div className="text-center p-2 bg-primary-50 rounded-lg">
-                <p className="text-2xl font-bold text-primary-600">{getProgreso(matricula.horas_completadas, horas_total)}%</p>
-                <p className="text-xs text-primary-600">Completado</p>
-              </div>
-            </div>
           </CardBody>
         </Card>
 
-        {/* Estado de la Matrícula */}
+        {/* Horas Restantes */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Icon icon="lucide:info" width={20} height={20} />
-              <h3 className="text-lg font-semibold">Estado</h3>
+              <Icon icon="lucide:timer" width={18} height={18} />
+              <h3 className="text-base font-semibold">Disponibles</h3>
             </div>
           </CardHeader>
-          <CardBody className="space-y-3">
-            <div>
-              <p className="text-sm text-default-500 mb-1">Estado de Clases</p>
-              <Chip
-                color={getEstadoClasesColor(matricula.estado_clases)}
-                variant="flat"
-                size="sm"
-              >
-                {matricula.estado_clases.charAt(0).toUpperCase() + matricula.estado_clases.slice(1).replace('_', ' ')}
-              </Chip>
-            </div>
-            <div>
-              <p className="text-sm text-default-500 mb-1">Fecha Límite</p>
-              <p className="font-medium text-sm">
-                {matricula.fecha_limite ? new Date(matricula.fecha_limite).toLocaleDateString() : 'N/A'}
+          <CardBody className="pt-0">
+            <div className="text-center">
+              <p className={`text-3xl font-bold ${horasRestantesActuales <= 0 ? "text-danger-600" : "text-success-600"}`}>
+                {horasRestantesActuales}
               </p>
+              <p className="text-xs text-default-500">Horas restantes</p>
+              {horasRestantesActuales !== (horas_total - matricula.horas_completadas) && (
+                <p className="text-xs text-warning-600 mt-1">
+                  (Cambio temporal)
+                </p>
+              )}
             </div>
-            <div>
-              <p className="text-sm text-default-500 mb-1">Tipo de Contratación</p>
-              <p className="font-medium text-sm capitalize">
-                {matricula.tipo_contratacion.replace('_', ' ')}
-              </p>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Información del Paquete/Contratación */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:package" width={20} height={20} />
-              <h3 className="text-lg font-semibold">Detalles</h3>
-            </div>
-          </CardHeader>
-          <CardBody className="space-y-3">
-            {matricula.tipo_contratacion === 'paquete' && matricula.paquete ? (
-              <>
-                <div>
-                  <p className="text-sm text-default-500">Paquete</p>
-                  <p className="font-medium text-sm">{matricula.paquete.nombre}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500">Tipo de Auto</p>
-                  <p className="font-medium text-sm">{matricula.paquete.tipo_auto.tipo}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500">Costo Total</p>
-                  <p className="font-medium text-sm">S/ {matricula.paquete.costo_total.toFixed(2)}</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p className="text-sm text-default-500">Tarifa por Hora</p>
-                  <p className="font-medium text-sm">S/ {matricula.tarifa_por_hora}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500">Costo Total</p>
-                  <p className="font-medium text-sm">S/ {matricula.costo_total.toFixed(2)}</p>
-                </div>
-              </>
-            )}
           </CardBody>
         </Card>
       </div>
 
       {/* Mensaje de advertencia si no hay horas restantes */}
-      {horas_restantes <= 0 && (
+      {horasRestantesActuales <= 0 && (
         <Card className="border-warning-200 bg-warning-50">
           <CardBody>
             <div className="flex items-center gap-3">
-              <Icon icon="lucide:alert-triangle" className="text-warning-600" width={24} height={24} />
+              <Icon icon="lucide:alert-triangle" className="text-warning-600" width={20} height={20} />
               <div>
-                <h4 className="font-semibold text-warning-800">Sin horas disponibles</h4>
-                <p className="text-sm text-warning-700">
-                  El alumno ha completado todas sus horas contratadas. No puede realizar nuevas reservas.
+                <h4 className="font-semibold text-warning-800 text-sm">Sin horas disponibles</h4>
+                <p className="text-xs text-warning-700">
+                  {horasRestantesActuales < 0 
+                    ? "No puedes reservar más horas de las disponibles."
+                    : "El alumno ha completado todas sus horas contratadas."
+                  }
                 </p>
               </div>
             </div>
@@ -281,8 +230,9 @@ export const MatriculaReservas = () => {
           <Calendar
             userId={matricula.alumno.id}
             matriculaId={matricula.id}
-            horasRestantes={horas_restantes}
+            horasRestantes={horas_total - matricula.horas_completadas}
             isAdminMode={true}
+            onReservasChange={handleReservasChange}
           />
         </CardBody>
       </Card>

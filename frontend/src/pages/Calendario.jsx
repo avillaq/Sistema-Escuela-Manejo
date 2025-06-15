@@ -62,7 +62,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const handleCambiarModo = (newMode) => {
     setModo(newMode);
     setSlotsSeleccionados([]);
-    
+
     // Notificar reset de seleccion
     if (onReservasChange) {
       onReservasChange(0, "vista");
@@ -134,7 +134,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const handleCancelar = () => {
     setSlotsSeleccionados([]);
     setModo("vista");
-    
+
     // Notificar cancelacion
     if (onReservasChange) {
       onReservasChange(0, "vista");
@@ -189,7 +189,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     setUserReservaciones(userReservacionesActualizado);
     setSlotsSeleccionados([]);
     setModo("vista");
-    
+
     // Notificar finalizacion
     if (onReservasChange) {
       onReservasChange(0, "vista");
@@ -203,9 +203,9 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     const isUserReservacion = userReservaciones.includes(slotId);
     const isSeleccionado = slotsSeleccionados.includes(slotId);
     const isLleno = slot.reservations >= slot.maxReservations;
-    const isClickeable = modo !== "vista" && 
+    const isClickeable = modo !== "vista" &&
       ((modo === "reservar" && slot.isAvailable && !isUserReservacion) ||
-       (modo === "cancelar" && isUserReservacion));
+        (modo === "cancelar" && isUserReservacion));
 
     let bgColor = "bg-default-100";
     let textColor = "text-default-800";
@@ -228,33 +228,27 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       borderColor = modo === "reservar" ? "border-success-300" : "border-danger-300";
     }
 
-    const horaFormateada = hour < 12
-      ? `${hour}:00 AM`
-      : hour === 12
-        ? "12:00 PM"
-        : `${hour - 12}:00 PM`;
-
     return (
       <div
         key={slotId}
         className={`
-          p-2 border-2 transition-all duration-200 h-16
-          ${bgColor} ${textColor} ${borderColor}
-          ${isClickeable ? 'cursor-pointer hover:scale-105 hover:shadow-sm' : 'cursor-default'}
-          ${isSeleccionado ? 'shadow-md' : ''}
-        `}
+        p-1 sm:p-2 border transition-all duration-200 h-14 sm:h-14 md:h-16
+        ${bgColor} ${textColor} ${borderColor}
+        ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
+        ${isSeleccionado ? 'shadow-sm' : ''}
+        flex flex-col sm:flex-row items-center justify-center sm:justify-between
+      `}
         onClick={() => handleSlotClick(slotId)}
       >
-        <div className="text-xs font-medium">{horaFormateada}</div>
-        
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xs opacity-70">
-            {slot.reservations}/{slot.maxReservations}
-          </span>
-          {isUserReservacion && (
-            <Icon icon="lucide:check" width={10} height={10} />
-          )}
-        </div>
+        {/* Capacidad siempre visible */}
+        <span className="text-xs sm:text-sm font-medium">
+          {slot.reservations}/{slot.maxReservations}
+        </span>
+
+        {/* Check debajo en móviles, a la derecha en desktop */}
+        {isUserReservacion && (
+          <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4 mt-0.5 sm:mt-0" />
+        )}
       </div>
     );
   };
@@ -306,7 +300,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                 </h2>
                 <div className="flex items-center gap-4">
                   <p className="text-default-500 text-sm">
-                    {slotsSeleccionados.length > 0 
+                    {slotsSeleccionados.length > 0
                       ? `${slotsSeleccionados.length} seleccionado(s)`
                       : "Haz clic en los horarios"
                     }
@@ -347,20 +341,21 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         <CardHeader className="pb-3">
           <h3 className="text-lg font-semibold">Horario Semanal</h3>
         </CardHeader>
-        <CardBody className="pt-0">
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-8 min-w-[700px]">
+        <CardBody className="pt-0 px-1 sm:px-6">
+          <div className="w-full overflow-x-auto">
+            <div className="grid grid-cols-8 min-w-[320px] w-full">
               {/* Columna del tiempo */}
-              <div className="col-span-1 bg-default-50">
-                <div className="h-10 flex items-center justify-center font-semibold text-sm text-default-600 border-b border-default-200">
-                  Hora
+              <div className="col-span-1 bg-default-50 min-w-[35px] sm:min-w-[40px]">
+                <div className="h-8 sm:h-10 flex items-center justify-center font-semibold text-xs sm:text-sm text-default-600 border-b border-default-200">
+                  <span className="hidden sm:inline">Hora</span>
+                  <span className="sm:hidden text-[10px]">H</span>
                 </div>
                 {HOURS.map(hour => (
                   <div
                     key={`hour-${hour}`}
-                    className="h-16 flex flex-col items-center justify-center text-xs font-medium text-default-600 border-b border-default-200"
+                    className="h-14 sm:h-14 md:h-16 flex flex-col items-center justify-center text-xs font-medium text-default-600 border-b border-default-200"
                   >
-                    <span className="font-semibold">
+                    <span className="font-semibold text-[10px] sm:text-xs">
                       {hour < 12
                         ? `${hour}:00`
                         : hour === 12
@@ -368,7 +363,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                           : `${hour - 12}:00`
                       }
                     </span>
-                    <span className="text-[10px] opacity-70">
+                    <span className="text-[8px] sm:text-[10px] opacity-70">
                       {hour < 12 ? 'AM' : 'PM'}
                     </span>
                   </div>
@@ -377,18 +372,19 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
 
               {/* Columnas de los dias */}
               {DAYS.map((day, dayIndex) => (
-                <div key={day} className="col-span-1">
-                  <div className="h-10 flex items-center justify-center font-semibold text-sm text-default-700 border-b border-default-200 bg-default-25">
-                    {day}
+                <div key={day} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
+                  <div className="h-8 sm:h-10 flex items-center justify-center font-semibold text-xs sm:text-sm text-default-700 border-b border-default-200 bg-default-25">
+                    <span className="block sm:hidden text-[10px]">{day.slice(0, 1)}</span>
+                    <span className="hidden sm:block">{day.length > 6 ? day.slice(0, 3) : day}</span>
                   </div>
                   {HOURS.map(hour => {
                     if (dayIndex === 6 && hour >= 12) {
-                      return <div key={`${day}-${hour}`} className="h-16 bg-default-50 border-b border-default-200"></div>;
+                      return <div key={`${day}-${hour}`} className="h-14 sm:h-14 md:h-16 bg-default-50 border-b border-default-200"></div>;
                     }
 
                     const slotId = `${dayIndex}-${hour}`;
                     return (
-                      <div key={`${day}-${hour}`} className="h-16 border-b border-default-200">
+                      <div key={`${day}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
                         {renderSlotTiempo(slotId, day, hour)}
                       </div>
                     );

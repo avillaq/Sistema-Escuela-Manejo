@@ -17,8 +17,8 @@ import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
 import { alumnosService } from '@/service/apiService';
 
-export const Autos = () => {
-  const tipo = "Auto";
+export const Paquetes = () => {
+  const tipo = "Paquete";
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 

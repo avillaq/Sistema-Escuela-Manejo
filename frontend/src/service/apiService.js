@@ -87,7 +87,7 @@ export const paquetesService = {
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.paquetes}/${id}`))
 };
 
-// Mas servicios que se implementar despues
+// Servicio de Autos
 export const autosService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.autos)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.autos}/${id}`)),

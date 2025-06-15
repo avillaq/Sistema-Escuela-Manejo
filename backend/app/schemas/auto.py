@@ -8,6 +8,7 @@ class AutoSchema(Schema):
     color = fields.Str()
     id_tipo_auto = fields.Int()
     activo = fields.Bool()
+    fecha_creado = fields.DateTime()
 
 class CrearAutoSchema(Schema):
     placa = fields.Str(required=True, validate=validate.Length(min=6, max=7))

@@ -56,6 +56,7 @@ export const Sidebar = ({ isOpen }) => {
           </div>
           <nav className="space-y-1 px-2">
             <NavItem to="/autos" icon="lucide:car" label={isOpen ? 'Autos' : ''} />
+            <NavItem to="/paquetes" icon="lucide:boxes" label={isOpen ? 'Paquetes' : ''} />          
             {/* <NavItem to="/bloques" icon="lucide:clock" label={isOpen ? 'Bloques' : ''} /> */}
           </nav>
         </>

@@ -15,6 +15,7 @@ import { MatriculaReservas } from '@/pages/admin/MatriculaReservas';
 import { Asistencias } from '@/pages/admin/Asistencias';
 import { Tickets } from '@/pages/admin/Tickets';
 import { Autos } from '@/pages/admin/Autos';
+import { Paquetes } from '@/pages/admin/Paquetes';
 import { Analytics } from '@/pages/admin/Analytics';
 import { Customers } from '@/pages/admin/Customers';
 import { Products } from '@/pages/admin/Products';
@@ -84,6 +85,10 @@ export const protectedRoutes = [
   {
     path: '/autos',
     element: Autos,
+  },
+  {
+    path: '/paquetes',
+    element: Paquetes,
   },
   {
     path: '/analytics',

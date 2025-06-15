@@ -343,7 +343,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         </CardHeader>
         <CardBody className="pt-0 px-1 sm:px-6">
           <div className="w-full overflow-x-auto">
-            <div className="grid grid-cols-8 min-w-[320px] w-full">
+            <div className="grid grid-cols-8 min-w-[295px] w-full">
               {/* Columna del tiempo */}
               <div className="col-span-1 bg-default-50 min-w-[35px] sm:min-w-[40px]">
                 <div className="h-8 sm:h-10 flex items-center justify-center font-semibold text-xs sm:text-sm text-default-600 border-b border-default-200">
@@ -363,7 +363,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                           : `${hour - 12}:00`
                       }
                     </span>
-                    <span className="text-[8px] sm:text-[10px] opacity-70">
+                    <span className="text-[9px] sm:text-[11px] opacity-70">
                       {hour < 12 ? 'AM' : 'PM'}
                     </span>
                   </div>
@@ -371,21 +371,21 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
               </div>
 
               {/* Columnas de los dias */}
-              {DAYS.map((day, dayIndex) => (
-                <div key={day} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
+              {DAYS.map((dia, diaIndex) => (
+                <div key={dia} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
                   <div className="h-8 sm:h-10 flex items-center justify-center font-semibold text-xs sm:text-sm text-default-700 border-b border-default-200 bg-default-25">
-                    <span className="block sm:hidden text-[10px]">{day.slice(0, 1)}</span>
-                    <span className="hidden sm:block">{day.length > 6 ? day.slice(0, 3) : day}</span>
+                    <span className="block sm:hidden text-[10px]">{dia.slice(0, 1)}</span>
+                    <span className="hidden sm:block">{dia}</span>
                   </div>
                   {HOURS.map(hour => {
-                    if (dayIndex === 6 && hour >= 12) {
-                      return <div key={`${day}-${hour}`} className="h-14 sm:h-14 md:h-16 bg-default-50 border-b border-default-200"></div>;
+                    if (diaIndex === 6 && hour >= 12) {
+                      return <div key={`${dia}-${hour}`} className="h-16 sm:h-16 md:h-16 bg-default-50 border-b border-default-200"></div>;
                     }
 
-                    const slotId = `${dayIndex}-${hour}`;
+                    const slotId = `${diaIndex}-${hour}`;
                     return (
-                      <div key={`${day}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
-                        {renderSlotTiempo(slotId, day, hour)}
+                      <div key={`${dia}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
+                        {renderSlotTiempo(slotId, dia, hour)}
                       </div>
                     );
                   })}

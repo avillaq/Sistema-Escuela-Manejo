@@ -96,6 +96,11 @@ export const autosService = {
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.autos}/${id}`))
 };
 
+// Servicio de Bloques
+export const bloquesService = {
+  getDisponibles: () => handleResponse(() => api.get(API_CONFIG.endpoints.bloques)),
+};
+
 export const reservasService = {
   getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.reservas)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/${id}`)),

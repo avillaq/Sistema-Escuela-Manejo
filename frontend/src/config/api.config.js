@@ -22,7 +22,7 @@ export const API_CONFIG = {
     // Recursos
     paquetes: '/paquetes',
     autos: '/autos',
-    bloques: '/bloques',
+    bloques: '/bloques/disponibles',
     reservas: '/reservas',
     // Reportes
     reportes: '/reportes'

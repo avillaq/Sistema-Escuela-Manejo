@@ -10,22 +10,28 @@ import {
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
 import {
-  DAYS,
-  HOURS,
   generateTimeSlots,
   generateUserReservations
 } from '@/data/calendar-data';
 import { CalendarioModal } from '@/pages/CalendarioModal';
+import { bloquesService } from '@/service/apiService';
+
+// Dias de la semana
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+// Horas de 7am a 6pm (domingo hasta 12pm)
+const HORAS = Array.from({ length: 12 }, (_, i) => i + 7);
 
 export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, isAdminModo = false, onReservasChange }) => {
   const { user } = useAuthStore();
   const userId = propUserId || user?.id || 1;
 
   const [modo, setModo] = useState("vista");
+  const [bloques, setBloques] = useState([]);
   const [timeSlots, setTimeSlots] = useState(generateTimeSlots());
   const [userReservaciones, setUserReservaciones] = useState([]);
   const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
-  
+  const [isLoadingBloques, setIsLoadingBloques] = useState(true);
+
   // Estados para navegacion semanal
   const [fechaActual, setFechaActual] = useState(new Date());
   const [semanaActual, setSemanaActual] = useState(0);
@@ -37,18 +43,18 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   const obtenerFechasSemana = (fecha, offsetSemana = 0) => {
     const fechaBase = new Date(fecha);
     fechaBase.setDate(fechaBase.getDate() + (offsetSemana * 7));
-    
+
     // Obtener el lunes de la semana
     const diaLunes = fechaBase.getDate() - fechaBase.getDay() + 1;
     const primerDia = new Date(fechaBase.setDate(diaLunes));
-    
+
     const fechasSemana = [];
     for (let i = 0; i < 7; i++) {
       const fecha = new Date(primerDia);
       fecha.setDate(primerDia.getDate() + i);
       fechasSemana.push(fecha);
     }
-    
+
     return fechasSemana;
   };
 
@@ -69,6 +75,38 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
   // Obtener fechas de la semana actual
   const fechasSemana = obtenerFechasSemana(fechaActual, semanaActual);
 
+  // Cargar bloques disponibles desde el backend
+  useEffect(() => {
+    const fetchBloquesDisponibles = async () => {
+      setIsLoadingBloques(true);
+      try {
+        const result = await bloquesService.getDisponibles();
+        if (result.success) {
+          setBloques(result.data);
+        } else {
+          addToast({
+            title: "Error al cargar horarios",
+            description: result.error || "No se pudieron cargar los horarios disponibles.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
+        addToast({
+          title: "Error",
+          description: "Ha ocurrido un error al cargar los horarios.",
+          severity: "danger",
+          color: "danger",
+        });
+      } finally {
+        setIsLoadingBloques(false);
+      }
+    };
+
+    fetchBloquesDisponibles();
+  }, []);
+
+  // Notificar cambios en las reservas seleccionadas
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (onReservasChange) {
@@ -99,8 +137,18 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     setUserReservaciones(reservacionesIniciales.map(res => res.timeSlotId));
   }, [userId]);
 
-  const handleCambiarModo = (newMode) => {
-    setModo(newMode);
+  // Obtener bloque para una fecha y hora especifica
+  const obtenerBloque = (fecha, hora) => {
+    return bloques.find(bloque => {
+      const fechaBloque = new Date(bloque.fecha);
+      const horaBloque = parseInt(bloque.hora_inicio.split(':')[0]);
+
+      return fechaBloque.toDateString() === fecha.toDateString() && horaBloque === hora;
+    });
+  };
+
+  const handleCambiarModo = (nuevoModo) => {
+    setModo(nuevoModo);
     setSlotsSeleccionados([]);
 
     // Notificar reset de seleccion
@@ -109,15 +157,12 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     }
   };
 
-  const handleSlotClick = (slotId) => {
+  const handleSlotClick = (bloqueId, fecha, hora) => {
     if (modo === "vista") return;
 
     // Verificar si es una fecha anterior (solo para reservar)
     if (modo === "reservar") {
-      const [dayIndex] = slotId.split('-').map(Number);
-      const fechaSlot = fechasSemana[dayIndex];
-      
-      if (esFechaAnterior(fechaSlot)) {
+      if (esFechaAnterior(fecha)) {
         addToast({
           title: "Fecha no válida",
           description: "No puedes reservar en fechas anteriores al día actual.",
@@ -138,12 +183,19 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         return;
       }
 
-      // Solo permitir seleccionar horarios disponibles que el usuario no haya reservado
-      const slot = timeSlots.find(s => s.id === slotId);
-      if (!slot || !slot.isAvailable || userReservaciones.includes(slotId)) return;
+      const bloque = obtenerBloque(fecha, hora);
+      if (!bloque || bloque.reservas_actuales >= bloque.capacidad_max) {
+        addToast({
+          title: "Horario no disponible",
+          description: "Este horario está completo o no está disponible.",
+          severity: "warning",
+          color: "warning",
+        });
+        return;
+      }
 
       // Verificar limite antes de seleccionar
-      if (isAdminModo && !slotsSeleccionados.includes(slotId) && slotsSeleccionados.length >= horasRestantes) {
+      if (isAdminModo && !slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
         addToast({
           title: "Límite alcanzado",
           description: `Solo puedes seleccionar ${horasRestantes} hora(s).`,
@@ -154,18 +206,18 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       }
 
       setSlotsSeleccionados(prev =>
-        prev.includes(slotId)
-          ? prev.filter(id => id !== slotId)
-          : [...prev, slotId]
+        prev.includes(bloqueId)
+          ? prev.filter(id => id !== bloqueId)
+          : [...prev, bloqueId]
       );
     } else if (modo === "cancelar") {
       // Solo permitir seleccionar horarios que el usuario haya reservado
-      if (!userReservaciones.includes(slotId)) return;
+      if (!userReservaciones.includes(bloqueId)) return;
 
       setSlotsSeleccionados(prev =>
-        prev.includes(slotId)
-          ? prev.filter(id => id !== slotId)
-          : [...prev, slotId]
+        prev.includes(bloqueId)
+          ? prev.filter(id => id !== bloqueId)
+          : [...prev, bloqueId]
       );
     }
   };
@@ -250,19 +302,28 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     }
   };
 
-  const renderSlotTiempo = (slotId, day, hour) => {
-    const slot = timeSlots.find(s => s.id === slotId);
-    if (!slot) return null;
+  const renderSlotTiempo = (fecha, hora) => {
+    const bloque = obtenerBloque(fecha, hora);
+    const bloqueId = bloque?.id;
+    const esFechaVencida = esFechaAnterior(fecha);
+    const isUserReservacion = userReservaciones.includes(bloqueId);
+    const isSeleccionado = slotsSeleccionados.includes(bloqueId);
 
-    const [dayIndex] = slotId.split('-').map(Number);
-    const fechaSlot = fechasSemana[dayIndex];
-    const esFechaVencida = esFechaAnterior(fechaSlot);
+    // Si no hay bloque disponible
+    if (!bloque) {
+      return (
+        <div className="h-14 sm:h-14 md:h-16 border-b border-default-200 bg-default-50 flex items-center justify-center">
+          <span className="text-xs text-default-400 hidden sm:block">No disponible</span>
+          <span className="text-[8px] text-default-400 block sm:hidden">No disp.</span>
+        </div>
+      );
+    }
 
-    const isUserReservacion = userReservaciones.includes(slotId);
-    const isSeleccionado = slotsSeleccionados.includes(slotId);
-    const isLleno = slot.reservations >= slot.maxReservations;
+    const isLleno = bloque.reservas_actuales >= bloque.capacidad_max;
+    const isDisponible = bloque.reservas_actuales < bloque.capacidad_max;
+
     const isClickeable = modo !== "vista" &&
-      ((modo === "reservar" && slot.isAvailable && !isUserReservacion && !esFechaVencida) ||
+      ((modo === "reservar" && isDisponible && !isUserReservacion && !esFechaVencida) ||
         (modo === "cancelar" && isUserReservacion));
 
     let bgColor = "bg-default-100";
@@ -291,20 +352,19 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
 
     return (
       <div
-        key={slotId}
         className={`
-        p-1 sm:p-2 border transition-all duration-200 h-14 sm:h-14 md:h-16
-        ${bgColor} ${textColor} ${borderColor}
-        ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
-        ${isSeleccionado ? 'shadow-sm' : ''}
-        ${esFechaVencida ? 'opacity-50' : ''}
-        flex flex-col sm:flex-row items-center justify-center sm:justify-between
-      `}
-        onClick={() => handleSlotClick(slotId)}
+          p-1 sm:p-2 border transition-all duration-200 h-14 sm:h-14 md:h-16
+          ${bgColor} ${textColor} ${borderColor}
+          ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
+          ${isSeleccionado ? 'shadow-sm' : ''}
+          ${esFechaVencida ? 'opacity-50' : ''}
+          flex flex-col sm:flex-row items-center justify-center sm:justify-between
+        `}
+        onClick={() => isClickeable && handleSlotClick(bloqueId, fecha, hora)}
       >
-        {/* Capacidad siempre visible */}
+        {/* Capacidad */}
         <span className="text-xs sm:text-sm font-medium">
-          {slot.reservations}/{slot.maxReservations}
+          {bloque.reservas_actuales}/{bloque.capacidad_max}
         </span>
 
         {isUserReservacion && (
@@ -332,6 +392,17 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return `${fecha.getDate()} ${meses[fecha.getMonth()]}`;
   };
+
+  if (isLoadingBloques) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando horarios disponibles...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -421,7 +492,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between w-full">
             <h3 className="text-lg font-semibold">Horario Semanal</h3>
-            
+
             {/* Navegacion de semanas */}
             <div className="flex items-center gap-2">
               <Button
@@ -433,11 +504,11 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
               >
                 <Icon icon="lucide:chevron-left" width={16} height={16} />
               </Button>
-              
+
               <span className="text-sm font-medium text-default-600 min-w-[120px] text-center">
                 {semanaActual === 0 ? 'Semana Actual' : `Semana +${semanaActual}`}
               </span>
-              
+
               <Button
                 size="sm"
                 variant="flat"
@@ -458,7 +529,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                   <span className="hidden sm:inline">Hora</span>
                   <span className="sm:hidden text-[10px]">H</span>
                 </div>
-                {HOURS.map(hour => (
+                {HORAS.map(hour => (
                   <div
                     key={`hour-${hour}`}
                     className="h-14 sm:h-14 md:h-16 flex flex-col items-center justify-center text-xs font-medium text-default-600 border-b border-default-200"
@@ -479,10 +550,10 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
               </div>
 
               {/* Columnas de los dias con fechas */}
-              {DAYS.map((dia, diaIndex) => {
+              {DIAS.map((dia, diaIndex) => {
                 const fechaDia = fechasSemana[diaIndex];
                 const esHoy = esDiaActual(fechaDia);
-                
+
                 return (
                   <div key={dia} className="col-span-1 min-w-[35px] sm:min-w-[40px]">
                     <div className={`
@@ -491,21 +562,21 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
                     `}>
                       <span className="block sm:hidden text-[10px]">{dia.slice(0, 1)}</span>
                       <span className="hidden sm:block text-[10px]">{dia}</span>
-                      
+
                       {/* Fecha */}
                       <span className={`text-[9px] sm:text-[10px] ${esHoy ? 'text-primary-600' : 'text-default-500'}`}>
                         {formatearFecha(fechaDia)}
                       </span>
                     </div>
-                    {HOURS.map(hour => {
-                      if (diaIndex === 6 && hour >= 12) {
-                        return <div key={`${dia}-${hour}`} className="h-16 sm:h-16 md:h-16 bg-default-50 border-b border-default-200"></div>;
+                    {HORAS.map(hora => {
+                      if (diaIndex === 6 && hora >= 12) {
+                        // Domingo solo hasta mediodia
+                        return <div key={`${dia}-${hora}`} className="h-14 sm:h-14 md:h-16 bg-default-50 border-b border-default-200"></div>;
                       }
 
-                      const slotId = `${diaIndex}-${hour}`;
                       return (
-                        <div key={`${dia}-${hour}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
-                          {renderSlotTiempo(slotId, dia, hour)}
+                        <div key={`${dia}-${hora}`} className="h-14 sm:h-14 md:h-16 border-b border-default-200">
+                          {renderSlotTiempo(fechaDia, hora)}
                         </div>
                       );
                     })}

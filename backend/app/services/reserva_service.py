@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from app.models import Bloque, Reserva, Matricula
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
@@ -7,9 +7,12 @@ from sqlalchemy import func
 
 def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
-    hoy = datetime.today().date()
-    
-    if matricula.fecha_limite < hoy:
+    hoy = date.today()
+
+    fecha_limite = matricula.fecha_limite
+    if isinstance(fecha_limite, datetime):
+        fecha_limite = fecha_limite.date()
+    if fecha_limite < hoy:
         raise BadRequest("La matrícula ha vencido")
         
     if matricula.estado_clases == 'completado':
@@ -70,7 +73,7 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
     matricula.ultima_modificacion_reserva = datetime.now()
     db.session.commit()
 
-def listar_reservas(data, id_usuario, por_admin=False): # TODO: filtro para ver todas las reservas de dias en específico  
+def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False): # TODO: filtro para ver todas las reservas de dias en específico  
     reservas = []
     # Si es alumno, solo ve sus propias reservas
     if not por_admin:
@@ -79,16 +82,14 @@ def listar_reservas(data, id_usuario, por_admin=False): # TODO: filtro para ver 
         ).all()
     else:
         # Administradores pueden filtrar por id_alumno
-        id_alumno = data["id_alumno"]
         if id_alumno:
             reservas = Reserva.query.join(Matricula).filter(
                 Matricula.id_alumno == id_alumno
             ).all()
         else:
             # Sin filtro, admin ve todas las proximas reservas
-            hoy = datetime.today().date()
+            hoy = date.today()
             reservas = Reserva.query.join(Bloque).filter(
                 Bloque.fecha >= hoy
             ).all()
-    
     return reservas

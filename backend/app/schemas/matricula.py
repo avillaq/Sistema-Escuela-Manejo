@@ -31,6 +31,7 @@ class MatriculaSchema(Schema):
 
 # Estos esquemas son para la lista de matrículas, que incluye información resumida del alumno y del paquete
 class AlumnoResumenSchema(Schema):
+    id = fields.Int()
     nombre = fields.Str()
     apellidos = fields.Str()
     dni = fields.Str()

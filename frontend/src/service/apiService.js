@@ -18,7 +18,7 @@ const handleResponse = async (apiCall) => {
 
 // Servicio de alumnos
 export const alumnosService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.alumnos.general)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos.general}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos.general}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.alumnos.general}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.alumnos.general}/${id}`, data)),
@@ -29,7 +29,7 @@ export const alumnosService = {
 
 // Servicio de instructores
 export const instructoresService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.instructores)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.instructores}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.instructores}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.instructores}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.instructores}/${id}`, data)),
@@ -39,7 +39,7 @@ export const instructoresService = {
 
 // Servicio de administradores
 export const administradoresService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.administradores)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.administradores}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.administradores}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.administradores}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.administradores}/${id}`, data)),
@@ -48,7 +48,7 @@ export const administradoresService = {
 
 // Servicio de matrículas
 export const matriculasService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.matriculas)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.matriculas}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.matriculas}/${id}`, data)),
@@ -58,7 +58,7 @@ export const matriculasService = {
 
 // Servicio de pagos
 export const pagosService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.pagos)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.pagos}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.pagos}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.pagos}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.pagos}/${id}`, data)),
@@ -80,7 +80,7 @@ export const authService = {
 
 // Servicio de paquetes
 export const paquetesService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.paquetes)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.paquetes}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.paquetes}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.paquetes}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.paquetes}/${id}`, data)),
@@ -89,7 +89,7 @@ export const paquetesService = {
 
 // Servicio de Autos
 export const autosService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.autos)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.autos}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.autos}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.autos}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.autos}/${id}`, data)),
@@ -98,19 +98,21 @@ export const autosService = {
 
 // Servicio de Bloques
 export const bloquesService = {
-  getDisponibles: () => handleResponse(() => api.get(API_CONFIG.endpoints.bloques)),
+  getDisponibles: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.bloques}`)),
 };
 
+// Servicio de Reservas
 export const reservasService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.reservas)),
-  getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.reservas}/`, data)),
-  update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.reservas}/${id}`, data)),
-  delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.reservas}/${id}`))
+  delete: (data) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.reservas}/`, { data })),
+  getByAlumno: (alumnoId) => {
+    const params = { id_alumno: alumnoId };
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/`, { params }));
+  },
 };
 
 export const ticketsService = {
-  getAll: () => handleResponse(() => api.get(API_CONFIG.endpoints.tickets)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`)),
   getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.tickets}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.tickets}/${id}`, data)),

@@ -20,8 +20,7 @@ export const MatriculaReservas = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [horasRestantesActuales, setHorasRestantesActuales] = useState(0);
 
-  useEffect(() => {
-    const loadMatricula = async () => {
+  const cargarMatricula = async () => {
       try {
         const result = await matriculasService.getById(id);
         if (result.success) {
@@ -55,8 +54,9 @@ export const MatriculaReservas = () => {
       }
     };
 
+  useEffect(() => {
     if (id) {
-      loadMatricula();
+      cargarMatricula();
     }
   }, [id, navigate]);
 

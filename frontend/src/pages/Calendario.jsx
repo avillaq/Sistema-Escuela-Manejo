@@ -14,42 +14,42 @@ import {
   generateUserReservations
 } from '@/data/calendar-data';
 import { CalendarioModal } from '@/pages/CalendarioModal';
-import { bloquesService } from '@/service/apiService';
+import { bloquesService, reservasService } from '@/service/apiService';
 
 // Dias de la semana
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 // Horas de 7am a 6pm (domingo hasta 12pm)
 const HORAS = Array.from({ length: 12 }, (_, i) => i + 7);
 
-export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, isAdminModo = false, onReservasChange }) => {
+export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesProps, isAdminModo = false, onReservasChange }) => {
   const { user } = useAuthStore();
-  const userId = propUserId || user?.id || 1;
-
   const [modo, setModo] = useState("vista");
   const [bloques, setBloques] = useState([]);
-  const [timeSlots, setTimeSlots] = useState(generateTimeSlots());
-  const [userReservaciones, setUserReservaciones] = useState([]);
+  const [reservasUsuario, setReservasUsuario] = useState([]);
   const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
   const [isLoadingBloques, setIsLoadingBloques] = useState(true);
+  const [isLoadingReservas, setIsLoadingReservas] = useState(true);
+  const [horasRestantes, setHorasRestantes] = useState(horasRestantesProps);
 
   // Estados para navegacion semanal
   const [fechaActual, setFechaActual] = useState(new Date());
   const [semanaActual, setSemanaActual] = useState(0); // -1, 0, 1
-
+  
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [modalAccion, setModalAccion] = useState("reservar");
+
+  // Actualizar horas restantes cuando cambien las props
+  useEffect(() => {
+    setHorasRestantes(horasRestantesProps);
+  }, [horasRestantesProps]);
 
   // obtener las fechas de la semana
   const obtenerFechasSemana = (fecha, offsetSemana = 0) => {
     const fechaBase = new Date(fecha);
     fechaBase.setDate(fechaBase.getDate() + (offsetSemana * 7));
 
-    // Obtener el lunes de la semana (dia 1)
-    const diaSemana = fechaBase.getDay(); // 0 = domingo, 1 = lunes, etc.
-    const diasHastaLunes = diaSemana === 0 ? -6 : 1 - diaSemana; // Si es domingo, retroceder 6 días
-    
-    const primerDia = new Date(fechaBase);
-    primerDia.setDate(fechaBase.getDate() + diasHastaLunes);
+    const diaLunes = fechaBase.getDate() - fechaBase.getDay() + 1;
+    const primerDia = new Date(fechaBase.setDate(diaLunes));
 
     const fechasSemana = [];
     for (let i = 0; i < 7; i++) {
@@ -110,6 +110,33 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     fetchBloquesDisponibles();
   }, [semanaActual]); // Recargar cuando cambia la semana
 
+  // Cargar reservas del usuario
+  useEffect(() => {
+    const fetchReservasUsuario = async () => {
+      if (!matriculaId) return;
+      
+      setIsLoadingReservas(true);
+      try {
+        const result = await reservasService.getByAlumno(userId);
+        
+        if (result.success) {
+          // Filtrar reservas de la matrícula actual
+          const reservasMatricula = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
+          console.log(result.data, reservasMatricula);
+          setReservasUsuario(reservasMatricula);
+        } else {
+          console.error('Error al cargar reservas:', result.error);
+        }
+      } catch (error) {
+        console.error('Error al cargar reservas:', error);
+      } finally {
+        setIsLoadingReservas(false);
+      }
+    };
+
+    fetchReservasUsuario();
+  }, [matriculaId, userId, isAdminModo, semanaActual]);
+
   // Notificar cambios en las reservas seleccionadas
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -121,39 +148,26 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     return () => clearTimeout(timeoutId);
   }, [slotsSeleccionados, modo, onReservasChange]);
 
-  // Obtenemos las reservas del usuario
-  useEffect(() => {
-    const reservacionesIniciales = generateUserReservations(userId, timeSlots);
-
-    // Actualizamos los slots con las reservas iniciales
-    const slotsActualizados = [...timeSlots];
-    reservacionesIniciales.forEach(reservation => {
-      const slotIndex = slotsActualizados.findIndex(slot => slot.id === reservation.timeSlotId);
-      if (slotIndex !== -1) {
-        slotsActualizados[slotIndex].reservations += 1;
-        if (slotsActualizados[slotIndex].reservations >= slotsActualizados[slotIndex].maxReservations) {
-          slotsActualizados[slotIndex].isAvailable = false;
-        }
-      }
-    });
-
-    setTimeSlots(slotsActualizados);
-    setUserReservaciones(reservacionesIniciales.map(res => res.timeSlotId));
-  }, [userId]);
-
   // Obtener bloque para una fecha y hora especifica
   const obtenerBloque = (fecha, hora) => {
     return bloques.find(bloque => {
       // Convertir fecha del backend (YYYY-MM-DD) a objeto Date para comparar
-      const fechaBloque = new Date(bloque.fecha + 'T00:00:00'); // Forzar timezone local
+      const fechaBloque = new Date(bloque.fecha + 'T00:00:00');
       const horaBloque = parseInt(bloque.hora_inicio.split(':')[0]);
 
-      const fechaSlot = new Date(fecha);
-      fechaSlot.setHours(0, 0, 0, 0);
-      fechaBloque.setHours(0, 0, 0, 0);
+      return fechaBloque.toDateString() === fecha.toDateString() && horaBloque === hora;
 
-      return fechaBloque.getTime() === fechaSlot.getTime() && horaBloque === hora;
     });
+  };
+
+  // Verificar si el usuario tiene una reserva en un bloque específico
+  const tieneReservaEnBloque = (bloqueId) => {
+    return reservasUsuario.some(reserva => reserva.id_bloque === bloqueId);
+  };
+
+  // Obtener reserva del usuario para un bloque específico
+  const obtenerReservaEnBloque = (bloqueId) => {
+    return reservasUsuario.find(reserva => reserva.id_bloque === bloqueId);
   };
 
   const handleCambiarModo = (nuevoModo) => {
@@ -203,6 +217,17 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
         return;
       }
 
+      // No permitir seleccionar si ya tiene reserva
+      if (tieneReservaEnBloque(bloqueId)) {
+        addToast({
+          title: "Ya tienes reserva",
+          description: "Ya tienes una reserva en este horario.",
+          severity: "warning",
+          color: "warning",
+        });
+        return;
+      }
+
       // Verificar limite antes de seleccionar
       if (isAdminModo && !slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
         addToast({
@@ -221,7 +246,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       );
     } else if (modo === "cancelar") {
       // Solo permitir seleccionar horarios que el usuario haya reservado
-      if (!userReservaciones.includes(bloqueId)) return;
+      if (!tieneReservaEnBloque(bloqueId)) return;
 
       setSlotsSeleccionados(prev =>
         prev.includes(bloqueId)
@@ -256,66 +281,108 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     }
   };
 
-  const confirmarAccion = () => {
-    const slotsActualizados = [...timeSlots];
-    let userReservacionesActualizado = [...userReservaciones];
+  const confirmarAccion = async () => {
+    try {
+      if (modalAccion === "reservar") {
+        // Crear reservas
+        const reservasData = {
+          id_matricula: parseInt(matriculaId),
+          reservas: slotsSeleccionados.map(bloqueId => ({ id_bloque: bloqueId }))
+        };
 
-    if (modalAccion === "reservar") {
-      // se añaden nuevas reservaciones
-      slotsSeleccionados.forEach(slotId => {
-        const slotIndex = slotsActualizados.findIndex(slot => slot.id === slotId);
-        if (slotIndex !== -1) {
-          slotsActualizados[slotIndex].reservations += 1;
-          if (slotsActualizados[slotIndex].reservations >= slotsActualizados[slotIndex].maxReservations) {
-            slotsActualizados[slotIndex].isAvailable = false;
-          }
+        const result = await reservasService.create(reservasData);
+        if (result.success) {
+          addToast({
+            title: "Reservas confirmadas",
+            description: `Has reservado ${slotsSeleccionados.length} horario(s) exitosamente.`,
+            severity: "success",
+            color: "success"
+          });
+
+          // Recargar datos
+          await Promise.all([argarBloques(),cargarReservas()]);
+        } else {
+          addToast({
+            title: "Error al reservar",
+            description: result.error || "No se pudieron crear las reservas.",
+            severity: "danger",
+            color: "danger"
+          });
         }
-      });
+      } else {
+        // Cancelar reservas
+        const reservasACancelar = slotsSeleccionados.map(bloqueId => {
+          const reserva = obtenerReservaEnBloque(bloqueId);
+          return reserva?.id;
+        }).filter(Boolean);
 
-      userReservacionesActualizado = [...userReservacionesActualizado, ...slotsSeleccionados];
+        const cancelarData = {
+          id_matricula: parseInt(matriculaId),
+          ids_reservas: reservasACancelar
+        };
 
-      addToast({
-        title: "Reservas confirmadas",
-        description: `Has reservado ${slotsSeleccionados.length} horario(s) exitosamente.`,
-        severity: "success",
-        color: "success"
-      });
-    } else {
-      // cancelar reservaciones
-      slotsSeleccionados.forEach(slotId => {
-        const slotIndex = slotsActualizados.findIndex(slot => slot.id === slotId);
-        if (slotIndex !== -1) {
-          slotsActualizados[slotIndex].reservations -= 1;
-          slotsActualizados[slotIndex].isAvailable = true;
+        const result = await reservasService.delete(cancelarData);
+        if (result.success) {
+          addToast({
+            title: "Reservas canceladas",
+            description: `Has cancelado ${slotsSeleccionados.length} reserva(s) exitosamente.`,
+            severity: "success",
+            color: "success"
+          });
+
+          // Recargar datos
+          await Promise.all([cargarBloques(),cargarReservas()]);
+        } else {
+          addToast({
+            title: "Error al cancelar",
+            description: result.error || "No se pudieron cancelar las reservas.",
+            severity: "danger",
+            color: "danger"
+          });
         }
-      });
-
-      userReservacionesActualizado = userReservacionesActualizado.filter(id => !slotsSeleccionados.includes(id));
-
+      }
+    } catch (error) {
       addToast({
-        title: "Reservas canceladas",
-        description: `Has cancelado ${slotsSeleccionados.length} reserva(s) exitosamente.`,
+        title: "Error",
+        description: "Ha ocurrido un error al procesar la solicitud.",
         severity: "danger",
         color: "danger"
       });
     }
 
-    setTimeSlots(slotsActualizados);
-    setUserReservaciones(userReservacionesActualizado);
     setSlotsSeleccionados([]);
     setModo("vista");
 
-    // Notificar finalizacion
     if (onReservasChange) {
       onReservasChange(0, "vista");
     }
   };
 
+  // Funciones para recargar datos
+  const cargarBloques = async () => {
+    const result = await bloquesService.getDisponibles();
+    if (result.success) {
+      setBloques(result.data);
+    }
+  };
+
+  const cargarReservas = async () => {
+    if (!matriculaId) return;
+  
+    const result = await reservasService.getByAlumno(userId);
+    
+    if (result.success) {
+      const reservasMatricula = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
+      setReservasUsuario(reservasMatricula);
+    }
+  };
+
+
   const renderSlotTiempo = (fecha, hora) => {
     const bloque = obtenerBloque(fecha, hora);
     const bloqueId = bloque?.id;
     const esFechaVencida = esFechaAnterior(fecha);
-    const isUserReservacion = userReservaciones.includes(bloqueId);
+    const tieneReserva = tieneReservaEnBloque(bloqueId);
     const isSeleccionado = slotsSeleccionados.includes(bloqueId);
 
     // Si no hay bloque disponible
@@ -330,10 +397,10 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
 
     const isLleno = bloque.reservas_actuales >= bloque.capacidad_max;
     const isDisponible = bloque.reservas_actuales < bloque.capacidad_max;
-
+    
     const isClickeable = modo !== "vista" &&
-      ((modo === "reservar" && isDisponible && !isUserReservacion && !esFechaVencida) ||
-        (modo === "cancelar" && isUserReservacion));
+      ((modo === "reservar" && isDisponible && !tieneReserva && !esFechaVencida) ||
+        (modo === "cancelar" && tieneReserva));
 
     let bgColor = "bg-default-100";
     let textColor = "text-default-800";
@@ -344,7 +411,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
       bgColor = "bg-default-50";
       textColor = "text-default-400";
       borderColor = "border-default-100";
-    } else if (isUserReservacion) {
+    } else if (tieneReserva) {
       bgColor = "bg-primary-100";
       textColor = "text-primary-700";
       borderColor = "border-primary-200";
@@ -376,7 +443,7 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
           {bloque.reservas_actuales}/{bloque.capacidad_max}
         </span>
 
-        {isUserReservacion && (
+        {tieneReserva && (
           <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4 mt-0.5 sm:mt-0" />
         )}
       </div>
@@ -411,12 +478,12 @@ export const Calendario = ({ userId: propUserId, matriculaId, horasRestantes, is
     if (semanaActual === 1) return 'Semana Siguiente';
   };
 
-  if (isLoadingBloques) {
+  if (isLoadingBloques || isLoadingReservas) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <div className="text-center">
           <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando horarios disponibles...</p>
+          <p>Cargando horarios y reservas..</p>
         </div>
       </div>
     );

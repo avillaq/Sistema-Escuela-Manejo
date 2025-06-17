@@ -21,7 +21,7 @@ const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', '
 // Horas de 7am a 6pm (domingo hasta 12pm)
 const HORAS = Array.from({ length: 12 }, (_, i) => i + 7);
 
-export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesProps, isAdminModo = false, onReservasChange }) => {
+export const Calendario = ({ userId, matriculaId, horasRestantes: horasRestantesProps, isAdminModo = false, onReservasChange }) => {
   const { user } = useAuthStore();
   const [modo, setModo] = useState("vista");
   const [bloques, setBloques] = useState([]);
@@ -34,7 +34,7 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
   // Estados para navegacion semanal
   const [fechaActual, setFechaActual] = useState(new Date());
   const [semanaActual, setSemanaActual] = useState(0); // -1, 0, 1
-  
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [modalAccion, setModalAccion] = useState("reservar");
 
@@ -114,11 +114,11 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
   useEffect(() => {
     const fetchReservasUsuario = async () => {
       if (!matriculaId) return;
-      
+
       setIsLoadingReservas(true);
       try {
         const result = await reservasService.getByAlumno(userId);
-        
+
         if (result.success) {
           // Filtrar reservas de la matrícula actual
           const reservasMatricula = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
@@ -300,7 +300,7 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
           });
 
           // Recargar datos
-          await Promise.all([argarBloques(),cargarReservas()]);
+          await Promise.all([argarBloques(), cargarReservas()]);
         } else {
           addToast({
             title: "Error al reservar",
@@ -331,7 +331,7 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
           });
 
           // Recargar datos
-          await Promise.all([cargarBloques(),cargarReservas()]);
+          await Promise.all([cargarBloques(), cargarReservas()]);
         } else {
           addToast({
             title: "Error al cancelar",
@@ -368,9 +368,9 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
 
   const cargarReservas = async () => {
     if (!matriculaId) return;
-  
+
     const result = await reservasService.getByAlumno(userId);
-    
+
     if (result.success) {
       const reservasMatricula = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
       setReservasUsuario(reservasMatricula);
@@ -397,7 +397,7 @@ export const Calendario = ({ userId, matriculaId, horasRestantes:horasRestantesP
 
     const isLleno = bloque.reservas_actuales >= bloque.capacidad_max;
     const isDisponible = bloque.reservas_actuales < bloque.capacidad_max;
-    
+
     const isClickeable = modo !== "vista" &&
       ((modo === "reservar" && isDisponible && !tieneReserva && !esFechaVencida) ||
         (modo === "cancelar" && tieneReserva));

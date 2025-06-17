@@ -16,11 +16,7 @@ import { Asistencias } from '@/pages/admin/Asistencias';
 import { Tickets } from '@/pages/admin/Tickets';
 import { Autos } from '@/pages/admin/Autos';
 import { Paquetes } from '@/pages/admin/Paquetes';
-import { Analytics } from '@/pages/admin/Analytics';
-import { Customers } from '@/pages/admin/Customers';
-import { Products } from '@/pages/admin/Products';
 import { Settings } from '@/pages/admin/Settings';
-import { Usuarios } from '@/pages/admin/Usuarios';
 
 const ToDashboard = () => { return <Navigate to="/dashboard" replace />; };
 
@@ -89,22 +85,6 @@ export const protectedRoutes = [
   {
     path: '/paquetes',
     element: Paquetes,
-  },
-  {
-    path: '/analytics',
-    element: Analytics,
-  },
-  {
-    path: '/customers',
-    element: Customers,
-  },
-  {
-    path: '/users',
-    element: Usuarios,
-  },
-  {
-    path: '/products',
-    element: Products,
   },
   {
     path: '/settings',

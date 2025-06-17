@@ -12,215 +12,136 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { DataTable } from '@/components/data-table';
-import { UserFormModal } from '@/pages/admin/UserFormModal';
-import { UserViewModal } from '@/pages/admin/UserViewModal';
-import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
-import { alumnosService } from '@/service/apiService';
+import { PaqueteFormModal } from './PaqueteFormModal';
+import { PaqueteViewModal } from './PaqueteViewModal';
+import { PaqueteDeleteModal } from './PaqueteDeleteModal';
+import { paquetesService } from '@/service/apiService';
 
 export const Paquetes = () => {
-  const tipo = "Paquete";
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  // Modales para ver, editar y eliminar usuarios
+  const tipo="Paquete"
   const { isOpen: isViewOpen, onOpen: onViewOpen, onOpenChange: onViewOpenChange } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange } = useDisclosure();
 
-  // Estados para filtrar usuarios
   const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userData, setUserData] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [paquetes, setPaquetes] = useState([]);
+  const [selectedPaquete, setSelectedPaquete] = useState(null);
 
-  // Cargar usuarios al montar el componente
   useEffect(() => {
-    const fetchUsers = async () => {
-      const result = await alumnosService.getAll();
+    const fetchPaquetes = async () => {
+      const result = await paquetesService.getAll();
       if (result.success) {
-        setUserData(result.data);
+        setPaquetes(result.data);
       } else {
         addToast({
-          title: "Error al cargar usuarios",
-          description: result.error || "No se pudieron cargar los usuarios.",
+          title: "Error al cargar paquetes",
+          description: result.error || "No se pudieron cargar los paquetes.",
           severity: "danger",
           color: "danger",
         });
       }
-    }
-    fetchUsers();
+    };
+    fetchPaquetes();
   }, []);
 
-  // Filtrar usuarios según estado y búsqueda
-  const filteredUsers = useMemo(() => {
-    return userData.filter(user => {
-
-      // por estado
-      if (selectedEstado === "activo" && !user.activo) {
-        return false;
-      }
-      if (selectedEstado === "inactivo" && user.activo) {
-        return false;
-      }
-
-      // por búsqueda
+  const filteredPaquetes = useMemo(() => {
+    return paquetes.filter(paquete => {
+      if (selectedEstado === "activo" && !paquete.activo) return false;
+      if (selectedEstado === "inactivo" && paquete.activo) return false;
       if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          user.nombre.toLowerCase().includes(query) ||
-          user.apellidos.toLowerCase().includes(query) ||
-          user.dni.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query)
-        );
+        const q = searchQuery.toLowerCase();
+        return paquete.nombre.toLowerCase().includes(q);
       }
-
       return true;
     });
-  }, [selectedEstado, searchQuery, userData]);
+  }, [selectedEstado, searchQuery, paquetes]);
 
   const estadisticas = useMemo(() => {
-    const total = userData.length;
-    const activos = userData.filter(user => user.activo).length;
-    const inactivos = userData.filter(user => !user.activo).length;
-
+    const total = paquetes.length;
+    const activos = paquetes.filter(p => p.activo).length;
+    const inactivos = paquetes.filter(p => !p.activo).length;
     return { total, activos, inactivos };
-  }, [userData]);
+  }, [paquetes]);
 
-  // Handle añadir usuario
-  const handleAddUser = (newUser) => {
-    const id = userData.length > 0 ? Math.max(...userData.map(u => u.id)) + 1 : 1;
-    const today = new Date().toISOString().split('T')[0];
-
-    const user = {
-      ...newUser,
-      id,
-      fecha_creado: today,
-    };
-
-    setUserData([...userData, user]);
-
+  const handleAdd = (nuevo) => {
+    setPaquetes([...paquetes, nuevo]);
     addToast({
-      title: `${tipo} añadido`,
-      description: `${user.nombre} ${user.apellidos} ha sido añadido correctamente.`,
+      title: "Paquete añadido",
+      description: `${nuevo.nombre} ha sido añadido correctamente.`,
       severity: "success",
       color: "success",
     });
   };
 
-  // Handle editar usuario
-  const handleUpdateUser = (updatedUser) => {
-    const updatedUsers = userData.map(user =>
-      user.id === updatedUser.id ? updatedUser : user
-    );
-
-    setUserData(updatedUsers);
-
+  const handleUpdate = (actualizado) => {
+    const nuevos = paquetes.map(p => p.id === actualizado.id ? actualizado : p);
+    setPaquetes(nuevos);
     addToast({
-      title: `${tipo} actualizado`,
-      description: `Los datos de ${updatedUser.nombre} ${updatedUser.apellidos} han sido actualizados.`,
+      title: "Paquete actualizado",
+      description: `${actualizado.nombre} ha sido actualizado correctamente.`,
       severity: "success",
       color: "success",
     });
   };
 
-  // Handle eliminar usuario (aqui se solo se desactiva) // TODO : revisar si se debe eliminar o desactivar
-  const handleDeleteUser = (userId) => {
-    const deletedUser = userData.find(user => user.id === userId);
-    if (!deletedUser) return;
-    const updatedUsers = userData.map(user =>
-      user.id === userId ? { ...user, activo: false } : user
+  const handleDelete = (id) => {
+    const actualizado = paquetes.map(p =>
+      p.id === id ? { ...p, activo: false } : p
     );
-
-    setUserData(updatedUsers);
-
+    setPaquetes(actualizado);
+    const eliminado = paquetes.find(p => p.id === id);
     addToast({
-      title: `${tipo} eliminado`,
-      description: `${deletedUser?.nombre} ${deletedUser?.apellidos} ha sido eliminado correctamente.`,
+      title: "Paquete eliminado",
+      description: `${eliminado.nombre} ha sido marcado como inactivo.`,
       severity: "danger",
-      color: "success",
+      color: "danger",
     });
-  };
-
-  // Handle modal ver
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
-    onViewOpen();
-  };
-
-  // Handle modal editar
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    onEditOpen();
-  };
-
-  // Handle modal eliminar
-  const handleDeleteConfirm = (user) => {
-    setSelectedUser(user);
-    onDeleteOpen();
   };
 
   const columns = [
     {
       key: "nombre",
-      label: "NOMBRE COMPLETO",
-      render: (user) => (
-        <div>
-          <p className="font-medium">{user.nombre} {user.apellidos}</p>
-          <p className="text-xs text-default-500">{user.email}</p>
-        </div>
-      )
+      label: "NOMBRE",
+      render: (p) => <span className="font-medium">{p.nombre}</span>
     },
-    { key: "dni", label: "DNI" },
-    { key: "telefono", label: "TELÉFONO" },
     {
-      key: "activo",
+      key: "tipo_auto",
+      label: "TIPO DE AUTO",
+      render: (p) => p.tipo_auto?.tipo || '---'
+    },
+    {
+      key: "horas_total",
+      label: "HORAS",
+      render: (p) => `${p.horas_total}h`
+    },
+    {
+      key: "costo_total",
+      label: "COSTO (S/)",
+      render: (p) => `S/ ${p.costo_total.toFixed(2)}`
+    },
+    {
+      key: "estado",
       label: "ESTADO",
-      render: (user) => (
-        <Chip
-          color={user.activo ? "success" : "danger"}
-          size="sm"
-          variant="flat"
-        >
-          {user.activo ? "Activo" : "Inactivo"}
+      render: (p) => (
+        <Chip color={p.activo ? "success" : "danger"} size="sm" variant="flat">
+          {p.activo ? "Activo" : "Inactivo"}
         </Chip>
       )
     },
     {
-      key: "fechaRegistro",
-      label: "FECHA REGISTRO",
-      render: (user) => {
-        const date = new Date(user.fecha_creado);
-        return date.toLocaleDateString();
-      }
-    },
-    {
       key: "actions",
       label: "ACCIONES",
-      render: (user) => (
+      render: (p) => (
         <div className="flex gap-2 justify-end">
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onPress={() => handleViewUser(user)}
-          >
+          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
             <Icon icon="lucide:eye" width={16} height={16} />
           </Button>
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onPress={() => handleEditUser(user)}
-          >
+          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
             <Icon icon="lucide:edit" width={16} height={16} />
           </Button>
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            color="danger"
-            onPress={() => handleDeleteConfirm(user)}
-          >
+          <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
             <Icon icon="lucide:trash" width={16} height={16} />
           </Button>
         </div>
@@ -230,17 +151,17 @@ export const Paquetes = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-2xl font-bold">Alumnos</h1>
-          <p className="text-default-500">Gestión de Alumnos del sistema.</p>
+          <h1 className="text-2xl font-bold">Paquetes</h1>
+          <p className="text-default-500">Gestión de paquetes disponibles.</p>
         </div>
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}
           onPress={onOpen}
         >
-          {`Añadir ${tipo}`}
+          Añadir Paquete
         </Button>
       </div>
 
@@ -248,39 +169,33 @@ export const Paquetes = () => {
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:users" className="text-primary-500" width={24} height={24} />
+              <Icon icon="lucide:box" className="text-primary-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-primary-700">{`Total ${tipo}s`}</p>
+              <p className="text-sm text-primary-700">Total Paquetes</p>
               <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
             </div>
           </div>
         </Card>
-
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
+              <Icon icon="lucide:check-circle" className="text-success-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-success-700">{`${tipo}s Activos`}</p>
-              <p className="text-2xl font-semibold text-success-700">
-                {estadisticas.activos}
-              </p>
+              <p className="text-sm text-success-700">Activos</p>
+              <p className="text-2xl font-semibold text-success-700">{estadisticas.activos}</p>
             </div>
           </div>
         </Card>
-
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-danger-500/20">
-              <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
+              <Icon icon="lucide:x-circle" className="text-danger-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-danger-700">{`${tipo}s Inactivos`}</p>
-              <p className="text-2xl font-semibold text-danger-700">
-                {estadisticas.inactivos}
-              </p>
+              <p className="text-sm text-danger-700">Inactivos</p>
+              <p className="text-2xl font-semibold text-danger-700">{estadisticas.inactivos}</p>
             </div>
           </div>
         </Card>
@@ -290,77 +205,69 @@ export const Paquetes = () => {
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <Input
-              placeholder={`Buscar ${tipo}`}
+              placeholder="Buscar paquete"
               value={searchQuery}
               onValueChange={setSearchQuery}
               startContent={<Icon icon="lucide:search" className="text-default-400" />}
               className="w-full md:w-1/3"
             />
-            <div className="flex gap-2 w-full md:w-2/3">
-              <Select
-                label="Estado"
-                placeholder="Todos los estados"
-                selectedKeys={[selectedEstado]}
-                className="w-full md:w-1/2"
-                onChange={(e) => setSelectedEstado(e.target.value)}
-              >
-                <SelectItem key="todos" value="todos">Todos los estados</SelectItem>
-                <SelectItem key="activo" value="activo">Activos</SelectItem>
-                <SelectItem key="inactivo" value="inactivo">Inactivos</SelectItem>
-              </Select>
-            </div>
+            <Select
+              label="Estado"
+              selectedKeys={[selectedEstado]}
+              className="w-full md:w-1/3"
+              onChange={(e) => setSelectedEstado(e.target.value)}
+            >
+              <SelectItem key="activo" value="activo">Activos</SelectItem>
+              <SelectItem key="inactivo" value="inactivo">Inactivos</SelectItem>
+            </Select>
           </div>
 
           <DataTable
-            title="Lista de Alumnos"
+            title="Lista de Paquetes"
             columns={columns}
-            data={filteredUsers}
+            data={filteredPaquetes}
             rowKey="id"
           />
         </CardBody>
       </Card>
 
-      {/* Modal añadir usuario */}
-      <UserFormModal
+      <PaqueteFormModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        onAddUser={handleAddUser}
+        onAdd={handleAdd}
+        service={paquetesService}
         tipo={tipo}
-        service={alumnosService}
       />
 
-      {/* Modal ver usuario */}
-      {selectedUser && (
-        <UserViewModal
+      {selectedPaquete && (
+        <PaqueteViewModal
           isOpen={isViewOpen}
           onOpenChange={onViewOpenChange}
-          user={selectedUser}
+          paquete={selectedPaquete}
           tipo={tipo}
         />
       )}
 
-      {/* Modal editar usuario */}
-      {selectedUser && (
-        <UserFormModal
+      {selectedPaquete && (
+        <PaqueteFormModal
           isOpen={isEditOpen}
           onOpenChange={onEditOpenChange}
-          onAddUser={handleUpdateUser}
+          onAdd={handleUpdate}
           editMode={true}
-          dataInicial={selectedUser}
+          dataInicial={selectedPaquete}
+          service={paquetesService}
           tipo={tipo}
-          service={alumnosService}
         />
       )}
 
-      {/* Modal eliminar usuario */}
-      {selectedUser && (
-        <UserDeleteModal
+      {selectedPaquete && (
+        <PaqueteDeleteModal
           isOpen={isDeleteOpen}
           onOpenChange={onDeleteOpenChange}
-          user={selectedUser}
-          onConfirmDelete={handleDeleteUser}
+          paquete={selectedPaquete}
+          onConfirmDelete={() => handleDelete(selectedPaquete.id)}
+          service={paquetesService}
           tipo={tipo}
-          service={alumnosService}
         />
       )}
     </div>

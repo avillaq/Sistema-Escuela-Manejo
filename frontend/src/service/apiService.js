@@ -109,12 +109,17 @@ export const reservasService = {
     const params = { id_alumno: alumnoId };
     return handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/`, { params }));
   },
+  getHoy: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/hoy`)),
 };
+
+// Servicio de Asistencias
+export const asistenciasService = {
+  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.asistencias}/`, data)),
+  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.asistencias}/`)),
+};
+
 
 export const ticketsService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`)),
-  getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/${id}`)),
-  create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.tickets}/`, data)),
-  update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.tickets}/${id}`, data)),
-  delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.tickets}/${id}`))
+  getByInstructor: (instructorId) => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/${instructorId}`)),
 };

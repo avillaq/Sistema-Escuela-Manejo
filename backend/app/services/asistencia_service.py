@@ -10,7 +10,7 @@ def registrar_asistencia(data):
     asistio = data.get("asistio", True)
     alumno = matricula.alumno
 
-    hoy = datetime.today().date()
+    hoy = datetime.today()
     if asistio:
         if matricula.fecha_limite < hoy:
             raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")

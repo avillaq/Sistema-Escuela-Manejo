@@ -93,3 +93,11 @@ def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False): # TODO: f
                 Bloque.fecha >= hoy
             ).all()
     return reservas
+
+def listar_reservas_hoy():
+    reservas = []
+    hoy = date.today()
+    reservas = Reserva.query.join(Bloque).filter(
+        Bloque.fecha >= hoy
+    ).all()
+    return reservas

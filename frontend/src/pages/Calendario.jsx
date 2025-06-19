@@ -300,7 +300,7 @@ export const Calendario = ({ userId, matriculaId, horasRestantes: horasRestantes
           });
 
           // Recargar datos
-          await Promise.all([argarBloques(), cargarReservas()]);
+          await Promise.all([cargarBloques(), cargarReservas()]);
         } else {
           addToast({
             title: "Error al reservar",

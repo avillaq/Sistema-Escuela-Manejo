@@ -8,4 +8,4 @@ class Asistencia(db.Model):
     asistio = db.Column(db.Boolean)
     fecha_asistencia = db.Column(db.DateTime)
 
-    reserva = db.relationship("Reserva", backref="asistencia", uselist=False)
+    reserva = db.relationship("Reserva", backref=db.backref("asistencia", uselist=False))

@@ -47,7 +47,7 @@ export const Asistencias = () => {
         if (reservasResult.success) {
           setReservasHoy(reservasResult.data);
           console.log("Reservas de hoy:", reservasResult.data);
-          
+
         } else {
           addToast({
             title: "Error al cargar reservas",
@@ -101,12 +101,14 @@ export const Asistencias = () => {
 
   // Preparar datos para los Autocomplete
   const reservasParaAutocomplete = useMemo(() => {
-    return reservasHoy.map(reserva => ({
-      key: reserva.id.toString(),
-      label: `${reserva.matricula?.alumno?.nombre} ${reserva.matricula?.alumno?.apellidos}`,
-      description: `DNI: ${reserva.matricula?.alumno?.dni} • ${formatearHora(reserva.bloque?.hora_inicio)} - ${formatearHora(reserva.bloque?.hora_fin)}`,
-      data: reserva
-    }));
+    return reservasHoy
+      .filter(reserva => !reserva.asistencia?.id)
+      .map(reserva => ({
+        key: reserva.id.toString(),
+        label: `${reserva.matricula?.alumno?.nombre} ${reserva.matricula?.alumno?.apellidos}`,
+        description: `DNI: ${reserva.matricula?.alumno?.dni} • ${formatearHora(reserva.bloque?.hora_inicio)} - ${formatearHora(reserva.bloque?.hora_fin)}`,
+        data: reserva
+      }));
   }, [reservasHoy]);
 
   const instructoresParaAutocomplete = useMemo(() => {
@@ -194,9 +196,9 @@ export const Asistencias = () => {
       };
 
       const result = await asistenciasService.create(dataEnviar);
-      
+
       if (result.success) {
-        const mensaje = formData.asistio 
+        const mensaje = formData.asistio
           ? `Asistencia registrada correctamente. ${result.data.ticket ? `Ticket #${result.data.ticket.id} generado.` : ''}`
           : 'Falta registrada correctamente.';
 
@@ -220,9 +222,14 @@ export const Asistencias = () => {
         if (reservasResult.success) {
           setReservasHoy(reservasResult.data);
         }
+
+        console.log("Registro de asistencia exitoso:", result.data);
+        console.log("Reservas actualizadas:", reservasResult.data);
+
+
       } else {
         console.log("Error al registrar asistencia:", result.validationErrors);
-        
+
         addToast({
           title: "Error al registrar asistencia",
           description: result.error || "No se pudo registrar la asistencia.",
@@ -296,7 +303,7 @@ export const Asistencias = () => {
             <div>
               <p className="text-sm text-success-700">Con Asistencia</p>
               <p className="text-2xl font-semibold text-success-700">
-                {reservasHoy.filter(r => r.asistencia).length}
+                {reservasHoy.filter(r => r.asistencia?.id).length}
               </p>
             </div>
           </div>
@@ -310,7 +317,7 @@ export const Asistencias = () => {
             <div>
               <p className="text-sm text-warning-700">Pendientes</p>
               <p className="text-2xl font-semibold text-warning-700">
-                {reservasHoy.filter(r => !r.asistencia).length}
+                {reservasHoy.filter(r => !r.asistencia?.id).length}
               </p>
             </div>
           </div>
@@ -327,9 +334,9 @@ export const Asistencias = () => {
                   <Icon icon="lucide:clipboard-check" width={20} height={20} />
                   <h3 className="text-lg font-semibold">Registrar Asistencia</h3>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="flat" 
+                <Button
+                  size="sm"
+                  variant="flat"
                   onPress={handleReset}
                   startContent={<Icon icon="lucide:refresh-cw" width={14} height={14} />}
                 >
@@ -349,7 +356,9 @@ export const Asistencias = () => {
                   isRequired
                   isInvalid={!!errors.id_reserva}
                   errorMessage={errors.id_reserva}
-                  emptyContent="No hay reservas para hoy"
+                  listboxProps={{
+                    emptyContent: "No hay reservas para hoy",
+                  }}
                   startContent={<Icon icon="lucide:calendar" className="text-default-400" width={16} height={16} />}
                 >
                   {(item) => (
@@ -359,11 +368,6 @@ export const Asistencias = () => {
                           <p className="font-medium">{item.label}</p>
                           <p className="text-xs text-default-500">{item.description}</p>
                         </div>
-                        {item.data.asistencia && (
-                          <Chip size="sm" color="success" variant="flat">
-                            Registrada
-                          </Chip>
-                        )}
                       </div>
                     </AutocompleteItem>
                   )}
@@ -401,7 +405,7 @@ export const Asistencias = () => {
               {formData.asistio && (
                 <div className="space-y-4">
                   <Divider />
-                  
+
                   {/* Selección de instructor */}
                   <div className="space-y-3">
                     <Autocomplete
@@ -413,7 +417,9 @@ export const Asistencias = () => {
                       isRequired={formData.asistio}
                       isInvalid={!!errors.id_instructor}
                       errorMessage={errors.id_instructor}
-                      emptyContent="No hay instructores disponibles"
+                      listboxProps={{
+                        emptyContent: "No hay instructores disponibles",
+                      }}
                       startContent={<Icon icon="lucide:user-check" className="text-default-400" width={16} height={16} />}
                     >
                       {(item) => (
@@ -438,7 +444,9 @@ export const Asistencias = () => {
                       isRequired={formData.asistio}
                       isInvalid={!!errors.id_auto}
                       errorMessage={errors.id_auto}
-                      emptyContent="No hay autos disponibles"
+                      listboxProps={{
+                        emptyContent: "No hay autos disponibles",
+                      }}
                       startContent={<Icon icon="lucide:car" className="text-default-400" width={16} height={16} />}
                     >
                       {(item) => (
@@ -464,15 +472,15 @@ export const Asistencias = () => {
                 onPress={handleSubmit}
                 isLoading={isSubmitting}
                 startContent={
-                  formData.asistio ? 
+                  formData.asistio ?
                     <Icon icon="lucide:check-circle" width={20} height={20} /> :
                     <Icon icon="lucide:x-circle" width={20} height={20} />
                 }
               >
-                {isSubmitting 
-                  ? "Registrando..." 
-                  : formData.asistio 
-                    ? "Registrar Asistencia" 
+                {isSubmitting
+                  ? "Registrando..."
+                  : formData.asistio
+                    ? "Registrar Asistencia"
                     : "Registrar Falta"
                 }
               </Button>
@@ -501,7 +509,7 @@ export const Asistencias = () => {
                     DNI: {reservaSeleccionada.matricula?.alumno?.dni}
                   </p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-default-500">Horario</p>
                   <p className="font-medium">
@@ -522,20 +530,6 @@ export const Asistencias = () => {
                     {reservaSeleccionada.matricula?.horas_completadas || 0} horas completadas
                   </p>
                 </div>
-
-                {reservaSeleccionada.asistencia && (
-                  <div className="p-3 bg-success-50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Icon icon="lucide:check-circle" className="text-success-600" width={16} height={16} />
-                      <p className="text-sm font-medium text-success-800">
-                        Asistencia ya registrada
-                      </p>
-                    </div>
-                    <p className="text-xs text-success-700">
-                      Esta reserva ya tiene su asistencia registrada.
-                    </p>
-                  </div>
-                )}
               </CardBody>
             </Card>
           )}

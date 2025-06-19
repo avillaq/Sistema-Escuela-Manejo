@@ -14,7 +14,6 @@ export const setupInterceptors = (useAuthStore) => {
   api.interceptors.request.use(
     async (config) => {
       const { token, logout } = useAuthStore.getState();
-      console.log(token);
       
       if (token) {
         const tokenData = jwtDecode(token);

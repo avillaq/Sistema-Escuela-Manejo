@@ -75,6 +75,7 @@ export const authService = {
     };
     return handleResponse(() => api.post(API_CONFIG.endpoints.auth.login, payload));
   },
+  logout: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.logout)),
   getCurrentUser: () => handleResponse(() => api.get(API_CONFIG.endpoints.auth.me))
 };
 

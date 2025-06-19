@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import flask_praetorian
-from app.extensions import guard
+from app.extensions import guard, blacklist
 from app.schemas.login import LoginSchema
 
 auth_bp = Blueprint("auth", __name__)
@@ -20,6 +20,16 @@ def login():
         "access_token": token,
         "usuario_id": usuario.id,
         "rol": usuario.rol
+    }), 200
+
+@auth_bp.route("/logout", methods=["POST"])
+@flask_praetorian.auth_required
+def logout():
+    token = guard.read_token_from_header()
+    data = guard.extract_jwt_token(token)
+    blacklist.add_token(token, data["exp"])
+    return jsonify({
+        "message": "Logout exitoso"
     }), 200
 
 @auth_bp.route("/me", methods=["GET"])

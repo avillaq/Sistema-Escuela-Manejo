@@ -1,9 +1,23 @@
 import { Icon } from '@iconify/react';
 import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, Badge } from '@heroui/react';
 import { useAuthStore } from '@/store/auth-store';
+import { authService } from '@/service/apiService';
 
 export const Header = ({ toggleSidebar }) => {
   const { rol , logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      const result = await authService.logout();
+      if (result.success) {
+        logout();
+      } else {
+        console.error("Error al cerrar sesión:", result.error);
+      }
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  }
 
   return (
     <header className="bg-content1 border-b border-divider h-16 flex items-center px-4 justify-between">
@@ -46,7 +60,7 @@ export const Header = ({ toggleSidebar }) => {
               startContent={<Icon icon="lucide:log-out" width={18} height={18} />}
               className="text-danger"
               color="danger"
-              onPress={logout}
+              onPress={handleLogout}
             >
               Cerrar sesión
             </DropdownItem>

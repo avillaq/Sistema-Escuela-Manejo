@@ -1,10 +1,13 @@
 import { Navigate } from 'react-router';
+import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 
 // Rutas publicas
 import { LoginPage } from '@/pages/LoginPage';
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
+
+import { Dashboard } from '@/pages/Dashboard';
 
 // Rutas para el administrador
-import { Dashboard } from '@/pages/admin/Dashboard';
 import { Alumnos } from '@/pages/admin/Alumnos';
 import { Instructores } from '@/pages/admin/Instructores';
 import { Administradores } from '@/pages/admin/Administradores';
@@ -18,13 +21,25 @@ import { Autos } from '@/pages/admin/Autos';
 import { Paquetes } from '@/pages/admin/Paquetes';
 import { Settings } from '@/pages/admin/Settings';
 
-const ToDashboard = () => { return <Navigate to="/dashboard" replace />; };
+// Rutas para el alumno
+import { MiCalendario } from '@/pages/alumno/MiCalendario';
+
+// Rutas para el instructor
+import { MisTickets } from '@/pages/instructor/MisTickets';
+
+const ToDashboard = () => { 
+  return <Navigate to="/dashboard" replace />; 
+};
 
 // Rutas publicas
 export const publicRoutes = [
   {
     path: '/login',
-    element: LoginPage,
+    element: <PublicRoute><LoginPage /></PublicRoute>,
+  },
+  {
+    path: '/unauthorized',
+    element: <UnauthorizedPage />,
   },
 ];
 
@@ -32,66 +47,77 @@ export const publicRoutes = [
 export const protectedRoutes = [
   {
     path: '/',
-    element: ToDashboard,
+    element: <ProtectedRoute><ToDashboard /></ProtectedRoute>,
   },
   {
     path: '/dashboard',
-    element: Dashboard,
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
   },
   {
     path: '/alumnos',
-    element: Alumnos,
+    element: <ProtectedRoute requiredRole="admin"><Alumnos /></ProtectedRoute>,
+
   },
   {
     path: '/instructores',
-    element: Instructores,
+    element: <ProtectedRoute requiredRole="admin"><Instructores /></ProtectedRoute>,
+
   }, 
   {
     path: '/administradores',
-    element: Administradores,
+    element: <ProtectedRoute requiredRole="admin"><Administradores /></ProtectedRoute>,
+
   },
   {
     path: '/matriculas',
-    element: Matriculas,
+    element: <ProtectedRoute requiredRole="admin"><Matriculas /></ProtectedRoute>,
+
   },
   {
     path: '/matriculas/nueva',
-    element: MatriculaForm,
+    element: <ProtectedRoute requiredRole="admin"><MatriculaForm /></ProtectedRoute>,
+
   },
   {
     path: '/matriculas/:id',
-    element: MatriculaDetalle,
+    element: <ProtectedRoute requiredRole="admin"><MatriculaDetalle /></ProtectedRoute>,
   },
   {
     path: '/matriculas/:id/editar',
-    element: MatriculaForm,
+    element: <ProtectedRoute requiredRole="admin"><MatriculaForm /></ProtectedRoute>,
+
   },
   {
     path: '/matriculas/:id/reservas',
-    element: MatriculaReservas,
+    element: <ProtectedRoute requiredRole="admin"><MatriculaReservas /></ProtectedRoute>,
   },
   {
     path: '/asistencias',
-    element: Asistencias,
+    element: <ProtectedRoute requiredRole="admin"><Asistencias /></ProtectedRoute>,
+
   },
   {
     path: '/tickets',
-    element: Tickets,
+    element: <ProtectedRoute requiredRole="admin"><Tickets /></ProtectedRoute>,
   },
   {
     path: '/autos',
-    element: Autos,
+    element: <ProtectedRoute requiredRole="admin"><Autos /></ProtectedRoute>,
   },
   {
     path: '/paquetes',
-    element: Paquetes,
+    element: <ProtectedRoute requiredRole="admin"><Paquetes /></ProtectedRoute>,
   },
   {
     path: '/settings',
-    element: Settings,
+    element: <ProtectedRoute requiredRole="admin"><Settings /></ProtectedRoute>,
   },
   {
-    path: '*',
-    element: ToDashboard,
+  path: '/mi-calendario',
+  element: <ProtectedRoute requiredRole="alumno"><MiCalendario /></ProtectedRoute>,
+  },
+  {
+    path: '/mis-tickets',
+    element: <ProtectedRoute requiredRole="instructor"><MisTickets /></ProtectedRoute>,
   },
 ];

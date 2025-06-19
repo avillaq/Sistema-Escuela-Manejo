@@ -20,8 +20,7 @@ const NavItem = ({ to, icon, label }) => {
 
 export const Sidebar = ({ isOpen }) => {
   const location = useLocation();
-  const { user } = useAuthStore();
-  const rol = user?.rol || "admin";
+  const { rol } = useAuthStore();
 
   const renderNavItems = () => {
     if (rol === "admin") {
@@ -32,8 +31,6 @@ export const Sidebar = ({ isOpen }) => {
           </div>
           <nav className="space-y-1 px-2">
             <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
-            {/* <NavItem to="/calendario" icon="lucide:calendar" label={isOpen ? 'Calendario' : ''} /> */}
-            {/* <NavItem to="/reportes" icon="lucide:bar-chart" label={isOpen ? 'Reportes' : ''} /> */}
           </nav>
           <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
             Gestión de Usuarios
@@ -57,7 +54,12 @@ export const Sidebar = ({ isOpen }) => {
           <nav className="space-y-1 px-2">
             <NavItem to="/autos" icon="lucide:car" label={isOpen ? 'Autos' : ''} />
             <NavItem to="/paquetes" icon="lucide:boxes" label={isOpen ? 'Paquetes' : ''} />          
-            {/* <NavItem to="/bloques" icon="lucide:clock" label={isOpen ? 'Bloques' : ''} /> */}
+          </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Configuración
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/settings" icon="lucide:settings" label={isOpen ? 'Settings' : ''} />
           </nav>
         </>
       );
@@ -69,8 +71,8 @@ export const Sidebar = ({ isOpen }) => {
             Principal
           </div>
           <nav className="space-y-1 px-2">
-            <NavItem to="/mi-dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
-            <NavItem to="/mi-calendario" icon="lucide:calendar" label={isOpen ? 'Calendario' : ''} />
+            <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
+            <NavItem to="/mi-calendario" icon="lucide:calendar" label={isOpen ? 'Mi Calendario' : ''} />
           </nav>
         </>
       );
@@ -83,7 +85,7 @@ export const Sidebar = ({ isOpen }) => {
           </div>
           <nav className="space-y-1 px-2">
             <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} />
-            <NavItem to="/tickets" icon="lucide:ticket" label={isOpen ? 'Tickets' : ''} />
+            <NavItem to="/mis-tickets" icon="lucide:ticket" label={isOpen ? 'Mis Tickets' : ''} />
           </nav>
         </>
       );
@@ -91,11 +93,9 @@ export const Sidebar = ({ isOpen }) => {
     return null;
   }
 
-
   return (
     <aside
-      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${isOpen ? 'w-52' : 'w-0 md:w-16 overflow-hidden'
-        }`}
+      className={`bg-content1 border-r border-divider transition-all duration-300 flex flex-col ${isOpen ? 'w-52' : 'w-0 md:w-16 overflow-hidden'}`}
     >
       <div className="p-4 flex items-center justify-between">
         <div className={`flex items-center gap-2 ${!isOpen && 'md:hidden'}`}>
@@ -115,13 +115,6 @@ export const Sidebar = ({ isOpen }) => {
 
       <div className="flex-1 py-4 flex flex-col">
         {renderNavItems()}
-
-        <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
-          Configuración
-        </div>
-        <nav className="space-y-1 px-2">
-          <NavItem to="/settings" icon="lucide:settings" label={isOpen ? 'Settings' : ''} />
-        </nav>
       </div>
 
       <div className="p-4 border-t border-divider">

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { authService } from '@/service/apiService';
 
 export const Header = ({ toggleSidebar }) => {
-  const { rol , logout } = useAuthStore();
+  const { rol, logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -18,6 +18,15 @@ export const Header = ({ toggleSidebar }) => {
       console.error("Error al cerrar sesión:", error);
     }
   }
+
+  const mostrarNombre = (rol) => {
+    switch(rol) {
+      case 'admin': return 'Administrador';
+      case 'alumno': return 'Alumno';
+      case 'instructor': return 'Instructor';
+      default: return 'Usuario';
+    }
+  };
 
   return (
     <header className="bg-content1 border-b border-divider h-16 flex items-center px-4 justify-between">
@@ -33,12 +42,6 @@ export const Header = ({ toggleSidebar }) => {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* <Button isIconOnly variant="light" aria-label="Notifications" className="relative">
-          <Badge content="5" color="danger" shape="circle" size="sm">
-            <Icon icon="lucide:bell" width={20} height={20} />
-          </Badge>
-        </Button> */}
-
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Button
@@ -51,7 +54,7 @@ export const Header = ({ toggleSidebar }) => {
                 color="primary"
                 icon={<Icon icon="lucide:user" width={20} height={20} />}
               />
-              <span className="hidden md:inline">{rol? rol : "Usuario" }</span>
+              <span className="hidden md:inline">{mostrarNombre(rol)}</span>
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">

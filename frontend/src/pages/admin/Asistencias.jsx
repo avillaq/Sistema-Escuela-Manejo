@@ -4,13 +4,12 @@ import {
   CardBody,
   CardHeader,
   Button,
-  Select,
-  SelectItem,
   Switch,
-  Input,
   addToast,
   Chip,
-  Divider
+  Divider,
+  Autocomplete,
+  AutocompleteItem
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { reservasService, asistenciasService, instructoresService, autosService } from '@/service/apiService';
@@ -30,11 +29,6 @@ export const Asistencias = () => {
     id_instructor: '',
     id_auto: ''
   });
-
-  // Estados de búsqueda
-  const [searchReserva, setSearchReserva] = useState('');
-  const [searchInstructor, setSearchInstructor] = useState('');
-  const [searchAuto, setSearchAuto] = useState('');
 
   // Estados de validación
   const [errors, setErrors] = useState({});
@@ -100,49 +94,38 @@ export const Asistencias = () => {
     cargarDatos();
   }, []);
 
-  // Filtrar reservas según búsqueda
-  const reservasFiltradas = useMemo(() => {
-    if (!searchReserva) return reservasHoy;
-    
-    const query = searchReserva.toLowerCase();
-    return reservasHoy.filter(reserva => {
-      const alumno = reserva.matricula?.alumno;
-      if (!alumno) return false;
-      
-      return (
-        alumno.nombre.toLowerCase().includes(query) ||
-        alumno.apellidos.toLowerCase().includes(query) ||
-        alumno.dni.includes(query) ||
-        `${alumno.nombre} ${alumno.apellidos}`.toLowerCase().includes(query)
-      );
-    });
-  }, [reservasHoy, searchReserva]);
+  // Formatear hora para mostrar
+  const formatearHora = (hora) => {
+    return hora.slice(0, 5); // HH:MM
+  };
 
-  // Filtrar instructores según búsqueda
-  const instructoresFiltrados = useMemo(() => {
-    if (!searchInstructor) return instructores;
-    
-    const query = searchInstructor.toLowerCase();
-    return instructores.filter(instructor => 
-      instructor.nombre.toLowerCase().includes(query) ||
-      instructor.apellidos.toLowerCase().includes(query) ||
-      instructor.dni.includes(query) ||
-      `${instructor.nombre} ${instructor.apellidos}`.toLowerCase().includes(query)
-    );
-  }, [instructores, searchInstructor]);
+  // Preparar datos para los Autocomplete
+  const reservasParaAutocomplete = useMemo(() => {
+    return reservasHoy.map(reserva => ({
+      key: reserva.id.toString(),
+      label: `${reserva.matricula?.alumno?.nombre} ${reserva.matricula?.alumno?.apellidos}`,
+      description: `DNI: ${reserva.matricula?.alumno?.dni} • ${formatearHora(reserva.bloque?.hora_inicio)} - ${formatearHora(reserva.bloque?.hora_fin)}`,
+      data: reserva
+    }));
+  }, [reservasHoy]);
 
-  // Filtrar autos según búsqueda
-  const autosFiltrados = useMemo(() => {
-    if (!searchAuto) return autos;
-    
-    const query = searchAuto.toLowerCase();
-    return autos.filter(auto => 
-      auto.placa.toLowerCase().includes(query) ||
-      auto.marca.toLowerCase().includes(query) ||
-      auto.modelo.toLowerCase().includes(query) ||
-      auto.color.toLowerCase().includes(query)
-    );
-  }, [autos, searchAuto]);
+  const instructoresParaAutocomplete = useMemo(() => {
+    return instructores.map(instructor => ({
+      key: instructor.id.toString(),
+      label: `${instructor.nombre} ${instructor.apellidos}`,
+      description: `DNI: ${instructor.dni}`,
+      data: instructor
+    }));
+  }, [instructores]);
+
+  const autosParaAutocomplete = useMemo(() => {
+    return autos.map(auto => ({
+      key: auto.id.toString(),
+      label: auto.placa,
+      description: `${auto.marca} ${auto.modelo} • ${auto.color}`,
+      data: auto
+    }));
+  }, [autos]);
 
   // Obtener información de la reserva seleccionada
   const reservaSeleccionada = useMemo(() => {
@@ -238,6 +221,8 @@ export const Asistencias = () => {
           setReservasHoy(reservasResult.data);
         }
       } else {
+        console.log("Error al registrar asistencia:", result.validationErrors);
+        
         addToast({
           title: "Error al registrar asistencia",
           description: result.error || "No se pudo registrar la asistencia.",
@@ -266,14 +251,6 @@ export const Asistencias = () => {
       id_auto: ''
     });
     setErrors({});
-    setSearchReserva('');
-    setSearchInstructor('');
-    setSearchAuto('');
-  };
-
-  // Formatear hora para mostrar
-  const formatearHora = (hora) => {
-    return hora.slice(0, 5); // HH:MM
   };
 
   if (isLoading) {
@@ -363,45 +340,34 @@ export const Asistencias = () => {
             <CardBody className="space-y-6">
               {/* Selección de reserva */}
               <div className="space-y-3">
-                <Input
-                  label="Buscar reserva por alumno"
-                  placeholder="Buscar por nombre, apellidos o DNI..."
-                  value={searchReserva}
-                  onValueChange={setSearchReserva}
-                  startContent={<Icon icon="lucide:search" className="text-default-400" width={16} height={16} />}
-                />
-                
-                <Select
+                <Autocomplete
                   label="Reserva del Día"
-                  placeholder="Seleccione la reserva a marcar"
-                  selectedKeys={formData.id_reserva ? [formData.id_reserva] : []}
-                  onSelectionChange={(keys) => handleChange('id_reserva', Array.from(keys)[0] || '')}
+                  placeholder="Buscar reserva por alumno, DNI o horario..."
+                  defaultItems={reservasParaAutocomplete}
+                  selectedKey={formData.id_reserva}
+                  onSelectionChange={(key) => handleChange('id_reserva', key || '')}
                   isRequired
                   isInvalid={!!errors.id_reserva}
                   errorMessage={errors.id_reserva}
                   emptyContent="No hay reservas para hoy"
+                  startContent={<Icon icon="lucide:calendar" className="text-default-400" width={16} height={16} />}
                 >
-                  {reservasFiltradas.map((reserva) => (
-                    <SelectItem key={reserva.id} value={reserva.id.toString()}>
+                  {(item) => (
+                    <AutocompleteItem key={item.key} textValue={item.label}>
                       <div className="flex justify-between items-center w-full">
                         <div>
-                          <p className="font-medium">
-                            {reserva.matricula?.alumno?.nombre} {reserva.matricula?.alumno?.apellidos}
-                          </p>
-                          <p className="text-xs text-default-500">
-                            DNI: {reserva.matricula?.alumno?.dni} • 
-                            {formatearHora(reserva.bloque?.hora_inicio)} - {formatearHora(reserva.bloque?.hora_fin)}
-                          </p>
+                          <p className="font-medium">{item.label}</p>
+                          <p className="text-xs text-default-500">{item.description}</p>
                         </div>
-                        {reserva.asistencia && (
+                        {item.data.asistencia && (
                           <Chip size="sm" color="success" variant="flat">
                             Registrada
                           </Chip>
                         )}
                       </div>
-                    </SelectItem>
-                  ))}
-                </Select>
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
               </div>
 
               <Divider />
@@ -438,68 +404,52 @@ export const Asistencias = () => {
                   
                   {/* Selección de instructor */}
                   <div className="space-y-3">
-                    <Input
-                      label="Buscar instructor"
-                      placeholder="Buscar por nombre, apellidos o DNI..."
-                      value={searchInstructor}
-                      onValueChange={setSearchInstructor}
-                      startContent={<Icon icon="lucide:search" className="text-default-400" width={16} height={16} />}
-                    />
-                    
-                    <Select
+                    <Autocomplete
                       label="Instructor Asignado"
-                      placeholder="Seleccione el instructor"
-                      selectedKeys={formData.id_instructor ? [formData.id_instructor] : []}
-                      onSelectionChange={(keys) => handleChange('id_instructor', Array.from(keys)[0] || '')}
+                      placeholder="Buscar instructor por nombre, apellidos o DNI..."
+                      defaultItems={instructoresParaAutocomplete}
+                      selectedKey={formData.id_instructor}
+                      onSelectionChange={(key) => handleChange('id_instructor', key || '')}
                       isRequired={formData.asistio}
                       isInvalid={!!errors.id_instructor}
                       errorMessage={errors.id_instructor}
                       emptyContent="No hay instructores disponibles"
+                      startContent={<Icon icon="lucide:user-check" className="text-default-400" width={16} height={16} />}
                     >
-                      {instructoresFiltrados.map((instructor) => (
-                        <SelectItem key={instructor.id} value={instructor.id.toString()}>
+                      {(item) => (
+                        <AutocompleteItem key={item.key} textValue={item.label}>
                           <div>
-                            <p className="font-medium">
-                              {instructor.nombre} {instructor.apellidos}
-                            </p>
-                            <p className="text-xs text-default-500">DNI: {instructor.dni}</p>
+                            <p className="font-medium">{item.label}</p>
+                            <p className="text-xs text-default-500">{item.description}</p>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </Select>
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
                   </div>
 
                   {/* Selección de auto */}
                   <div className="space-y-3">
-                    <Input
-                      label="Buscar auto"
-                      placeholder="Buscar por placa, marca o modelo..."
-                      value={searchAuto}
-                      onValueChange={setSearchAuto}
-                      startContent={<Icon icon="lucide:search" className="text-default-400" width={16} height={16} />}
-                    />
-                    
-                    <Select
+                    <Autocomplete
                       label="Auto Asignado"
-                      placeholder="Seleccione el auto"
-                      selectedKeys={formData.id_auto ? [formData.id_auto] : []}
-                      onSelectionChange={(keys) => handleChange('id_auto', Array.from(keys)[0] || '')}
+                      placeholder="Buscar auto por placa, marca o modelo..."
+                      defaultItems={autosParaAutocomplete}
+                      selectedKey={formData.id_auto}
+                      onSelectionChange={(key) => handleChange('id_auto', key || '')}
                       isRequired={formData.asistio}
                       isInvalid={!!errors.id_auto}
                       errorMessage={errors.id_auto}
                       emptyContent="No hay autos disponibles"
+                      startContent={<Icon icon="lucide:car" className="text-default-400" width={16} height={16} />}
                     >
-                      {autosFiltrados.map((auto) => (
-                        <SelectItem key={auto.id} value={auto.id.toString()}>
+                      {(item) => (
+                        <AutocompleteItem key={item.key} textValue={item.label}>
                           <div>
-                            <p className="font-medium">{auto.placa}</p>
-                            <p className="text-xs text-default-500">
-                              {auto.marca} {auto.modelo} • {auto.color}
-                            </p>
+                            <p className="font-medium">{item.label}</p>
+                            <p className="text-xs text-default-500">{item.description}</p>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </Select>
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
                   </div>
                 </div>
               )}

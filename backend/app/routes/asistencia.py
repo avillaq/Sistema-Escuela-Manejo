@@ -25,7 +25,7 @@ def marcar_asistencia():
         "asistencia_id": asistencia.id,
         "ticket": {
             "id": ticket.id,
-            "numero_clase_dia": ticket.numero_clase_dia,
+            "numero_clase_alumno": ticket.numero_clase_alumno,
             "id_instructor": ticket.id_instructor,
             "id_auto": ticket.id_auto
         }

@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, Badge } from '@heroui/react';
+import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar } from '@heroui/react';
 import { useAuthStore } from '@/store/auth-store';
 import { authService } from '@/service/apiService';
 

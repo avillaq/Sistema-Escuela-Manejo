@@ -21,6 +21,11 @@ export const LoginPage = () => {
   if (isAuthenticated) {
     return <Navigate to={from} />;
   }
+
+  const handleDNIChange = (value) => {
+    const nuevoValue = value.replace(/\D/g, "").slice(0, 8);
+    setUserName(nuevoValue);
+  }
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -91,12 +96,11 @@ export const LoginPage = () => {
               <Input
                 label="DNI (Usuario)"
                 placeholder="Ingresa tu DNI"
-                type="text"
+                type="number"
                 value={username}
-                onValueChange={setUserName}
+                onValueChange={handleDNIChange}
                 variant="bordered"
                 isRequired
-                maxLength={8}
                 description="Tu número de DNI de 8 dígitos"
                 startContent={
                   <Icon icon="lucide:id-card" className="text-default-400" width={18} height={18} />

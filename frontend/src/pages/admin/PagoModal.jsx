@@ -44,11 +44,18 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
 
   // Manejar cambios en el monto
   const handleMontoChange = (value) => {
+    const numValue = Number(value); 
+    if (numValue < 0) return;// No negativos
     setMonto(value);
 
     if (errors.monto) {
       setErrors({ ...errors, monto: '' });
     }
+  };
+
+  // prevenir el scroll wheel
+  const preventWheel = (e) => {
+    e.target.blur();
   };
 
   // Enviar el pago
@@ -154,6 +161,7 @@ export const PagoModal = ({ isOpen, onOpenChange, matricula, onPagoRegistrado })
                     step="0.01"
                     value={monto}
                     onValueChange={handleMontoChange}
+                    onWheel={preventWheel}
                     startContent={<span className="text-default-400 text-small">S/</span>}
                     isRequired
                     isInvalid={!!errors.monto}

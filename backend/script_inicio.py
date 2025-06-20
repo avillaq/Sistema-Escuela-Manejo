@@ -95,37 +95,101 @@ def poblar_db():
         else:
             print("Ya existe un administrador con DNI 12345678. Saltando...")
         
-        # instructor 
-        if not Instructor.query.filter_by(dni='87654321').first():
-            print("Creando instructor...")
-            instructor_data = {
+        # instructores
+        instructores_data = [
+            {
                 'nombre': 'María Elena',
                 'apellidos': 'González Rodríguez',
                 'dni': '87654321',
                 'telefono': '965432178',
-                'email': 'instructor@escuela.com'
+                'email': 'instructor1@escuela.com'
+            },
+            {
+                'nombre': 'Roberto Luis',
+                'apellidos': 'Fernández Castro',
+                'dni': '78945612',
+                'telefono': '954123789',
+                'email': 'instructor2@escuela.com'
+            },
+            {
+                'nombre': 'Ana Patricia',
+                'apellidos': 'Silva Vargas',
+                'dni': '65432198',
+                'telefono': '987456321',
+                'email': 'instructor3@escuela.com'
+            },
+            {
+                'nombre': 'Miguel Ángel',
+                'apellidos': 'Torres Mendoza',
+                'dni': '54321987',
+                'telefono': '976543210',
+                'email': 'instructor4@escuela.com'
+            },
+            {
+                'nombre': 'Carmen Rosa',
+                'apellidos': 'Morales Herrera',
+                'dni': '43219876',
+                'telefono': '965789432',
+                'email': 'instructor5@escuela.com'
             }
-            instructor = crear_instructor(instructor_data)
-            print(f"Instructor creado: {instructor.nombre} {instructor.apellidos} (DNI: {instructor.dni})")
-            print(f"  Usuario: {instructor.dni} | Contraseña: {instructor.dni}")
-        else:
-            print("Ya existe un instructor con DNI 87654321. Saltando...")
+        ]
         
-        # alumno
-        if not Alumno.query.filter_by(dni='11223344').first():
-            print("Creando alumno de ejemplo...")
-            alumno_data = {
+        for instructor_data in instructores_data:
+            if not Instructor.query.filter_by(dni=instructor_data['dni']).first():
+                print(f"Creando instructor {instructor_data['nombre']}...")
+                instructor = crear_instructor(instructor_data)
+                print(f"Instructor creado: {instructor.nombre} {instructor.apellidos} (DNI: {instructor.dni})")
+                print(f"  Usuario: {instructor.dni} | Contraseña: {instructor.dni}")
+            else:
+                print(f"Ya existe un instructor con DNI {instructor_data['dni']}. Saltando...")
+        
+        # alumnos
+        alumnos_data = [
+            {
                 'nombre': 'Carlos Miguel',
                 'apellidos': 'Ramírez López',
                 'dni': '11223344',
                 'telefono': '912345678',
-                'email': 'alumno@email.com'
+                'email': 'alumno1@email.com'
+            },
+            {
+                'nombre': 'Laura Sofía',
+                'apellidos': 'Martínez Flores',
+                'dni': '22334455',
+                'telefono': '923456789',
+                'email': 'alumno2@email.com'
+            },
+            {
+                'nombre': 'Diego Alejandro',
+                'apellidos': 'Vega Santana',
+                'dni': '33445566',
+                'telefono': '934567890',
+                'email': 'alumno3@email.com'
+            },
+            {
+                'nombre': 'Valeria Nicole',
+                'apellidos': 'Jiménez Ruiz',
+                'dni': '44556677',
+                'telefono': '945678901',
+                'email': 'alumno4@email.com'
+            },
+            {
+                'nombre': 'Andrés Felipe',
+                'apellidos': 'Campos Quispe',
+                'dni': '55667788',
+                'telefono': '956789012',
+                'email': 'alumno5@email.com'
             }
-            alumno = crear_alumno(alumno_data)
-            print(f"Alumno creado: {alumno.nombre} {alumno.apellidos} (DNI: {alumno.dni})")
-            print(f"  Usuario: {alumno.dni} | Contraseña: {alumno.dni}")
-        else:
-            print("Ya existe un alumno con DNI 11223344. Saltando...")
+        ]
+        
+        for alumno_data in alumnos_data:
+            if not Alumno.query.filter_by(dni=alumno_data['dni']).first():
+                print(f"Creando alumno {alumno_data['nombre']}...")
+                alumno = crear_alumno(alumno_data)
+                print(f"Alumno creado: {alumno.nombre} {alumno.apellidos} (DNI: {alumno.dni})")
+                print(f"  Usuario: {alumno.dni} | Contraseña: {alumno.dni}")
+            else:
+                print(f"Ya existe un alumno con DNI {alumno_data['dni']}. Saltando...")
         
         print("\n¡Población de la base de datos completada!")
 

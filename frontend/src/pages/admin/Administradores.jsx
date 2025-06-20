@@ -205,7 +205,6 @@ export const Administradores = () => {
       label: "FECHA REGISTRO",
       render: (user) => {
         const date = new Date(user.fecha_creado);
-        console.log("Fecha de registro:", date);
 
         return date.toLocaleDateString();
       }

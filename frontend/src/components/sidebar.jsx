@@ -14,7 +14,7 @@ const NavItem = ({ to, icon, label, onClick }) => {
       onClick={onClick}
     >
       <Icon icon={icon} width={20} height={20} />
-      <span>{label}</span>
+      <span className="text-sm">{label}</span>
     </NavLink>
   );
 };
@@ -123,7 +123,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <Icon icon="lucide:layout-dashboard" className="text-white" width={18} height={18} />
             </div>
-            <h1 className={`font-semibold text-lg ${!isOpen && 'md:hidden'}`}>Dashboard</h1>
+            <h1 className={`font-semibold text-base ${!isOpen && 'md:hidden'}`}>Dashboard</h1>
           </div>
           {!isOpen && (
             <div className="hidden md:flex items-center justify-center w-full">

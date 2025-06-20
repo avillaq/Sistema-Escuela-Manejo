@@ -28,3 +28,15 @@ html, body {
 .recharts-wrapper .recharts-cartesian-grid-vertical line {
   @apply stroke-default-200;
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #64748b; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}

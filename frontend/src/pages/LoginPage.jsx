@@ -26,6 +26,11 @@ export const LoginPage = () => {
     const nuevoValue = value.replace(/\D/g, "").slice(0, 8);
     setUserName(nuevoValue);
   }
+
+  // prevenir el scroll wheel
+  const preventWheel = (e) => {
+    e.target.blur();
+  };
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -99,6 +104,7 @@ export const LoginPage = () => {
                 type="number"
                 value={username}
                 onValueChange={handleDNIChange}
+                onWheel={preventWheel}
                 variant="bordered"
                 isRequired
                 description="Tu número de DNI de 8 dígitos"

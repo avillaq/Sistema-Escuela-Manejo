@@ -445,7 +445,7 @@ export const Matriculas = () => {
               startContent={<Icon icon="lucide:search" className="text-default-400" />}
               className="w-full md:w-1/4"
             />
-            <div className="flex gap-2 w-full md:w-3/4">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-2 w-full md:w-3/4">
               <Select
                 label="Estado Clases"
                 placeholder="Todos"

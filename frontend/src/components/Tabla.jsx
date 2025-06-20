@@ -1,7 +1,7 @@
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@heroui/react';
 import { useState, useMemo } from 'react';
 
-export function DataTable({ title, columns, data, rowKey }) {
+export function Tabla({ title, columns, data, rowKey }) {
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
 

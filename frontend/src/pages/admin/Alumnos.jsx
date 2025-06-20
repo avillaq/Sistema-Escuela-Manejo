@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '@/components/data-table';
+import { Tabla } from '@/components/Tabla';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -335,7 +335,7 @@ export const Alumnos = () => {
             </div>
           </div>
 
-          <DataTable
+          <Tabla
             title="Lista de Alumnos"
             columns={columns}
             data={filteredUsers}

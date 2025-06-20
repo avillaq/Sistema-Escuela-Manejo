@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '@/components/data-table';
+import { Tabla } from '@/components/Tabla';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 
@@ -486,7 +486,7 @@ export const Matriculas = () => {
             </div>
           </div>
 
-          <DataTable
+          <Tabla
             title="Lista de Matrículas"
             columns={columns}
             data={filteredMatriculas}

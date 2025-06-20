@@ -1,7 +1,7 @@
-import { NavLink, useLocation } from 'react-router';
+import { NavLink } from 'react-router';
 import { Icon } from '@iconify/react';
 import { Divider } from '@heroui/react';
-import { ThemeSwitcher } from './theme-switcher';
+import { TemaSwitcher } from '@/components/TemaSwitcher';
 import { useAuthStore } from '@/store/auth-store';
 
 const NavItem = ({ to, icon, label }) => {
@@ -19,7 +19,6 @@ const NavItem = ({ to, icon, label }) => {
 };
 
 export const Sidebar = ({ isOpen }) => {
-  const location = useLocation();
   const { rol } = useAuthStore();
 
   const renderNavItems = () => {
@@ -119,11 +118,11 @@ export const Sidebar = ({ isOpen }) => {
 
       <div className="p-4 border-t border-divider">
         <div className={`flex items-center justify-center ${!isOpen && 'md:hidden'}`}>
-          <ThemeSwitcher />
+          <TemaSwitcher />
         </div>
         {!isOpen && (
           <div className="hidden md:flex items-center justify-center mt-2">
-            <ThemeSwitcher />
+            <TemaSwitcher />
           </div>
         )}
       </div>

@@ -18,7 +18,7 @@ import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
 import { administradoresService } from '@/service/apiService';
 
 export const Administradores = () => {
-  const tipo = "Administrador"; 
+  const tipo = "Administrador";
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -32,22 +32,35 @@ export const Administradores = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Cargar usuarios al montar el componente
   useEffect(() => {
     const fetchUsers = async () => {
-      const result = await administradoresService.getAll();
-      if (result.success) {
-        setUserData(result.data);
-        console.log("Usuarios cargados:", result.data);
-        
-      } else {
+      try {
+        setIsLoading(true);
+        const result = await administradoresService.getAll();
+        if (result.success) {
+          setUserData(result.data);
+          console.log("Usuarios cargados:", result.data);
+
+        } else {
+          addToast({
+            title: "Error al cargar usuarios",
+            description: result.error || "No se pudieron cargar los usuarios.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar usuarios",
-          description: result.error || "No se pudieron cargar los usuarios.",
+          title: "Error",
+          description: "No se pudieron cargar los usuarios.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchUsers();
@@ -193,7 +206,7 @@ export const Administradores = () => {
       render: (user) => {
         const date = new Date(user.fecha_creado);
         console.log("Fecha de registro:", date);
-        
+
         return date.toLocaleDateString();
       }
     },
@@ -231,6 +244,17 @@ export const Administradores = () => {
       )
     }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando Usuarios...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

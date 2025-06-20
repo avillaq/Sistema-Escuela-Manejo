@@ -9,10 +9,6 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
-import {
-  generateTimeSlots,
-  generateUserReservations
-} from '@/data/calendar-data';
 import { CalendarioModal } from '@/pages/CalendarioModal';
 import { bloquesService, reservasService } from '@/service/apiService';
 
@@ -22,7 +18,6 @@ const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', '
 const HORAS = Array.from({ length: 12 }, (_, i) => i + 7);
 
 export const Calendario = ({ userId, matriculaId, horasRestantes: horasRestantesProps, isAdminModo = false, onReservasChange }) => {
-  const { user } = useAuthStore();
   const [modo, setModo] = useState("vista");
   const [bloques, setBloques] = useState([]);
   const [reservasUsuario, setReservasUsuario] = useState([]);

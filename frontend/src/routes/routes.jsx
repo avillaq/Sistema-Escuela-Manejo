@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router';
-import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
+import { ProtectedRoute, PublicRoute } from '@/routes/AccessRoute';
 
 // Rutas publicas
 import { LoginPage } from '@/pages/LoginPage';

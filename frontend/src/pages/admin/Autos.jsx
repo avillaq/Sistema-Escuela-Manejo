@@ -33,20 +33,33 @@ export const Autos = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [autoData, setAutoData] = useState([]);
   const [selectedAuto, setSelectedAuto] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Cargar autos al montar el componente
   useEffect(() => {
     const fetchAutos = async () => {
-      const result = await autosService.getAll();
-      if (result.success) {
-        setAutoData(result.data);
-      } else {
+      try {
+        setIsLoading(true);
+        const result = await autosService.getAll();
+        if (result.success) {
+          setAutoData(result.data);
+        } else {
+          addToast({
+            title: "Error al cargar autos",
+            description: result.error || "No se pudieron cargar los autos.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar autos",
-          description: result.error || "No se pudieron cargar los autos.",
+          title: "Error",
+          description: "No se pudieron cargar los autos.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchAutos();
@@ -164,10 +177,10 @@ export const Autos = () => {
     { key: "marca", label: "MARCA" },
     { key: "modelo", label: "MODELO" },
     { key: "color", label: "COLOR" },
-    { 
-    key: "tipo_auto", 
-    label: "TIPO", 
-    render: (auto) => auto.tipo_auto?.tipo || 'No especificado' 
+    {
+      key: "tipo_auto",
+      label: "TIPO",
+      render: (auto) => auto.tipo_auto?.tipo || 'No especificado'
     },
     {
       key: "activo",
@@ -224,6 +237,17 @@ export const Autos = () => {
       )
     }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando Autos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

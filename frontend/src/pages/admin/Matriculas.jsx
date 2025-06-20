@@ -65,22 +65,35 @@ export const Matriculas = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [matriculasData, setMatriculasData] = useState([]);
   const [selectedMatricula, setSelectedMatricula] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   useEffect(() => {
     const fetchMatriculas = async () => {
-      const result = await matriculasService.getAll();
-      if (result.success) {
-        setMatriculasData(result.data);
-        console.log("Matriculas cargadas:", result.data);
+      setIsLoading(true);
+      try {
+        const result = await matriculasService.getAll();
+        if (result.success) {
+          setMatriculasData(result.data);
+          console.log("Matriculas cargadas:", result.data);
 
-      } else {
+        } else {
+          addToast({
+            title: "Error al cargar  las matrículas",
+            description: result.error || "No se pudieron cargar las matrículas.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar  las matrículas",
-          description: result.error || "No se pudieron cargar las matrículas.",
+          title: "Error",
+          description: "Ha ocurrido un error al cargar las matriculas.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchMatriculas();
@@ -342,6 +355,17 @@ export const Matriculas = () => {
       )
     }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando matriculas...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

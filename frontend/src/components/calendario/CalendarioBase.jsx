@@ -61,7 +61,8 @@ export const CalendarioBase = ({
     return fechasSemana;
   };
 
-  const esFechaAnterior = (fecha) => {
+  // Determinar si una fecha está en el pasado
+  const esFechaPasada = (fecha) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fechaComparar = new Date(fecha);
@@ -89,12 +90,14 @@ export const CalendarioBase = ({
 
   // Cargar bloques disponibles
   useEffect(() => {
-    const fetchBloquesDisponibles = async () => {
+    const fetchBloquesSemanal = async () => {
       setIsLoadingBloques(true);
       try {
-        const result = await bloquesService.getDisponibles();
+        const alumnoId = modo === "global" ? null : userId;
+        const result = await bloquesService.getSemanal(semanaActual, alumnoId);
         if (result.success) {
           setBloques(result.data);
+          console.log(`Bloques semana ${semanaActual}:`, result.data);
         } else {
           addToast({
             title: "Error al cargar horarios",
@@ -115,8 +118,8 @@ export const CalendarioBase = ({
       }
     };
 
-    fetchBloquesDisponibles();
-  }, [semanaActual]);
+    fetchBloquesSemanal();
+  }, [semanaActual, userId, modo]);
 
   // Cargar reservas del usuario
   useEffect(() => {
@@ -135,7 +138,7 @@ export const CalendarioBase = ({
 
       setIsLoadingReservas(true);
       try {
-        const result = await reservasService.getByAlumno(userId);
+        const result = await reservasService.getByAlumno(userId, semanaActual);
 
         if (result.success) {
           let reservasFiltradas = result.data;
@@ -143,6 +146,7 @@ export const CalendarioBase = ({
           // Filtrar por matrícula si es modo matricula
           if (modo === "matricula" && matriculaId) {
             reservasFiltradas = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
+            console.log("Reservas filtradas por matrícula:", reservasFiltradas);
           }
 
           setReservasUsuario(reservasFiltradas);
@@ -213,7 +217,7 @@ export const CalendarioBase = ({
     if (modoCalendario === "vista") return;
 
     if (modoCalendario === "reservar") {
-      if (esFechaAnterior(fecha)) {
+      if (esFechaPasada(fecha)) {
         addToast({
           title: "Fecha no válida",
           description: "No puedes reservar en fechas anteriores al día actual.",
@@ -382,7 +386,7 @@ export const CalendarioBase = ({
 
   // Funciones para recargar datos
   const cargarBloques = async () => {
-    const result = await bloquesService.getDisponibles();
+    const result = await bloquesService.getSemanal();
     if (result.success) {
       setBloques(result.data);
     }
@@ -423,9 +427,13 @@ export const CalendarioBase = ({
   const renderSlotTiempo = (fecha, hora) => {
     const bloque = obtenerBloque(fecha, hora);
     const bloqueId = bloque?.id;
-    const esFechaVencida = esFechaAnterior(fecha);
+    const esFechaPas = esFechaPasada(fecha);
     const tieneReserva = tieneReservaEnBloque(bloqueId);
     const isSeleccionado = slotsSeleccionados.includes(bloqueId);
+
+    // Obtener información de asistencia si existe reserva
+    const reserva = obtenerReservaEnBloque(bloqueId);
+    const asistencia = reserva?.asistencia;
 
     if (!bloque) {
       return (
@@ -439,27 +447,54 @@ export const CalendarioBase = ({
     const isLleno = bloque.reservas_actuales >= bloque.capacidad_max;
     const isDisponible = bloque.reservas_actuales < bloque.capacidad_max;
 
+    // Solo se puede hacer clic si:
+    // 1. No está en modo vista
+    // 2. Para reservar: bloque disponible, sin reserva, no es fecha pasada
+    // 3. Para cancelar: tiene reserva y no es fecha pasada
     const isClickeable = modoCalendario !== "vista" &&
-      ((modoCalendario === "reservar" && isDisponible && !tieneReserva && !esFechaVencida) ||
-        (modoCalendario === "cancelar" && tieneReserva));
+      ((modoCalendario === "reservar" && isDisponible && !tieneReserva && !esFechaPas) ||
+        (modoCalendario === "cancelar" && tieneReserva && !esFechaPas));
 
     let bgColor = "bg-default-100";
     let textColor = "text-default-800";
     let borderColor = "border-divider";
 
-    if (esFechaVencida) {
-      bgColor = "bg-default-50";
-      textColor = "text-default-400";
-      borderColor = "border-default-100";
-    } else if (tieneReserva) {
-      bgColor = "bg-primary-100";
-      textColor = "text-primary-700";
-      borderColor = "border-primary-200";
-    } else if (isLleno) {
-      bgColor = "bg-default-200";
-      textColor = "text-default-500";
+    // Colores para fechas pasadas
+    if (esFechaPas) {
+      if (tieneReserva) {
+        if (asistencia?.asistio) {
+          bgColor = "bg-success-100";
+          textColor = "text-success-700";
+          borderColor = "border-success-200";
+        } else if (asistencia?.asistio === false) {
+          bgColor = "bg-danger-100";
+          textColor = "text-danger-700";
+          borderColor = "border-danger-200";
+        } else {
+          // Reserva sin registrar asistencia
+          bgColor = "bg-warning-100";
+          textColor = "text-warning-700";
+          borderColor = "border-warning-200";
+        }
+      } else {
+        bgColor = "bg-default-50";
+        textColor = "text-default-400";
+        borderColor = "border-default-100";
+      }
+    }
+    // Colores para fechas actuales/futuras
+    else {
+      if (tieneReserva) {
+        bgColor = "bg-primary-100";
+        textColor = "text-primary-700";
+        borderColor = "border-primary-200";
+      } else if (isLleno) {
+        bgColor = "bg-default-200";
+        textColor = "text-default-500";
+      }
     }
 
+    // Colores para selección activa
     if (isSeleccionado) {
       bgColor = modoCalendario === "reservar" ? "bg-success-200" : "bg-danger-200";
       textColor = modoCalendario === "reservar" ? "text-success-700" : "text-danger-700";
@@ -473,7 +508,7 @@ export const CalendarioBase = ({
           ${bgColor} ${textColor} ${borderColor}
           ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
           ${isSeleccionado ? 'shadow-sm' : ''}
-          ${esFechaVencida ? 'opacity-50' : ''}
+          ${esFechaPas ? 'opacity-75' : ''}
           flex flex-col sm:flex-row items-center justify-center sm:justify-between
         `}
         onClick={() => isClickeable && handleSlotClick(bloqueId, fecha, hora)}
@@ -482,9 +517,28 @@ export const CalendarioBase = ({
           {bloque.reservas_actuales}/{bloque.capacidad_max}
         </span>
 
-        {tieneReserva && (
-          <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4 mt-0.5 sm:mt-0" />
-        )}
+        <div className="flex items-center gap-1">
+          {/* Indicador de reserva */}
+          {tieneReserva && (
+            <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4" />
+          )}
+
+          {/* Indicador de asistencia para fechas pasadas */}
+          {tieneReserva && esFechaPas && asistencia && (
+            <>
+              {asistencia.asistio ? (
+                <Icon icon="lucide:user-check" width={8} height={8} className="sm:w-3 sm:h-3 text-success-600" />
+              ) : (
+                <Icon icon="lucide:user-x" width={8} height={8} className="sm:w-3 sm:h-3 text-danger-600" />
+              )}
+            </>
+          )}
+
+          {/* Indicador de reserva sin asistencia registrada */}
+          {tieneReserva && esFechaPas && !asistencia && (
+            <Icon icon="lucide:clock" width={8} height={8} className="sm:w-3 sm:h-3 text-warning-600" />
+          )}
+        </div>
       </div>
     );
   };

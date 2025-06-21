@@ -84,15 +84,20 @@ export const autosService = {
 
 // Servicio de Bloques
 export const bloquesService = {
-  getDisponibles: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.bloques}`)),
+  getSemanal: (semanaOffset = 0, alumnoId = null) => {
+    const params = { semana: semanaOffset };
+    if (alumnoId) params.id_alumno = alumnoId;
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.bloques}`, { params }));
+  }
 };
 
 // Servicio de Reservas
 export const reservasService = {
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.reservas}/`, data)),
   delete: (data) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.reservas}/`, { data })),
-  getByAlumno: (alumnoId) => {
+  getByAlumno: (alumnoId, semanaOffset = null) => {
     const params = { id_alumno: alumnoId };
+    if (semanaOffset !== null) params.semana = semanaOffset;
     return handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/`, { params }));
   },
   getHoy: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/hoy`)),

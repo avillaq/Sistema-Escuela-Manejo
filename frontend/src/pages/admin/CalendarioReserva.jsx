@@ -10,10 +10,10 @@ import {
   addToast,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Calendario } from '@/pages/Calendario';
+import { CalendarioBase } from '@/components/calendario/CalendarioBase';
 import { matriculasService } from '@/service/apiService';
 
-export const MatriculaReservas = () => {
+export const CalendarioReserva = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [matricula, setMatricula] = useState(null);
@@ -21,38 +21,38 @@ export const MatriculaReservas = () => {
   const [horasRestantesActuales, setHorasRestantesActuales] = useState(0);
 
   const cargarMatricula = async () => {
-      try {
-        const result = await matriculasService.getById(id);
-        if (result.success) {
-          setMatricula(result.data);
-          
-          const horas_total = result.data.tipo_contratacion === "paquete"
-            ? result.data.paquete?.horas_total
-            : result.data.horas_contratadas;
-            
-          const horas_restantes = horas_total - result.data.horas_completadas;
-          setHorasRestantesActuales(horas_restantes);
-        } else {
-          addToast({
-            title: "Error",
-            description: "No se pudo encontrar la matrícula solicitada.",
-            severity: "danger",
-            color: "danger",
-          });
-          navigate("/matriculas");
-        }
-      } catch (error) {
+    try {
+      const result = await matriculasService.getById(id);
+      if (result.success) {
+        setMatricula(result.data);
+
+        const horas_total = result.data.tipo_contratacion === "paquete"
+          ? result.data.paquete?.horas_total
+          : result.data.horas_contratadas;
+
+        const horas_restantes = horas_total - result.data.horas_completadas;
+        setHorasRestantesActuales(horas_restantes);
+      } else {
         addToast({
           title: "Error",
-          description: "Ha ocurrido un error al cargar los datos.",
+          description: "No se pudo encontrar la matrícula solicitada.",
           severity: "danger",
           color: "danger",
         });
         navigate("/matriculas");
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar los datos.",
+        severity: "danger",
+        color: "danger",
+      });
+      navigate("/matriculas");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -65,9 +65,9 @@ export const MatriculaReservas = () => {
     const horas_total = matricula.tipo_contratacion === "paquete"
       ? matricula.paquete?.horas_total
       : matricula.horas_contratadas;
-    
+
     const horas_base = horas_total - matricula.horas_completadas;
-    
+
     if (tipoAccion === "reservar") {
       // Restar las horas seleccionadas temporalmente
       setHorasRestantesActuales(horas_base - reservasSeleccionadas);
@@ -171,6 +171,7 @@ export const MatriculaReservas = () => {
                 color="primary"
                 size="sm"
                 className="w-full"
+                aria-label="Clases completadas"
               />
             </div>
           </CardBody>
@@ -190,11 +191,6 @@ export const MatriculaReservas = () => {
                 {horasRestantesActuales}
               </p>
               <p className="text-xs text-default-500">Horas restantes</p>
-              {horasRestantesActuales !== (horas_total - matricula.horas_completadas) && (
-                <p className="text-xs text-warning-600 mt-1">
-                  (Cambio temporal)
-                </p>
-              )}
             </div>
           </CardBody>
         </Card>
@@ -209,7 +205,7 @@ export const MatriculaReservas = () => {
               <div>
                 <h4 className="font-semibold text-warning-800 text-sm">Sin horas disponibles</h4>
                 <p className="text-xs text-warning-700">
-                  {horasRestantesActuales < 0 
+                  {horasRestantesActuales < 0
                     ? "No puedes reservar más horas de las disponibles."
                     : "El alumno ha completado todas sus horas contratadas."
                   }
@@ -221,23 +217,13 @@ export const MatriculaReservas = () => {
       )}
 
       {/* Componente Calendario */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Icon icon="lucide:calendar" width={20} height={20} />
-            <h3 className="text-lg font-semibold">Calendario de Reservas</h3>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <Calendario
-            userId={matricula.alumno.id}
-            matriculaId={matricula.id}
-            horasRestantes={horas_total - matricula.horas_completadas}
-            isAdminModo={true}
-            onReservasChange={handleReservasChange}
-          />
-        </CardBody>
-      </Card>
+      <CalendarioBase
+        modo="matricula"
+        userId={matricula.alumno.id}
+        matriculaId={matricula.id}
+        horasRestantes={horas_total - matricula.horas_completadas}
+        onReservasChange={handleReservasChange}
+      />
     </div>
   );
 };

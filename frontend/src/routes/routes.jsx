@@ -14,7 +14,8 @@ import { Administradores } from '@/pages/admin/Administradores';
 import { Matriculas } from '@/pages/admin/Matriculas';
 import { MatriculaForm } from '@/pages/admin/MatriculaForm';
 import { MatriculaDetalle } from '@/pages/admin/MatriculaDetalle';
-import { MatriculaReservas } from '@/pages/admin/MatriculaReservas';
+import { CalendarioReserva } from '@/pages/admin/CalendarioReserva';
+import { CalendarioGeneral } from '@/pages/admin/CalendarioGeneral';
 import { Asistencias } from '@/pages/admin/Asistencias';
 import { Tickets } from '@/pages/admin/Tickets';
 import { Autos } from '@/pages/admin/Autos';
@@ -69,6 +70,10 @@ export const protectedRoutes = [
 
   },
   {
+    path: '/calendario',
+    element: <ProtectedRoute requiredRole="admin"><CalendarioGeneral /></ProtectedRoute>,
+  },
+  {
     path: '/matriculas',
     element: <ProtectedRoute requiredRole="admin"><Matriculas /></ProtectedRoute>,
 
@@ -89,7 +94,7 @@ export const protectedRoutes = [
   },
   {
     path: '/matriculas/:id/reservas',
-    element: <ProtectedRoute requiredRole="admin"><MatriculaReservas /></ProtectedRoute>,
+    element: <ProtectedRoute requiredRole="admin"><CalendarioReserva /></ProtectedRoute>,
   },
   {
     path: '/asistencias',

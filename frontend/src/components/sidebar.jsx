@@ -50,6 +50,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             Gestión Académica
           </div>
           <nav className="space-y-1 px-2">
+            <NavItem to="/calendario" icon="lucide:calendar" label={isOpen ? 'Calendario' : ''} onClick={handleNavClick} />
             <NavItem to="/matriculas" icon="lucide:file-text" label={isOpen ? 'Matrículas' : ''} onClick={handleNavClick} />
             <NavItem to="/asistencias" icon="lucide:check-circle" label={isOpen ? 'Asistencias' : ''} onClick={handleNavClick} />
             <NavItem to="/tickets" icon="lucide:ticket" label={isOpen ? 'Tickets' : ''} onClick={handleNavClick} />

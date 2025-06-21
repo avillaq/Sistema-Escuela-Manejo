@@ -20,8 +20,7 @@ export const CalendarioBase = ({
   userId,
   matriculaId,
   horasRestantes: horasRestantesProps = 0,
-  onReservasChange,
-  alumnoSeleccionado = null // Para modo global
+  onReservasChange
 }) => {
   const [modoCalendario, setModoCalendario] = useState("vista");
   const [bloques, setBloques] = useState([]);
@@ -38,8 +37,7 @@ export const CalendarioBase = ({
   // Configuración según el modo
   const isAdminModo = modo === "matricula" || modo === "global";
   const canReservar = (modo === "alumno" && horasRestantes > 0) ||
-    (modo === "matricula" && horasRestantes > 0) ||
-    (modo === "global" && alumnoSeleccionado && horasRestantes > 0);
+    (modo === "matricula" && horasRestantes > 0);
 
   // Actualizar horas restantes cuando cambien las props
   useEffect(() => {
@@ -123,8 +121,8 @@ export const CalendarioBase = ({
   // Cargar reservas del usuario
   useEffect(() => {
     const fetchReservasUsuario = async () => {
-      // En modo global sin alumno seleccionado, no cargar reservas
-      if (modo === "global" && !alumnoSeleccionado) {
+      // En modo global, no cargar reservas
+      if (modo === "global") {
         setReservasUsuario([]);
         setIsLoadingReservas(false);
         return;
@@ -137,11 +135,7 @@ export const CalendarioBase = ({
 
       setIsLoadingReservas(true);
       try {
-        const targetUserId = modo === "global" && alumnoSeleccionado
-          ? alumnoSeleccionado.id
-          : userId;
-
-        const result = await reservasService.getByAlumno(targetUserId);
+        const result = await reservasService.getByAlumno(userId);
 
         if (result.success) {
           let reservasFiltradas = result.data;
@@ -149,13 +143,6 @@ export const CalendarioBase = ({
           // Filtrar por matrícula si es modo matricula
           if (modo === "matricula" && matriculaId) {
             reservasFiltradas = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
-          }
-
-          // En modo global, filtrar por alumno seleccionado si existe
-          if (modo === "global" && alumnoSeleccionado) {
-            reservasFiltradas = result.data.filter(r =>
-              r.matricula.alumno.id === alumnoSeleccionado.id
-            );
           }
 
           setReservasUsuario(reservasFiltradas);
@@ -170,7 +157,7 @@ export const CalendarioBase = ({
     };
 
     fetchReservasUsuario();
-  }, [matriculaId, userId, modo, semanaActual, alumnoSeleccionado]);
+  }, [matriculaId, userId, modo, semanaActual]);
 
   // Notificar cambios en las reservas seleccionadas
   useEffect(() => {
@@ -312,11 +299,7 @@ export const CalendarioBase = ({
   // Confirmar acción
   const confirmarAccion = async () => {
     try {
-      const targetMatriculaId = modo === "global" && alumnoSeleccionado
-        ? alumnoSeleccionado.matriculaActiva?.id
-        : matriculaId;
-
-      if (!targetMatriculaId) {
+      if (!matriculaId) {
         addToast({
           title: "Error",
           description: "No se pudo identificar la matrícula.",
@@ -328,7 +311,7 @@ export const CalendarioBase = ({
 
       if (modalAccion === "reservar") {
         const reservasData = {
-          id_matricula: parseInt(targetMatriculaId),
+          id_matricula: parseInt(matriculaId),
           reservas: slotsSeleccionados.map(bloqueId => ({ id_bloque: bloqueId }))
         };
 
@@ -357,7 +340,7 @@ export const CalendarioBase = ({
         }).filter(Boolean);
 
         const cancelarData = {
-          id_matricula: parseInt(targetMatriculaId),
+          id_matricula: parseInt(matriculaId),
           ids_reservas: reservasACancelar
         };
 
@@ -406,25 +389,15 @@ export const CalendarioBase = ({
   };
 
   const cargarReservas = async () => {
-    const targetUserId = modo === "global" && alumnoSeleccionado
-      ? alumnoSeleccionado.id
-      : userId;
+    if (!userId) return;
 
-    if (!targetUserId) return;
-
-    const result = await reservasService.getByAlumno(targetUserId);
+    const result = await reservasService.getByAlumno(userId);
 
     if (result.success) {
       let reservasFiltradas = result.data;
 
       if (modo === "matricula" && matriculaId) {
         reservasFiltradas = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
-      }
-
-      if (modo === "global" && alumnoSeleccionado) {
-        reservasFiltradas = result.data.filter(r =>
-          r.matricula.alumno.id === alumnoSeleccionado.id
-        );
       }
 
       setReservasUsuario(reservasFiltradas);

@@ -21,6 +21,7 @@ export const CalendarioReserva = () => {
   const [horasRestantesActuales, setHorasRestantesActuales] = useState(0);
 
   const cargarMatricula = async () => {
+    setIsLoading(true);
     try {
       const result = await matriculasService.getById(id);
       if (result.success) {

@@ -23,8 +23,11 @@ export const CalendarioBase = ({
   onReservasChange
 }) => {
   const [modoCalendario, setModoCalendario] = useState("vista");
+
+  // Estados de trabajo
   const [bloques, setBloques] = useState([]);
   const [reservasUsuario, setReservasUsuario] = useState([]);
+
   const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
   const [isLoadingBloques, setIsLoadingBloques] = useState(true);
   const [isLoadingReservas, setIsLoadingReservas] = useState(true);
@@ -88,80 +91,103 @@ export const CalendarioBase = ({
 
   const fechasSemana = obtenerFechasSemana(new Date(), semanaActual);
 
-  // Cargar bloques disponibles
-  useEffect(() => {
-    const fetchBloquesSemanal = async () => {
-      setIsLoadingBloques(true);
-      try {
-        const alumnoId = modo === "global" ? null : userId;
-        const result = await bloquesService.getSemanal(semanaActual, alumnoId);
-        if (result.success) {
-          setBloques(result.data);
-          console.log(`Bloques semana ${semanaActual}:`, result.data);
-        } else {
-          addToast({
-            title: "Error al cargar horarios",
-            description: result.error || "No se pudieron cargar los horarios disponibles.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-      } catch (error) {
+  // Cargar datos iniciales (solo una vez por semana)
+  const cargarDatosIniciales = async () => {
+    setIsLoadingBloques(true);
+    setIsLoadingReservas(true);
+
+    try {
+      const [bloquesResult, reservasResult] = await Promise.all([
+        bloquesService.getSemanal(semanaActual, alumnoId),
+        modo !== "global" ? reservasService.getByAlumno(userId, semanaActual) : Promise.resolve({ success: true, data: [] })
+      ]);
+
+      if (bloquesResult.success) {
+        setBloques(bloquesResult.data);
+      } else {
         addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar los horarios.",
+          title: "Error al cargar horarios",
+          description: bloquesResult.error || "No se pudieron cargar los horarios disponibles.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoadingBloques(false);
-      }
-    };
-
-    fetchBloquesSemanal();
-  }, [semanaActual, userId, modo]);
-
-  // Cargar reservas del usuario
-  useEffect(() => {
-    const fetchReservasUsuario = async () => {
-      // En modo global, no cargar reservas
-      if (modo === "global") {
-        setReservasUsuario([]);
-        setIsLoadingReservas(false);
-        return;
       }
 
-      if (!userId || (modo === "matricula" && !matriculaId)) {
-        setIsLoadingReservas(false);
-        return;
-      }
-
-      setIsLoadingReservas(true);
-      try {
-        const result = await reservasService.getByAlumno(userId, semanaActual);
-
-        if (result.success) {
-          let reservasFiltradas = result.data;
-
-          // Filtrar por matrícula si es modo matricula
-          if (modo === "matricula" && matriculaId) {
-            reservasFiltradas = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
-            console.log("Reservas filtradas por matrícula:", reservasFiltradas);
-          }
-
-          setReservasUsuario(reservasFiltradas);
-        } else {
-          console.error('Error al cargar reservas:', result.error);
+      if (reservasResult.success) {
+        let reservasFiltradas = reservasResult.data;
+        if (modo === "matricula" && matriculaId) {
+          reservasFiltradas = reservasResult.data.filter(r => r.id_matricula === parseInt(matriculaId));
         }
-      } catch (error) {
-        console.error('Error al cargar reservas:', error);
-      } finally {
-        setIsLoadingReservas(false);
+        setReservasUsuario(reservasFiltradas);
+      } else {
+        addToast({
+          title: "Error al cargar reservas",
+          description: reservasResult.error || "No se pudieron cargar las reservas del usuario.",
+          severity: "danger",
+          color: "danger",
+        });
       }
-    };
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar los datos.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoadingBloques(false);
+      setIsLoadingReservas(false);
+    }
+  };
+  useEffect(() => {
+    cargarDatosIniciales();
+  }, [semanaActual, userId, modo]); // Solo cuando cambia la semana o usuario
 
-    fetchReservasUsuario();
-  }, [matriculaId, userId, modo, semanaActual]);
+  // Función para actualizar estado local después de operaciones exitosas
+  const actualizarEstadoLocal = (operacion, reservasAfectadas) => {
+    if (operacion === "reservar") {
+      // Actualizar bloques (incrementar reservas_actuales)
+      setBloques(prevBloques =>
+        prevBloques.map(bloque => {
+          const reservaEnBloque = reservasAfectadas.some(r => r.id_bloque === bloque.id);
+          return reservaEnBloque
+            ? { ...bloque, reservas_actuales: bloque.reservas_actuales + 1 }
+            : bloque;
+        })
+      );
+
+      // Añadir nuevas reservas al estado
+      setReservasUsuario(prevReservas => [...prevReservas, ...reservasAfectadas]);
+
+    } else if (operacion === "cancelar") {
+      // Actualizar bloques (decrementar reservas_actuales)
+      setBloques(prevBloques =>
+        prevBloques.map(bloque => {
+          const reservaEnBloque = reservasAfectadas.some(r => r.id_bloque === bloque.id);
+          return reservaEnBloque
+            ? { ...bloque, reservas_actuales: Math.max(0, bloque.reservas_actuales - 1) }
+            : bloque;
+        })
+      );
+
+      // Remover reservas canceladas
+      const idsReservasCanceladas = reservasAfectadas.map(r => r.id);
+      setReservasUsuario(prevReservas =>
+        prevReservas.filter(r => !idsReservasCanceladas.includes(r.id))
+      );
+    }
+  };
+
+  const actualizarDespuesDeOperacion = async (operacion, datos) => {
+    actualizarEstadoLocal(operacion, datos);
+
+    setTimeout(async () => {
+      const bloquesActualizados = await bloquesService.getSemanal(semanaActual, userId);
+      if (bloquesActualizados.success) {
+        setBloques(bloquesActualizados.data);
+      }
+    }, 1000);
+  };
 
   // Notificar cambios en las reservas seleccionadas
   useEffect(() => {
@@ -303,16 +329,6 @@ export const CalendarioBase = ({
   // Confirmar acción
   const confirmarAccion = async () => {
     try {
-      if (!matriculaId) {
-        addToast({
-          title: "Error",
-          description: "No se pudo identificar la matrícula.",
-          severity: "danger",
-          color: "danger"
-        });
-        return;
-      }
-
       if (modalAccion === "reservar") {
         const reservasData = {
           id_matricula: parseInt(matriculaId),
@@ -321,6 +337,7 @@ export const CalendarioBase = ({
 
         const result = await reservasService.create(reservasData);
         if (result.success) {
+          actualizarDespuesDeOperacion("reservar", result.data.reservas);
           addToast({
             title: "Reservas confirmadas",
             description: `Has reservado ${slotsSeleccionados.length} horario(s) exitosamente.`,
@@ -328,7 +345,6 @@ export const CalendarioBase = ({
             color: "success"
           });
 
-          await Promise.all([cargarBloques(), cargarReservas()]);
         } else {
           addToast({
             title: "Error al reservar",
@@ -356,8 +372,7 @@ export const CalendarioBase = ({
             severity: "success",
             color: "success"
           });
-
-          await Promise.all([cargarBloques(), cargarReservas()]);
+          actualizarDespuesDeOperacion("cancelar", result.data.reservas);
         } else {
           addToast({
             title: "Error al cancelar",
@@ -368,12 +383,7 @@ export const CalendarioBase = ({
         }
       }
     } catch (error) {
-      addToast({
-        title: "Error",
-        description: "Ha ocurrido un error al procesar la solicitud.",
-        severity: "danger",
-        color: "danger"
-      });
+      await recargarDatosDelServidor();
     }
 
     setSlotsSeleccionados([]);
@@ -384,29 +394,10 @@ export const CalendarioBase = ({
     }
   };
 
-  // Funciones para recargar datos
-  const cargarBloques = async () => {
-    const result = await bloquesService.getSemanal();
-    if (result.success) {
-      setBloques(result.data);
-    }
+  const recargarDatosDelServidor = async () => {
+    await cargarDatosIniciales();
   };
 
-  const cargarReservas = async () => {
-    if (!userId) return;
-
-    const result = await reservasService.getByAlumno(userId);
-
-    if (result.success) {
-      let reservasFiltradas = result.data;
-
-      if (modo === "matricula" && matriculaId) {
-        reservasFiltradas = result.data.filter(r => r.id_matricula === parseInt(matriculaId));
-      }
-
-      setReservasUsuario(reservasFiltradas);
-    }
-  };
 
   // Navegación de semanas
   const irSemanaAnterior = () => {

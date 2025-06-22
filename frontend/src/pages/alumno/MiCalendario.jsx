@@ -16,33 +16,45 @@ export const MiCalendario = () => {
   const [matriculaActiva, setMatriculaActiva] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const cargarMatriculaActiva = async () => {
-      if (!id) return;
+  const cargarMatriculaActiva = async () => {
+    if (!id) return;
 
-      try {
-        const result = await matriculasService.getByAlumno(id);
-        if (result.success && result.data.length > 0) {
-          // Buscar matrícula activa (en progreso o pendiente)
-          const activa = result.data.find(m => 
-            m.estado_clases === 'en_progreso' || m.estado_clases === 'pendiente'
-          );
-          setMatriculaActiva(activa || null);
-        }
-      } catch (error) {
+    try {
+      const result = await matriculasService.getByAlumno(id);
+
+      if (result.success) {
+        console.log("Matrícula activa:", result.data);
+        setMatriculaActiva(result.data);
+      } else {
         addToast({
           title: "Error",
-          description: "No se pudo cargar tu información de matrícula.",
+          description: "No se pudo encontrar tu matrícula.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "No se pudo cargar tu información de matrícula.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     cargarMatriculaActiva();
   }, [id]);
+
+  // refrescar reservas
+  const handleReservasChange = (senal) => {
+    if (senal === "refresh") {
+      cargarMatriculaActiva();
+    }
+  };
 
   const getProgreso = (horas_completadas, horas_total) => {
     if (!horas_total) return 0;
@@ -88,8 +100,8 @@ export const MiCalendario = () => {
   const horas_total = matriculaActiva.tipo_contratacion === 'paquete'
     ? matriculaActiva.paquete?.horas_total
     : matriculaActiva.horas_contratadas;
-  
-  const horas_restantes = horas_total - matriculaActiva.horas_completadas;
+
+  const horas_disponibles = matriculaActiva.horas_disponibles_reserva || 0;
 
   return (
     <div className="space-y-6">
@@ -120,12 +132,13 @@ export const MiCalendario = () => {
                 color="primary"
                 size="sm"
                 className="w-full"
+                aria-label="Progreso de clases"
               />
             </div>
           </CardBody>
         </Card>
 
-        {/* Horas Restantes */}
+        {/* Horas Disponibles para Reservar */}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
@@ -135,10 +148,10 @@ export const MiCalendario = () => {
           </CardHeader>
           <CardBody className="pt-0">
             <div className="text-center">
-              <p className={`text-3xl font-bold ${horas_restantes <= 0 ? "text-danger-600" : "text-success-600"}`}>
-                {horas_restantes}
+              <p className={`text-3xl font-bold ${horas_disponibles <= 0 ? "text-danger-600" : "text-success-600"}`}>
+                {Math.max(0, horas_disponibles)}
               </p>
-              <p className="text-xs text-default-500">Horas restantes</p>
+              <p className="text-xs text-default-500">Para reservar</p>
             </div>
           </CardBody>
         </Card>
@@ -173,7 +186,7 @@ export const MiCalendario = () => {
       </div>
 
       {/* Mensaje de advertencia si no hay horas restantes */}
-      {horas_restantes <= 0 && (
+      {horas_disponibles <= 0 && (
         <Card className="border-warning-200 bg-warning-50">
           <CardBody>
             <div className="flex items-center gap-3">
@@ -194,7 +207,8 @@ export const MiCalendario = () => {
         modo="alumno"
         userId={id}
         matriculaId={matriculaActiva.id}
-        horasRestantes={horas_restantes}
+        horasRestantes={Math.max(0, horas_disponibles)}
+        onReservasChange={handleReservasChange}
       />
     </div>
   );

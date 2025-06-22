@@ -18,7 +18,6 @@ export const CalendarioReserva = () => {
   const { id } = useParams();
   const [matricula, setMatricula] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [horasRestantesActuales, setHorasRestantesActuales] = useState(0);
 
   const cargarMatricula = async () => {
     setIsLoading(true);
@@ -26,13 +25,6 @@ export const CalendarioReserva = () => {
       const result = await matriculasService.getById(id);
       if (result.success) {
         setMatricula(result.data);
-
-        const horas_total = result.data.tipo_contratacion === "paquete"
-          ? result.data.paquete?.horas_total
-          : result.data.horas_contratadas;
-
-        const horas_restantes = horas_total - result.data.horas_completadas;
-        setHorasRestantesActuales(horas_restantes);
       } else {
         addToast({
           title: "Error",
@@ -61,23 +53,10 @@ export const CalendarioReserva = () => {
     }
   }, [id, navigate]);
 
-  // actualizar horas cuando se seleccionen/deseleccionen reservas
-  const handleReservasChange = (reservasSeleccionadas, tipoAccion) => {
-    const horas_total = matricula.tipo_contratacion === "paquete"
-      ? matricula.paquete?.horas_total
-      : matricula.horas_contratadas;
-
-    const horas_base = horas_total - matricula.horas_completadas;
-
-    if (tipoAccion === "reservar") {
-      // Restar las horas seleccionadas temporalmente
-      setHorasRestantesActuales(horas_base - reservasSeleccionadas);
-    } else if (tipoAccion === "cancelar") {
-      // Sumar las horas que se van a liberar temporalmente
-      setHorasRestantesActuales(horas_base + reservasSeleccionadas);
-    } else {
-      // Resetear a las horas originales
-      setHorasRestantesActuales(horas_base);
+  // funcion para refrescar
+  const handleReservasChange = (senal) => {
+    if (senal === "refresh") {
+      cargarMatricula();
     }
   };
 
@@ -111,6 +90,7 @@ export const CalendarioReserva = () => {
   const horas_total = matricula.tipo_contratacion === "paquete"
     ? matricula.paquete?.horas_total
     : matricula.horas_contratadas;
+  const horas_disponibles = matricula.horas_disponibles_reserva || 0;
 
   return (
     <div className="space-y-6">
@@ -131,85 +111,80 @@ export const CalendarioReserva = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Información del Alumno */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Información del Alumno + Progreso */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Icon icon="lucide:user" width={18} height={18} />
-              <h3 className="text-base font-semibold">Alumno</h3>
+              <h3 className="text-base font-semibold">Información del Alumno</h3>
             </div>
           </CardHeader>
-          <CardBody className="pt-0 space-y-3">
+          <CardBody className="pt-0 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-sm">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
-                <p className="text-xs text-default-500">DNI: {matricula.alumno.dni}</p>
+                <p className="font-medium">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
+                <p className="text-sm text-default-500">DNI: {matricula.alumno.dni}</p>
               </div>
               <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
             </div>
-          </CardBody>
-        </Card>
-
-        {/* Progreso de Clases */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:clock" width={18} height={18} />
-              <h3 className="text-base font-semibold">Progreso</h3>
-            </div>
-          </CardHeader>
-          <CardBody className="pt-0 space-y-3">
+            
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-medium">Completadas</span>
-                <span className="text-xs text-default-500">
-                  {matricula.horas_completadas}/{horas_total}
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Progreso de clases</span>
+                <span className="text-sm text-default-600">
+                  {matricula.horas_completadas} de {horas_total}
                 </span>
               </div>
               <Progress
                 value={getProgreso(matricula.horas_completadas, horas_total)}
-                color="primary"
-                size="sm"
+                color="success"
+                size="md"
                 className="w-full"
-                aria-label="Clases completadas"
+                aria-label="Progreso de clases"
               />
             </div>
           </CardBody>
         </Card>
 
-        {/* Horas Restantes */}
+        {/* Horas Disponibles para Reservar */}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Icon icon="lucide:timer" width={18} height={18} />
-              <h3 className="text-base font-semibold">Disponibles</h3>
+              <Icon icon="lucide:calendar-plus" width={18} height={18} />
+              <h3 className="text-base font-semibold">Disponibles para Reservar</h3>
             </div>
           </CardHeader>
           <CardBody className="pt-0">
             <div className="text-center">
-              <p className={`text-3xl font-bold ${horasRestantesActuales <= 0 ? "text-danger-600" : "text-success-600"}`}>
-                {horasRestantesActuales}
+              <p className={`text-4xl font-bold ${horas_disponibles <= 0 ? "text-danger-600" : "text-primary-600"}`}>
+                {Math.max(0, horas_disponibles)}
               </p>
-              <p className="text-xs text-default-500">Horas restantes</p>
+              <p className="text-sm text-default-500 mt-1">
+                {horas_disponibles <= 0 ? "Sin horas disponibles" : "Horas para reservar"}
+              </p>
+              
+              <div className="mt-3 pt-3 border-t border-default-200">
+                <div className="flex justify-between text-xs text-default-500">
+                  <span>Reservadas: {matricula.reservas_pendientes || 0}</span>
+                  <span>Completadas: {matricula.horas_completadas}</span>
+                </div>
+              </div>
             </div>
           </CardBody>
         </Card>
       </div>
 
-      {/* Mensaje de advertencia si no hay horas restantes */}
-      {horasRestantesActuales <= 0 && (
+      {/* Mensaje de advertencia solo si es crítico */}
+      {horas_disponibles <= 0 && (
         <Card className="border-warning-200 bg-warning-50">
           <CardBody>
             <div className="flex items-center gap-3">
               <Icon icon="lucide:alert-triangle" className="text-warning-600" width={20} height={20} />
               <div>
-                <h4 className="font-semibold text-warning-800 text-sm">Sin horas disponibles</h4>
-                <p className="text-xs text-warning-700">
-                  {horasRestantesActuales < 0
-                    ? "No puedes reservar más horas de las disponibles."
-                    : "El alumno ha completado todas sus horas contratadas."
-                  }
+                <h4 className="font-semibold text-warning-800">Sin horas disponibles para reservar</h4>
+                <p className="text-sm text-warning-700">
+                  El alumno ha utilizado todas sus horas disponibles.
                 </p>
               </div>
             </div>
@@ -217,12 +192,11 @@ export const CalendarioReserva = () => {
         </Card>
       )}
 
-      {/* Componente Calendario */}
       <CalendarioBase
         modo="matricula"
         userId={matricula.alumno.id}
         matriculaId={matricula.id}
-        horasRestantes={horas_total - matricula.horas_completadas}
+        horasRestantes={Math.max(0, horas_disponibles)}
         onReservasChange={handleReservasChange}
       />
     </div>

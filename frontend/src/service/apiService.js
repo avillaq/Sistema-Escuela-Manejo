@@ -48,7 +48,7 @@ export const matriculasService = {
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.matriculas}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.matriculas}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.matriculas}/${id}`)),
-  getByAlumno: (alumnoId) => handleResponse(() => api.get(API_CONFIG.endpoints.matriculas, { params: { id_alumno: alumnoId } }))
+  getByAlumno: (alumnoId) => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`, { params: { id_alumno: alumnoId } }))
 };
 
 // Servicio de pagos
@@ -87,7 +87,7 @@ export const bloquesService = {
   getSemanal: (semanaOffset = 0, alumnoId = null) => {
     const params = { semana: semanaOffset };
     if (alumnoId) params.id_alumno = alumnoId;
-    return handleResponse(() => api.get(`${API_CONFIG.endpoints.bloques}`, { params }));
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.bloques}/semanal`, { params }));
   }
 };
 

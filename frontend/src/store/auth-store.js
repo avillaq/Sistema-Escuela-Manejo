@@ -18,7 +18,7 @@ export const useAuthStore = create()(
       login: (data) => {
         set({
           isAuthenticated: true,
-          id: data.usuario_id,
+          id: data.id,
           rol: data.rol,
           token: data.access_token,
         });

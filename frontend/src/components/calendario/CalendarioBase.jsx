@@ -97,6 +97,7 @@ export const CalendarioBase = ({
     setIsLoadingReservas(true);
 
     try {
+      const alumnoId = modo === "global" ? null : userId;
       const [bloquesResult, reservasResult] = await Promise.all([
         bloquesService.getSemanal(semanaActual, alumnoId),
         modo !== "global" ? reservasService.getByAlumno(userId, semanaActual) : Promise.resolve({ success: true, data: [] })
@@ -128,6 +129,7 @@ export const CalendarioBase = ({
         });
       }
     } catch (error) {
+      console.error("Error al cargar datos iniciales:", error);
       addToast({
         title: "Error",
         description: "Ha ocurrido un error al cargar los datos.",
@@ -182,23 +184,13 @@ export const CalendarioBase = ({
     actualizarEstadoLocal(operacion, datos);
 
     setTimeout(async () => {
-      const bloquesActualizados = await bloquesService.getSemanal(semanaActual, userId);
+      const alumnoId = modo === "global" ? null : userId;
+      const bloquesActualizados = await bloquesService.getSemanal(semanaActual, alumnoId);
       if (bloquesActualizados.success) {
         setBloques(bloquesActualizados.data);
       }
     }, 1000);
   };
-
-  // Notificar cambios en las reservas seleccionadas
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (onReservasChange) {
-        onReservasChange(slotsSeleccionados.length, modoCalendario);
-      }
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [slotsSeleccionados, modoCalendario, onReservasChange]);
 
   // Obtener bloque para una fecha y hora especifica
   const obtenerBloque = (fecha, hora) => {
@@ -223,19 +215,11 @@ export const CalendarioBase = ({
   const handleCambiarModo = (nuevoModo) => {
     setModoCalendario(nuevoModo);
     setSlotsSeleccionados([]);
-
-    if (onReservasChange) {
-      onReservasChange(0, "vista");
-    }
   };
 
   const handleCancelar = () => {
     setSlotsSeleccionados([]);
     setModoCalendario("vista");
-
-    if (onReservasChange) {
-      onReservasChange(0, "vista");
-    }
   };
 
   // Manejo de slots
@@ -338,6 +322,11 @@ export const CalendarioBase = ({
         const result = await reservasService.create(reservasData);
         if (result.success) {
           actualizarDespuesDeOperacion("reservar", result.data.reservas);
+
+          if (onReservasChange) {
+            onReservasChange("refresh");
+          }
+
           addToast({
             title: "Reservas confirmadas",
             description: `Has reservado ${slotsSeleccionados.length} horario(s) exitosamente.`,
@@ -366,13 +355,16 @@ export const CalendarioBase = ({
 
         const result = await reservasService.delete(cancelarData);
         if (result.success) {
+          actualizarDespuesDeOperacion("cancelar", result.data.reservas);
+          if (onReservasChange) {
+            onReservasChange("refresh");
+          }
           addToast({
             title: "Reservas canceladas",
             description: `Has cancelado ${slotsSeleccionados.length} reserva(s) exitosamente.`,
             severity: "success",
             color: "success"
           });
-          actualizarDespuesDeOperacion("cancelar", result.data.reservas);
         } else {
           addToast({
             title: "Error al cancelar",
@@ -383,21 +375,12 @@ export const CalendarioBase = ({
         }
       }
     } catch (error) {
-      await recargarDatosDelServidor();
+      await cargarDatosIniciales();
     }
 
     setSlotsSeleccionados([]);
     setModoCalendario("vista");
-
-    if (onReservasChange) {
-      onReservasChange(0, "vista");
-    }
   };
-
-  const recargarDatosDelServidor = async () => {
-    await cargarDatosIniciales();
-  };
-
 
   // Navegación de semanas
   const irSemanaAnterior = () => {

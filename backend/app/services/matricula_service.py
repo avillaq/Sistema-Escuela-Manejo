@@ -1,4 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from app.models.bloque import Bloque
+from app.models.reserva import Reserva
+from app.models.asistencia import Asistencia
 from app.models.matricula import Matricula
 from app.models.alumno import Alumno
 from app.models.paquete import Paquete
@@ -90,16 +93,39 @@ def obtener_estado_cuenta(id_matricula):
         "fecha_limite": matricula.fecha_limite.strftime("%Y-%m-%d")
     }
 
-def listar_matriculas(id=None): # TODO: agregar filtros y paginación
-    if id:
-        matricula = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).filter(Matricula.id == id).first_or_404()
+def listar_matriculas(id_alumno=None): # TODO: agregar filtros y paginación
+    if id_alumno:
+        # Filtrar matricula con estado de clases activo (pendiente, en_progreso)
+        matricula = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).filter(
+            Matricula.id_alumno == id_alumno,
+            Matricula.estado_clases.in_(["pendiente", "en_progreso"])
+        ).first()
         
         # Calcular pagos realizados
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
+
+        # Calcular reservas pendientes (futuras sin asistencia)
+        hoy = date.today()
+        reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
+            Reserva.id_matricula == matricula.id,
+            Bloque.fecha >= hoy
+        ).outerjoin(Asistencia).filter(
+            Asistencia.id.is_(None)  # Sin asistencia registrada
+        ).scalar() or 0
+
+        # Horas disponibles para nuevas reservas
+        if matricula.tipo_contratacion == "paquete":
+            horas_contratadas = matricula.paquete.horas_total
+        else:
+            horas_contratadas = matricula.horas_contratadas
+        
+        horas_disponibles_reserva = horas_contratadas - matricula.horas_completadas - reservas_pendientes
         
         # atributos temporales
         matricula.pagos_realizados = float(pagos_realizados)
         matricula.saldo_pendiente = float(matricula.costo_total - pagos_realizados)
+        matricula.reservas_pendientes = reservas_pendientes
+        matricula.horas_disponibles_reserva = horas_disponibles_reserva
         
         return matricula
 

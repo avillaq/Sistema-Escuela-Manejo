@@ -323,6 +323,7 @@ export const MatriculaDetalle = () => {
                   value={getProgreso(matricula.horas_completadas, horas_total)}
                   color="primary"
                   className="w-full"
+                  aria-label="Progreso de Clases"
                 />
               </div>
             </CardBody>
@@ -397,6 +398,7 @@ export const MatriculaDetalle = () => {
                   value={getPorcentajePagado(matricula.pagos_realizados, matricula.costo_total)}
                   color="success"
                   className="w-full"
+                  aria-label="Progreso de Pagos"
                 />
               </div>
 

@@ -18,4 +18,6 @@ class ReservaSchema(Schema):
     fecha_reserva = fields.DateTime()
     
     # información adicional para mejor visualización
-    bloque = fields.Nested("BloqueSchema", only=["fecha", "hora_inicio"])
+    bloque = fields.Nested("BloqueSchema", only=["fecha", "hora_inicio", "hora_fin"])
+    matricula = fields.Nested("MatriculaResumenSchema", only=["alumno", "categoria", "horas_completadas"])
+    asistencia = fields.Nested("AsistenciaSchema", only=["id", "asistio"])

@@ -1,7 +1,7 @@
 from datetime import datetime
-from app.models import Reserva, Asistencia, Ticket
+from app.models import Reserva, Asistencia, Ticket, Bloque
 from app.extensions import db
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from werkzeug.exceptions import BadRequest
 
 def registrar_asistencia(data):
@@ -10,7 +10,7 @@ def registrar_asistencia(data):
     asistio = data.get("asistio", True)
     alumno = matricula.alumno
 
-    hoy = datetime.today().date()
+    hoy = datetime.today()
     if asistio:
         if matricula.fecha_limite < hoy:
             raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
@@ -19,22 +19,30 @@ def registrar_asistencia(data):
         if asistencia_existente:
             raise BadRequest("Ya existe un registro de asistencia para esta reserva")
 
-        instructor_ocupado = Ticket.query.join(Asistencia).join(Reserva).join(Reserva.bloque).filter(
-            Ticket.id_instructor == data["id_instructor"],
-            func.date(Asistencia.fecha_asistencia) == hoy,
-            # Verificar si el horario se solapa con el bloque actual
-            Reserva.bloque.hora_inicio <= reserva.bloque.hora_fin,
-            Reserva.bloque.hora_fin >= reserva.bloque.hora_inicio
+        # Verificar si el instructor ya tiene una clase programada en ese horario
+        instructor_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(
+            and_(
+                Ticket.id_instructor == data["id_instructor"],
+                func.date(Asistencia.fecha_asistencia) == hoy.date(),
+                Bloque.fecha == reserva.bloque.fecha,
+                # Verificar si el horario se solapa
+                Bloque.hora_inicio < reserva.bloque.hora_fin,
+                Bloque.hora_fin > reserva.bloque.hora_inicio
+            )
         ).first()
         if instructor_ocupado:
             raise BadRequest("El instructor ya tiene una clase programada en ese horario")
         
-        auto_ocupado = Ticket.query.join(Asistencia).join(Reserva).join(Reserva.bloque).filter(
-            Ticket.id_auto == data["id_auto"],
-            func.date(Asistencia.fecha_asistencia) == hoy,
-            # Verificar si el horario se solapa con el bloque actual
-            Reserva.bloque.hora_inicio <= reserva.bloque.hora_fin,
-            Reserva.bloque.hora_fin >= reserva.bloque.hora_inicio
+        # Verificar si el auto ya está asignado a otra clase en ese horario
+        auto_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(
+            and_(
+                Ticket.id_auto == data["id_auto"],
+                func.date(Asistencia.fecha_asistencia) == hoy.date(),
+                Bloque.fecha == reserva.bloque.fecha,
+                # Verificar si el horario se solapa
+                Bloque.hora_inicio < reserva.bloque.hora_fin,
+                Bloque.hora_fin > reserva.bloque.hora_inicio
+            )
         ).first()
         if auto_ocupado:
             raise BadRequest("El auto ya está asignado a otra clase en ese horario")

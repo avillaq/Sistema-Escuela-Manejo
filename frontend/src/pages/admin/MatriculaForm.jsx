@@ -83,7 +83,15 @@ export const MatriculaForm = () => {
     }
   }, [id, isEditing]);
 
+  // prevenir el scroll wheel
+  const preventWheel = (e) => {
+    e.target.blur();
+  };
+
   const handleChange = (field, value) => {
+    const numValue = Number(value);
+    if (numValue < 0) return; // No negativos
+
     if (field === "alumno") {
       const selectedAlumno = alumnosDisponibles.find(a => a.id.toString() === value);
       setFormData({ ...formData, alumno: selectedAlumno });
@@ -282,7 +290,7 @@ export const MatriculaForm = () => {
                 isDisabled={isEditing}
               >
                 {alumnosDisponibles.filter(a => a.activo).map((alumno) => (
-                  <SelectItem key={alumno.id} value={alumno.id.toString()}>
+                  <SelectItem key={alumno.id.toString()} textValue={`${alumno.nombre} ${alumno.apellidos} (DNI: ${alumno.dni})`}>
                     {alumno.nombre} {alumno.apellidos} (DNI: {alumno.dni})
                   </SelectItem>
                 ))}
@@ -347,7 +355,7 @@ export const MatriculaForm = () => {
                   isDisabled={!formData.categoria}
                 >
                   {paquetesDisponibles.map((paquete) => (
-                    <SelectItem key={paquete.id} value={paquete.id.toString()}>
+                    <SelectItem key={paquete.id} textValue={`${paquete.nombre} - ${paquete.tipo_auto.tipo} (${paquete.horas_total}h - S/ ${paquete.costo_total})`}>
                       {paquete.nombre} - {paquete.tipo_auto.tipo} ({paquete.horas_total}h - S/ {paquete.costo_total})
                     </SelectItem>
                   ))}
@@ -363,6 +371,7 @@ export const MatriculaForm = () => {
                     min="1"
                     value={formData.horas_contratadas}
                     onValueChange={(value) => handleChange('horas_contratadas', value)}
+                    onWheel={preventWheel}
                     isRequired
                     isInvalid={!!errors.horas_contratadas}
                     errorMessage={errors.horas_contratadas}
@@ -375,6 +384,7 @@ export const MatriculaForm = () => {
                     step="0.01"
                     value={formData.tarifa_por_hora}
                     onValueChange={(value) => handleChange('tarifa_por_hora', value)}
+                    onWheel={preventWheel}
                     startContent={<span className="text-default-400">S/</span>}
                     isRequired
                     isInvalid={!!errors.tarifa_por_hora}
@@ -404,6 +414,7 @@ export const MatriculaForm = () => {
                   step="0.01"
                   value={formData.monto_pago}
                   onValueChange={(value) => handleChange('monto_pago', value)}
+                  onWheel={preventWheel}
                   startContent={<span className="text-default-400">S/</span>}
                   isRequired
                   isInvalid={!!errors.monto_pago}

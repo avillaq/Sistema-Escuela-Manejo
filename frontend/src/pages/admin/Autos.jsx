@@ -1,3 +1,4 @@
+// Autos.jsx
 import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
@@ -11,55 +12,67 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '@/components/data-table';
-import { UserFormModal } from '@/pages/admin/UserFormModal';
-import { UserViewModal } from '@/pages/admin/UserViewModal';
-import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
-import { alumnosService } from '@/service/apiService';
+import { Tabla } from '@/components/Tabla';
+import { AutoFormModal } from '@/pages/admin/AutoFormModal';
+import { AutoViewModal } from '@/pages/admin/AutoViewModal';
+import { AutoDeleteModal } from '@/pages/admin/AutoDeleteModal';
+import { autosService } from '@/service/apiService';
 
 export const Autos = () => {
   const tipo = "Auto";
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  // Modales para ver, editar y eliminar usuarios
+  // Modales para ver, editar y eliminar autos
   const { isOpen: isViewOpen, onOpen: onViewOpen, onOpenChange: onViewOpenChange } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange } = useDisclosure();
 
-  // Estados para filtrar usuarios
+  // Estados para filtrar autos
   const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userData, setUserData] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [autoData, setAutoData] = useState([]);
+  const [selectedAuto, setSelectedAuto] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Cargar usuarios al montar el componente
+  // Cargar autos al montar el componente
   useEffect(() => {
-    const fetchUsers = async () => {
-      const result = await alumnosService.getAll();
-      if (result.success) {
-        setUserData(result.data);
-      } else {
+    const fetchAutos = async () => {
+      try {
+        setIsLoading(true);
+        const result = await autosService.getAll();
+        if (result.success) {
+          setAutoData(result.data);
+        } else {
+          addToast({
+            title: "Error al cargar autos",
+            description: result.error || "No se pudieron cargar los autos.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar usuarios",
-          description: result.error || "No se pudieron cargar los usuarios.",
+          title: "Error",
+          description: "No se pudieron cargar los autos.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
-    fetchUsers();
+    fetchAutos();
   }, []);
 
-  // Filtrar usuarios según estado y búsqueda
-  const filteredUsers = useMemo(() => {
-    return userData.filter(user => {
-
+  // Filtrar autos según estado y búsqueda
+  const filteredAutos = useMemo(() => {
+    return autoData.filter(auto => {
       // por estado
-      if (selectedEstado === "activo" && !user.activo) {
+      if (selectedEstado === "activo" && !auto.activo) {
         return false;
       }
-      if (selectedEstado === "inactivo" && user.activo) {
+      if (selectedEstado === "inactivo" && auto.activo) {
         return false;
       }
 
@@ -67,142 +80,139 @@ export const Autos = () => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
-          user.nombre.toLowerCase().includes(query) ||
-          user.apellidos.toLowerCase().includes(query) ||
-          user.dni.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query)
+          auto.placa.toLowerCase().includes(query) ||
+          auto.marca.toLowerCase().includes(query) ||
+          auto.modelo.toLowerCase().includes(query) ||
+          auto.color.toLowerCase().includes(query)
         );
       }
 
       return true;
     });
-  }, [selectedEstado, searchQuery, userData]);
+  }, [selectedEstado, searchQuery, autoData]);
 
   const estadisticas = useMemo(() => {
-    const total = userData.length;
-    const activos = userData.filter(user => user.activo).length;
-    const inactivos = userData.filter(user => !user.activo).length;
+    const total = autoData.length;
+    const activos = autoData.filter(auto => auto.activo).length;
+    const inactivos = autoData.filter(auto => !auto.activo).length;
 
     return { total, activos, inactivos };
-  }, [userData]);
+  }, [autoData]);
 
-  // Handle añadir usuario
-  const handleAddUser = (newUser) => {
-    const id = userData.length > 0 ? Math.max(...userData.map(u => u.id)) + 1 : 1;
+  // Handle añadir auto
+  const handleAddAuto = (newAuto) => {
+    const id = autoData.length > 0 ? Math.max(...autoData.map(a => a.id)) + 1 : 1;
     const today = new Date().toISOString().split('T')[0];
 
-    const user = {
-      ...newUser,
+    const auto = {
+      ...newAuto,
       id,
       fecha_creado: today,
     };
 
-    setUserData([...userData, user]);
+    setAutoData([...autoData, auto]);
 
     addToast({
       title: `${tipo} añadido`,
-      description: `${user.nombre} ${user.apellidos} ha sido añadido correctamente.`,
+      description: `Auto con placa ${auto.placa} ha sido añadido correctamente.`,
       severity: "success",
       color: "success",
     });
   };
 
-  // Handle editar usuario
-  const handleUpdateUser = (updatedUser) => {
-    const updatedUsers = userData.map(user =>
-      user.id === updatedUser.id ? updatedUser : user
+  // Handle editar auto
+  const handleUpdateAuto = (updatedAuto) => {
+    const updatedAutos = autoData.map(auto =>
+      auto.id === updatedAuto.id ? updatedAuto : auto
     );
 
-    setUserData(updatedUsers);
+    setAutoData(updatedAutos);
 
     addToast({
       title: `${tipo} actualizado`,
-      description: `Los datos de ${updatedUser.nombre} ${updatedUser.apellidos} han sido actualizados.`,
+      description: `Los datos del auto con placa ${updatedAuto.placa} han sido actualizados.`,
       severity: "success",
       color: "success",
     });
   };
 
-  // Handle eliminar usuario (aqui se solo se desactiva) // TODO : revisar si se debe eliminar o desactivar
-  const handleDeleteUser = (userId) => {
-    const deletedUser = userData.find(user => user.id === userId);
-    if (!deletedUser) return;
-    const updatedUsers = userData.map(user =>
-      user.id === userId ? { ...user, activo: false } : user
+  // Handle eliminar auto
+  const handleDeleteAuto = (autoId) => {
+    const deletedAuto = autoData.find(auto => auto.id === autoId);
+    if (!deletedAuto) return;
+    const updatedAutos = autoData.map(auto =>
+      auto.id === autoId ? { ...auto, activo: false } : auto
     );
 
-    setUserData(updatedUsers);
+    setAutoData(updatedAutos);
 
     addToast({
       title: `${tipo} eliminado`,
-      description: `${deletedUser?.nombre} ${deletedUser?.apellidos} ha sido eliminado correctamente.`,
+      description: `Auto con placa ${deletedAuto?.placa} ha sido eliminado correctamente.`,
       severity: "danger",
       color: "success",
     });
   };
 
   // Handle modal ver
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
+  const handleViewAuto = (auto) => {
+    setSelectedAuto(auto);
     onViewOpen();
   };
 
   // Handle modal editar
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
+  const handleEditAuto = (auto) => {
+    setSelectedAuto(auto);
     onEditOpen();
   };
 
   // Handle modal eliminar
-  const handleDeleteConfirm = (user) => {
-    setSelectedUser(user);
+  const handleDeleteConfirm = (auto) => {
+    setSelectedAuto(auto);
     onDeleteOpen();
   };
 
   const columns = [
+    { key: "placa", label: "PLACA" },
+    { key: "marca", label: "MARCA" },
+    { key: "modelo", label: "MODELO" },
+    { key: "color", label: "COLOR" },
     {
-      key: "nombre",
-      label: "NOMBRE COMPLETO",
-      render: (user) => (
-        <div>
-          <p className="font-medium">{user.nombre} {user.apellidos}</p>
-          <p className="text-xs text-default-500">{user.email}</p>
-        </div>
-      )
+      key: "tipo_auto",
+      label: "TIPO",
+      render: (auto) => auto.tipo_auto?.tipo || 'No especificado'
     },
-    { key: "dni", label: "DNI" },
-    { key: "telefono", label: "TELÉFONO" },
     {
       key: "activo",
       label: "ESTADO",
-      render: (user) => (
+      render: (auto) => (
         <Chip
-          color={user.activo ? "success" : "danger"}
+          color={auto.activo ? "success" : "danger"}
           size="sm"
           variant="flat"
         >
-          {user.activo ? "Activo" : "Inactivo"}
+          {auto.activo ? "Activo" : "Inactivo"}
         </Chip>
       )
     },
     {
       key: "fechaRegistro",
       label: "FECHA REGISTRO",
-      render: (user) => {
-        const date = new Date(user.fecha_creado);
+      render: (auto) => {
+        const date = new Date(auto.fecha_creado);
         return date.toLocaleDateString();
       }
     },
     {
       key: "actions",
       label: "ACCIONES",
-      render: (user) => (
+      render: (auto) => (
         <div className="flex gap-2 justify-end">
           <Button
             isIconOnly
             size="sm"
             variant="light"
-            onPress={() => handleViewUser(user)}
+            onPress={() => handleViewAuto(auto)}
           >
             <Icon icon="lucide:eye" width={16} height={16} />
           </Button>
@@ -210,7 +220,7 @@ export const Autos = () => {
             isIconOnly
             size="sm"
             variant="light"
-            onPress={() => handleEditUser(user)}
+            onPress={() => handleEditAuto(auto)}
           >
             <Icon icon="lucide:edit" width={16} height={16} />
           </Button>
@@ -219,7 +229,7 @@ export const Autos = () => {
             size="sm"
             variant="light"
             color="danger"
-            onPress={() => handleDeleteConfirm(user)}
+            onPress={() => handleDeleteConfirm(auto)}
           >
             <Icon icon="lucide:trash" width={16} height={16} />
           </Button>
@@ -228,12 +238,23 @@ export const Autos = () => {
     }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando Autos...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Alumnos</h1>
-          <p className="text-default-500">Gestión de Alumnos del sistema.</p>
+          <h1 className="text-2xl font-bold">Autos</h1>
+          <p className="text-default-500">Gestión de Autos del sistema.</p>
         </div>
         <Button
           color="primary"
@@ -248,7 +269,7 @@ export const Autos = () => {
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:users" className="text-primary-500" width={24} height={24} />
+              <Icon icon="lucide:car" className="text-primary-500" width={24} height={24} />
             </div>
             <div>
               <p className="text-sm text-primary-700">{`Total ${tipo}s`}</p>
@@ -260,7 +281,7 @@ export const Autos = () => {
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
+              <Icon icon="lucide:car-front" className="text-success-500" width={24} height={24} />
             </div>
             <div>
               <p className="text-sm text-success-700">{`${tipo}s Activos`}</p>
@@ -274,7 +295,7 @@ export const Autos = () => {
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-danger-500/20">
-              <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
+              <Icon icon="lucide:car-taxi-front" className="text-danger-500" width={24} height={24} />
             </div>
             <div>
               <p className="text-sm text-danger-700">{`${tipo}s Inactivos`}</p>
@@ -311,56 +332,56 @@ export const Autos = () => {
             </div>
           </div>
 
-          <DataTable
-            title="Lista de Alumnos"
+          <Tabla
+            title="Lista de Autos"
             columns={columns}
-            data={filteredUsers}
+            data={filteredAutos}
             rowKey="id"
           />
         </CardBody>
       </Card>
 
-      {/* Modal añadir usuario */}
-      <UserFormModal
+      {/* Modal añadir auto */}
+      <AutoFormModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        onAddUser={handleAddUser}
+        onAddAuto={handleAddAuto}
         tipo={tipo}
-        service={alumnosService}
+        service={autosService}
       />
 
-      {/* Modal ver usuario */}
-      {selectedUser && (
-        <UserViewModal
+      {/* Modal ver auto */}
+      {selectedAuto && (
+        <AutoViewModal
           isOpen={isViewOpen}
           onOpenChange={onViewOpenChange}
-          user={selectedUser}
+          auto={selectedAuto}
           tipo={tipo}
         />
       )}
 
-      {/* Modal editar usuario */}
-      {selectedUser && (
-        <UserFormModal
+      {/* Modal editar auto */}
+      {selectedAuto && (
+        <AutoFormModal
           isOpen={isEditOpen}
           onOpenChange={onEditOpenChange}
-          onAddUser={handleUpdateUser}
+          onAddAuto={handleUpdateAuto}
           editMode={true}
-          dataInicial={selectedUser}
+          dataInicial={selectedAuto}
           tipo={tipo}
-          service={alumnosService}
+          service={autosService}
         />
       )}
 
-      {/* Modal eliminar usuario */}
-      {selectedUser && (
-        <UserDeleteModal
+      {/* Modal eliminar auto */}
+      {selectedAuto && (
+        <AutoDeleteModal
           isOpen={isDeleteOpen}
           onOpenChange={onDeleteOpenChange}
-          user={selectedUser}
-          onConfirmDelete={handleDeleteUser}
+          auto={selectedAuto}
+          onConfirmDelete={handleDeleteAuto}
           tipo={tipo}
-          service={alumnosService}
+          service={autosService}
         />
       )}
     </div>

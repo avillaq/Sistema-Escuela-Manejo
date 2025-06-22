@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '@/components/data-table';
+import { Tabla } from '@/components/Tabla';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 
@@ -65,22 +65,35 @@ export const Matriculas = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [matriculasData, setMatriculasData] = useState([]);
   const [selectedMatricula, setSelectedMatricula] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   useEffect(() => {
     const fetchMatriculas = async () => {
-      const result = await matriculasService.getAll();
-      if (result.success) {
-        setMatriculasData(result.data);
-        console.log("Matriculas cargadas:", result.data);
+      setIsLoading(true);
+      try {
+        const result = await matriculasService.getAll();
+        if (result.success) {
+          setMatriculasData(result.data);
+          console.log("Matriculas cargadas:", result.data);
 
-      } else {
+        } else {
+          addToast({
+            title: "Error al cargar  las matrículas",
+            description: result.error || "No se pudieron cargar las matrículas.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar  las matrículas",
-          description: result.error || "No se pudieron cargar las matrículas.",
+          title: "Error",
+          description: "Ha ocurrido un error al cargar las matriculas.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchMatriculas();
@@ -343,6 +356,17 @@ export const Matriculas = () => {
     }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando matriculas...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -421,7 +445,7 @@ export const Matriculas = () => {
               startContent={<Icon icon="lucide:search" className="text-default-400" />}
               className="w-full md:w-1/4"
             />
-            <div className="flex gap-2 w-full md:w-3/4">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-2 w-full md:w-3/4">
               <Select
                 label="Estado Clases"
                 placeholder="Todos"
@@ -462,7 +486,7 @@ export const Matriculas = () => {
             </div>
           </div>
 
-          <DataTable
+          <Tabla
             title="Lista de Matrículas"
             columns={columns}
             data={filteredMatriculas}

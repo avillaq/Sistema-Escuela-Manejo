@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useHref } from 'react-router
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { publicRoutes, protectedRoutes } from './routes';
 import { DashboardLayout } from '@/layout/DashboardLayout';
-import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 
 
 const NextUIRouteProvider = () => {
@@ -13,30 +13,27 @@ const NextUIRouteProvider = () => {
       <ToastProvider />
       <Routes>
         {/* Rutas públicas */}
-        {publicRoutes.map(({ path, element: Element }) => (
+        {publicRoutes.map(({ path, element }) => (
           <Route
             key={path}
             path={path}
-            element={<Element />}
+            element={element}
           />
         ))}
 
         {/* Rutas protegidas con DashboardLayout */}
         <Route
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          {protectedRoutes.map(({ path, element: Element }) => (
+          element={<DashboardLayout />}>
+          {protectedRoutes.map(({ path, element }) => (
             <Route
               key={path}
               path={path}
-              element={<Element />}
+              element={element}
             />
           ))}
         </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </HeroUIProvider>
   )

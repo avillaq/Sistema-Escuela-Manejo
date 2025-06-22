@@ -23,14 +23,9 @@ def registrar_matricula():
 
 @matriculas_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
-def obtener_matriculas():
-    matriculas = listar_matriculas()
-    return jsonify(lista_schema.dump(matriculas, many=True)), 200
-
-@matriculas_bp.route("/<int:id>", methods=["GET"])
-#@flask_praetorian.roles_required("admin")
-def obtener_matricula(id):
-    matricula = listar_matriculas(id=id)
+def obtener_matricula():
+    id_alumno = request.args.get("id_alumno", type=int, default=None)
+    matricula = listar_matriculas(id_alumno=id_alumno)
     return jsonify(individual_schema.dump(matricula)), 200
 
 @matriculas_bp.route("/<int:id>", methods=["DELETE"])

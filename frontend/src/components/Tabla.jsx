@@ -1,8 +1,7 @@
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@heroui/react';
-import { Icon } from '@iconify/react';
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@heroui/react';
 import { useState, useMemo } from 'react';
 
-export function DataTable({ title, columns, data, rowKey }) {
+export function Tabla({ title, columns, data, rowKey }) {
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
 
@@ -52,7 +51,7 @@ export function DataTable({ title, columns, data, rowKey }) {
           ))}
         </TableHeader>
         <TableBody 
-          emptyContent={"No se encontraron usuarios"} 
+          emptyContent={"No se encontraron datos"} 
           items={items}
         >
           {(item) => (

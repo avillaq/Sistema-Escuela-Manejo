@@ -13,19 +13,16 @@ export const useAuthStore = create()(
       isAuthenticated: false,
       id: null,
       token: null,
-      loading: true,
       rol: '',
-
-      initialize: () => set({ loading: false }),
 
       login: (data) => {
         set({
           isAuthenticated: true,
-          id: data.usuario_id,
+          id: data.id,
           rol: data.rol,
           token: data.access_token,
-          loading: false
         });
+        localStorage.setItem('token', data.access_token);
       },
       logout: () => {
         set({
@@ -33,20 +30,18 @@ export const useAuthStore = create()(
           id: null,
           rol: '',
           token: null,
-          loading: false
         });
+        localStorage.removeItem('token');
       }
     }),
     {
-      name: 'auth-storage', // unique name for localStorage
+      name: 'auth-storage',
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
-        token: state.token
+        token: state.token,
+        rol: state.rol,
+        id: state.id
       })
     }
   )
 );
-
-if (typeof window !== 'undefined') {
-  useAuthStore.getState().initialize();
-}

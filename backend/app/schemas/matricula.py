@@ -31,6 +31,7 @@ class MatriculaSchema(Schema):
 
 # Estos esquemas son para la lista de matrículas, que incluye información resumida del alumno y del paquete
 class AlumnoResumenSchema(Schema):
+    id = fields.Int()
     nombre = fields.Str()
     apellidos = fields.Str()
     dni = fields.Str()
@@ -62,3 +63,5 @@ class MatriculaResumenSchema(Schema):
     pagos_realizados = fields.Float()
     saldo_pendiente = fields.Float()
     costo_total = fields.Float()
+    reservas_pendientes = fields.Int()
+    horas_disponibles_reserva = fields.Int()

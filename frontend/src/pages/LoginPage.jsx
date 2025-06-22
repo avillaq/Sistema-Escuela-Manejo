@@ -21,6 +21,16 @@ export const LoginPage = () => {
   if (isAuthenticated) {
     return <Navigate to={from} />;
   }
+
+  const handleDNIChange = (value) => {
+    const nuevoValue = value.replace(/\D/g, "").slice(0, 8);
+    setUserName(nuevoValue);
+  }
+
+  // prevenir el scroll wheel
+  const preventWheel = (e) => {
+    e.target.blur();
+  };
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +38,21 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     if (username.trim() === "" || password.trim() === "") {
-      setError("Por favor, completa todos los campos.");
+      setError("Por favor, ingresa tu DNI en ambos campos.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validar formato de DNI (8 dígitos)
+    const dniRegex = /^\d{8}$/;
+    if (!dniRegex.test(username.trim())) {
+      setError("El DNI debe tener exactamente 8 dígitos.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!dniRegex.test(password.trim())) {
+      setError("El DNI debe tener exactamente 8 dígitos.");
       setIsLoading(false);
       return;
     }
@@ -40,7 +64,7 @@ export const LoginPage = () => {
         login(result.data);
         history.replace(from);
       } else {
-        setError("Usuario or contraseña invalida");
+        setError("DNI no válido o no registrado en el sistema.");
       }
     } catch (err) {
       setError("Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
@@ -62,8 +86,8 @@ export const LoginPage = () => {
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-2">
               <Icon icon="lucide:layout-dashboard" className="text-white" width={24} height={24} />
             </div>
-            <h1 className="text-2xl font-bold text-center">Escuela de Manejo Jesus Nazareno</h1>
-            <p className="text-default-500 text-center">Ingresa tus credenciales para acceder al dashboard</p>
+            <h1 className="text-2xl font-bold text-center">Escuela de Manejo Jesús Nazareno</h1>
+            <p className="text-default-500 text-center">Ingresa tu DNI para acceder al sistema</p>
           </CardHeader>
           
           <CardBody className="py-6">
@@ -75,33 +99,39 @@ export const LoginPage = () => {
               )}
               
               <Input
-                label="Usuario"
-                placeholder="Ingresa tu usuario"
-                type="text"
+                label="DNI (Usuario)"
+                placeholder="Ingresa tu DNI"
+                type="number"
                 value={username}
-                onValueChange={setUserName}
+                onValueChange={handleDNIChange}
+                onWheel={preventWheel}
                 variant="bordered"
                 isRequired
+                description="Tu número de DNI de 8 dígitos"
                 startContent={
-                  <Icon icon="lucide:user" className="text-default-400" width={18} height={18} />
+                  <Icon icon="lucide:id-card" className="text-default-400" width={18} height={18} />
                 }
               />
               
               <Input
-                label="Contraseña"
-                placeholder="Ingresa tu contraseña"
+                label="DNI (Contraseña)"
+                placeholder="Confirma tu DNI"
                 type="password"
                 value={password}
                 onValueChange={setPassword}
                 variant="bordered"
                 isRequired
+                maxLength={8}
+                description="Ingresa nuevamente tu DNI"
                 startContent={
                   <Icon icon="lucide:lock" className="text-default-400" width={18} height={18} />
                 }
               />
               
               <div className="flex justify-end items-center">
-                <Link size="sm" onClick={() => alert("Contactate con el administrador")}>¿Olvidaste tu contraseña?</Link>
+                <Link size="sm" onClick={() => alert("Si olvidaste tu DNI o tienes problemas para acceder, contacta al administrador de la escuela.")}>
+                  ¿Problemas para acceder?
+                </Link>
               </div>
               
               <Button 
@@ -110,7 +140,7 @@ export const LoginPage = () => {
                 fullWidth 
                 isLoading={isLoading}
               >
-                {isLoading ? "Ingresando..." : "Iniciar sesión"}
+                {isLoading ? "Verificando DNI..." : "Iniciar sesión"}
               </Button>
             </form>
           </CardBody>

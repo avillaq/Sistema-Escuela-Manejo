@@ -5,7 +5,7 @@ import { AreaChartCard } from '@/components/area-chart';
 import { BarChartCard } from '@/components/bar-chart';
 import { revenueData, visitsData, topProducts } from '@/data/dashboard-data';
 
-export const Dashboard = () => {
+export const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       <div>

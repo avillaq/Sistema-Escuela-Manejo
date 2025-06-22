@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import { Switch, Tooltip } from '@heroui/react';
 import { useTheme } from "@heroui/use-theme";
 
-export const ThemeSwitcher = () => {
+export const TemaSwitcher = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   

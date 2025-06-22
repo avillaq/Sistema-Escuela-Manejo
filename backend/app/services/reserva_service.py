@@ -1,7 +1,8 @@
-from datetime import datetime, date
-from app.models import Bloque, Reserva, Matricula
+from datetime import datetime, date, timedelta
+from app.models import Bloque, Reserva, Matricula, Asistencia
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
+from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
 
@@ -72,32 +73,52 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
 
     matricula.ultima_modificacion_reserva = datetime.now()
     db.session.commit()
+    return reservas
 
-def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False): # TODO: filtro para ver todas las reservas de dias en específico  
-    reservas = []
-    # Si es alumno, solo ve sus propias reservas
+def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False, semana_offset=None): 
+    query = Reserva.query.options(
+        joinedload(Reserva.bloque),
+        joinedload(Reserva.matricula).joinedload(Matricula.alumno),
+        joinedload(Reserva.asistencia)
+    )
+
+    # Filtro por semana si se especifica
+    if semana_offset is not None:
+        hoy = date.today()
+        dias_desde_lunes = hoy.weekday()
+        lunes_semana_actual = hoy - timedelta(days=dias_desde_lunes)
+        lunes_semana_objetivo = lunes_semana_actual + timedelta(weeks=semana_offset)
+        
+        fecha_inicio = lunes_semana_objetivo
+        fecha_fin = lunes_semana_objetivo + timedelta(days=6)
+        
+        query = query.join(Bloque).filter(
+            Bloque.fecha >= fecha_inicio,
+            Bloque.fecha <= fecha_fin
+        )
+
+    # Filtros por usuario
     if not por_admin:
-        reservas = Reserva.query.join(Matricula).filter(
+        reservas = query.join(Matricula).filter(
             Matricula.id_alumno == id_usuario
         ).all()
     else:
-        # Administradores pueden filtrar por id_alumno
         if id_alumno:
-            reservas = Reserva.query.join(Matricula).filter(
+            reservas = query.join(Matricula).filter(
                 Matricula.id_alumno == id_alumno
             ).all()
         else:
-            # Sin filtro, admin ve todas las proximas reservas
-            hoy = date.today()
-            reservas = Reserva.query.join(Bloque).filter(
-                Bloque.fecha >= hoy
-            ).all()
+            reservas = query.all()
+    
     return reservas
 
 def listar_reservas_hoy():
-    reservas = []
     hoy = date.today()
-    reservas = Reserva.query.join(Bloque).filter(
-        Bloque.fecha >= hoy
-    ).all()
+    reservas = Reserva.query.join(Bloque).outerjoin(Asistencia).filter(
+        Bloque.fecha == hoy
+    ).options(
+        joinedload(Reserva.bloque),
+        joinedload(Reserva.matricula).joinedload(Matricula.alumno),
+        joinedload(Reserva.asistencia)
+    ).order_by(Bloque.hora_inicio).all()
     return reservas

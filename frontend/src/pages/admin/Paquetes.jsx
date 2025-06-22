@@ -24,19 +24,32 @@ export const Paquetes = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [paquetes, setPaquetes] = useState([]);
   const [selectedPaquete, setSelectedPaquete] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { // TODO: añadir loading
     const fetchPaquetes = async () => {
-      const result = await paquetesService.getAll();
-      if (result.success) {
-        setPaquetes(result.data);
-      } else {
+      try {
+        setIsLoading(true);
+        const result = await paquetesService.getAll();
+        if (result.success) {
+          setPaquetes(result.data);
+        } else {
+          addToast({
+            title: "Error al cargar paquetes",
+            description: result.error || "No se pudieron cargar los paquetes.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (error) {
         addToast({
-          title: "Error al cargar paquetes",
-          description: result.error || "No se pudieron cargar los paquetes.",
+          title: "Error",
+          description: "Ha ocurrido un error al cargar los paquetes.",
           severity: "danger",
           color: "danger",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchPaquetes();
@@ -115,26 +128,37 @@ export const Paquetes = () => {
       label: "COSTO (S/)",
       render: (p) => `S/ ${p.costo_total.toFixed(2)}`
     },
-  {
-  key: "actions",
-  label: "ACCIONES",
-  render: (p) => (
-    <div className="flex gap-2 justify-center w-[120px]">
-      <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
-        <Icon icon="lucide:eye" width={16} height={16} />
-      </Button>
-      <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
-        <Icon icon="lucide:edit" width={16} height={16} />
-      </Button>
-      <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
-        <Icon icon="lucide:trash" width={16} height={16} />
-      </Button>
-    </div>
-  ),
-  className: "text-center",
-  headerClassName: "text-center"
- }
+    {
+      key: "actions",
+      label: "ACCIONES",
+      render: (p) => (
+        <div className="flex gap-2 justify-center w-[120px]">
+          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
+            <Icon icon="lucide:eye" width={16} height={16} />
+          </Button>
+          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
+            <Icon icon="lucide:edit" width={16} height={16} />
+          </Button>
+          <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
+            <Icon icon="lucide:trash" width={16} height={16} />
+          </Button>
+        </div>
+      ),
+      className: "text-center",
+      headerClassName: "text-center"
+    }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+          <p>Cargando Paquetes...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -36,10 +36,6 @@ export const PaqueteViewModal = ({ isOpen, onOpenChange, paquete }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-default-500">ID del Paquete</p>
-                    <p className="font-medium">{paquete.id}</p>
-                  </div>
-                  <div>
                     <p className="text-sm text-default-500">Tipo de Auto</p>
                     <p className="font-medium">{paquete.tipo_auto?.tipo}</p>
                   </div>

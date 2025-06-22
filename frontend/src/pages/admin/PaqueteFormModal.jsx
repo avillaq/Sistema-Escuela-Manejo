@@ -10,15 +10,16 @@ import {
   Select,
   SelectItem
 } from '@heroui/react';
-  
 
- const DataTipoAuto= [{
-  id: 1, 
+
+const DataTipoAuto = [{
+  id: 1,
   tipo: "Mecánico"
-  
- },
-  {id: 2, 
- tipo: "Automático"
+
+},
+{
+  id: 2,
+  tipo: "Automático"
 }
 ]
 export const PaqueteFormModal = ({
@@ -29,7 +30,7 @@ export const PaqueteFormModal = ({
   dataInicial,
   tipo = "Paquete",
   service,
-  
+
 }) => {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -95,18 +96,17 @@ export const PaqueteFormModal = ({
       costo_total: parseFloat(formData.costo_total),
       id_tipo_auto: Number(formData.id_tipo_auto)
     };
-    console.log(dataEnviar)
     let result;
     if (editMode && dataInicial) {
       result = await service.update(dataInicial.id, dataEnviar);
-    } else 
+    } else
 
-    if (result.success) {
-      onAddPaquete(result.data || dataEnviar);
-      onOpenChange(false);
-    } else {
-      alert(result.message || 'Ocurrió un error');
-    }
+      if (result.success) {
+        onAddPaquete(result.data || dataEnviar);
+        onOpenChange(false);
+      } else {
+        alert(result.message || 'Ocurrió un error');
+      }
 
     setIsLoading(false);
   };
@@ -135,11 +135,12 @@ export const PaqueteFormModal = ({
                 label="Nombre del Paquete"
                 selectedKeys={formData.nombre ? [formData.nombre] : []}
                 onSelectionChange={(keys) => handleChange('nombre', Array.from(keys)[0])}
+                isRequired
                 isInvalid={!!errors.nombre}
                 errorMessage={errors.nombre}
               >
                 {['basico', 'intermedio', 'avanzado'].map((tipo) => (
-                  <SelectItem key={tipo} value={tipo}>
+                  <SelectItem key={tipo}>
                     {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
                   </SelectItem>
                 ))}
@@ -149,12 +150,13 @@ export const PaqueteFormModal = ({
                 label="Tipo de Auto"
                 selectedKeys={formData.id_tipo_auto ? [formData.id_tipo_auto] : []}
                 onSelectionChange={(keys) => handleChange('id_tipo_auto', Array.from(keys)[0])}
+                isRequired
                 isInvalid={!!errors.id_tipo_auto}
                 errorMessage={errors.id_tipo_auto}
               >
                 {DataTipoAuto.map((auto) => (
-                  <SelectItem key={auto.id} value={auto.id.toString()}>
-                    {auto.tipo.charAt(0).toUpperCase() + auto.tipo.slice(1)}
+                  <SelectItem key={auto.id} textValue={auto.tipo}>
+                    {auto.tipo}
                   </SelectItem>
                 ))}
               </Select>
@@ -165,6 +167,7 @@ export const PaqueteFormModal = ({
                 placeholder="Ej. 10"
                 value={formData.horas_total}
                 onValueChange={(value) => handleChange('horas_total', value)}
+                isRequired
                 isInvalid={!!errors.horas_total}
                 errorMessage={errors.horas_total}
               />
@@ -174,6 +177,7 @@ export const PaqueteFormModal = ({
                 placeholder="Ej. 150"
                 value={formData.costo_total}
                 onValueChange={(value) => handleChange('costo_total', value)}
+                isRequired
                 isInvalid={!!errors.costo_total}
                 errorMessage={errors.costo_total}
               />

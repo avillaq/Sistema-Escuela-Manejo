@@ -8,7 +8,6 @@ matriculas_bp = Blueprint("matriculas", __name__)
 crear_schema = CrearMatriculaSchema()
 ver_schema = MatriculaSchema()
 lista_schema = MatriculaResumenSchema()
-individual_schema = MatriculaResumenSchema()
 
 @matriculas_bp.route("/", methods=["POST"])
 #@flask_praetorian.roles_required("admin")
@@ -26,7 +25,7 @@ def registrar_matricula():
 def obtener_matricula():
     id_alumno = request.args.get("id_alumno", type=int, default=None)
     matricula = listar_matriculas(id_alumno=id_alumno)
-    return jsonify(individual_schema.dump(matricula)), 200
+    return jsonify(lista_schema.dump(matricula, many=True)), 200
 
 @matriculas_bp.route("/<int:id>", methods=["DELETE"])
 #@flask_praetorian.roles_required("admin")

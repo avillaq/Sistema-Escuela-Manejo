@@ -2,16 +2,13 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
-  Chip,
   Button,
   useDisclosure,
-  Select,
-  SelectItem,
   Input,
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { DataTable } from '@/components/data-table';
+import { Tabla } from '@/components/Tabla';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';
@@ -172,7 +169,7 @@ export const Paquetes = () => {
             />
           </div>
 
-          <DataTable
+          <Tabla
             title="Lista de Paquetes"
             columns={columns}
             data={filteredPaquetes}

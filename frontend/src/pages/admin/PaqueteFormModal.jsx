@@ -95,13 +95,11 @@ export const PaqueteFormModal = ({
       costo_total: parseFloat(formData.costo_total),
       id_tipo_auto: Number(formData.id_tipo_auto)
     };
-console.log(dataEnviar)
+    console.log(dataEnviar)
     let result;
     if (editMode && dataInicial) {
       result = await service.update(dataInicial.id, dataEnviar);
-    } else {
-      result = await service.create(dataEnviar);
-    }
+    } else 
 
     if (result.success) {
       onAddPaquete(result.data || dataEnviar);
@@ -140,7 +138,7 @@ console.log(dataEnviar)
                 isInvalid={!!errors.nombre}
                 errorMessage={errors.nombre}
               >
-                {['basico', 'intermedio', 'avanzado', 'por_hora'].map((tipo) => (
+                {['basico', 'intermedio', 'avanzado'].map((tipo) => (
                   <SelectItem key={tipo} value={tipo}>
                     {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
                   </SelectItem>

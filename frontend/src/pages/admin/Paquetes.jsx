@@ -18,13 +18,12 @@ import { PaqueteDeleteModal } from './PaqueteDeleteModal';
 import { paquetesService } from '@/service/apiService';
 
 export const Paquetes = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const tipo="Paquete"
+  const { isOpen, onOpenChange } = useDisclosure();
+  const tipo = "Paquete";
   const { isOpen: isViewOpen, onOpen: onViewOpen, onOpenChange: onViewOpenChange } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange } = useDisclosure();
 
-  const [selectedEstado, setSelectedEstado] = useState("activo");
   const [searchQuery, setSearchQuery] = useState("");
   const [paquetes, setPaquetes] = useState([]);
   const [selectedPaquete, setSelectedPaquete] = useState(null);
@@ -48,15 +47,13 @@ export const Paquetes = () => {
 
   const filteredPaquetes = useMemo(() => {
     return paquetes.filter(paquete => {
-      if (selectedEstado === "activo" && !paquete.activo) return false;
-      if (selectedEstado === "inactivo" && paquete.activo) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         return paquete.nombre.toLowerCase().includes(q);
       }
       return true;
     });
-  }, [selectedEstado, searchQuery, paquetes]);
+  }, [searchQuery, paquetes]);
 
   const estadisticas = useMemo(() => {
     const total = paquetes.length;
@@ -121,48 +118,32 @@ export const Paquetes = () => {
       label: "COSTO (S/)",
       render: (p) => `S/ ${p.costo_total.toFixed(2)}`
     },
-    {
-      key: "estado",
-      label: "ESTADO",
-      render: (p) => (
-        <Chip color={p.activo ? "success" : "danger"} size="sm" variant="flat">
-          {p.activo ? "Activo" : "Inactivo"}
-        </Chip>
-      )
-    },
-    {
-      key: "actions",
-      label: "ACCIONES",
-      render: (p) => (
-        <div className="flex gap-2 justify-end">
-          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
-            <Icon icon="lucide:eye" width={16} height={16} />
-          </Button>
-          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
-            <Icon icon="lucide:edit" width={16} height={16} />
-          </Button>
-          <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
-            <Icon icon="lucide:trash" width={16} height={16} />
-          </Button>
-        </div>
-      )
-    }
+  {
+  key: "actions",
+  label: "ACCIONES",
+  render: (p) => (
+    <div className="flex gap-2 justify-center w-[120px]">
+      <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
+        <Icon icon="lucide:eye" width={16} height={16} />
+      </Button>
+      <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
+        <Icon icon="lucide:edit" width={16} height={16} />
+      </Button>
+      <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
+        <Icon icon="lucide:trash" width={16} height={16} />
+      </Button>
+    </div>
+  ),
+  className: "text-center",
+  headerClassName: "text-center"
+ }
   ];
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Paquetes</h1>
-          <p className="text-default-500">Gestión de paquetes disponibles.</p>
-        </div>
-        <Button
-          color="primary"
-          startContent={<Icon icon="lucide:plus" width={16} height={16} />}
-          onPress={onOpen}
-        >
-          Añadir Paquete
-        </Button>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold">Paquetes</h1>
+        <p className="text-default-500">Gestión de paquetes disponibles.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -174,28 +155,6 @@ export const Paquetes = () => {
             <div>
               <p className="text-sm text-primary-700">Total Paquetes</p>
               <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:check-circle" className="text-success-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-success-700">Activos</p>
-              <p className="text-2xl font-semibold text-success-700">{estadisticas.activos}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-danger-500/20">
-              <Icon icon="lucide:x-circle" className="text-danger-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-danger-700">Inactivos</p>
-              <p className="text-2xl font-semibold text-danger-700">{estadisticas.inactivos}</p>
             </div>
           </div>
         </Card>
@@ -211,15 +170,6 @@ export const Paquetes = () => {
               startContent={<Icon icon="lucide:search" className="text-default-400" />}
               className="w-full md:w-1/3"
             />
-            <Select
-              label="Estado"
-              selectedKeys={[selectedEstado]}
-              className="w-full md:w-1/3"
-              onChange={(e) => setSelectedEstado(e.target.value)}
-            >
-              <SelectItem key="activo" value="activo">Activos</SelectItem>
-              <SelectItem key="inactivo" value="inactivo">Inactivos</SelectItem>
-            </Select>
           </div>
 
           <DataTable

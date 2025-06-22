@@ -8,6 +8,7 @@ import {
   Button,
   Input,
   Checkbox,
+  addToast
 } from '@heroui/react';
 
 export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = false, dataInicial, tipo = "Usuario", service }) => {
@@ -76,9 +77,9 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
       newErrors.telefono = 'El teléfono debe tener 9 números';
     }
     console.log("Datos a enviar:", formData);
-    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El email debe ser válido';
-    } 
+    //if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    //  newErrors.email = 'El email debe ser válido';
+    //} 
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -116,8 +117,12 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
           onAddUser(result.data);
           onOpenChange(false);
         } else {
-          console.log(result.validationErrors.email);
-          alert(result.validationErrors.email || 'Error al añadir el usuario');
+          addToast({
+            title: "Error al crear el usuario",
+            description: result.error,
+            severity: "danger",
+            color: "danger",
+          });
         }
       }
     }

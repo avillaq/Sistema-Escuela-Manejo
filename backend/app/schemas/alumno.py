@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, validate, ValidationError
+from werkzeug.exceptions import BadRequest
 
 class AlumnoSchema(Schema):
     id = fields.Int()
@@ -17,10 +18,11 @@ def email_opcional(value):
         validador_email = validate.Email() 
         return validador_email(value)
     except ValidationError as e:
-        raise ValidationError("Debe ser un correo electrónico válido o dejarse vacío.")
+        #raise ValidationError("Debe ser un correo electrónico válido o dejarse vacío.")
+        raise BadRequest ("Debe ser un correo electrónico válido o dejarse vacío.")
     
 class CrearAlumnoSchema(Schema):
-    nombre = fields.Str(required=True)
+    nombre = fields.Str(required=True, validate=validate.Length(min=1, error="El nombre no tiene los caracteres suficientes"))
     apellidos = fields.Str(required=True)
     dni = fields.Str(required=True, validate=validate.Regexp(
         r'^\d{8}$', 
@@ -31,6 +33,11 @@ class CrearAlumnoSchema(Schema):
         error="El teléfono debe contener exactamente 9 dígitos numéricos."
     ))
     email = fields.Str(validate=email_opcional)
+    def handle_error(self, error, data, **kwargs):   
+        formatted_errors = {}
+        for field, messages in error.messages.items():
+            formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
+            raise BadRequest (formatted_errors[field])
 
 class ActualizarAlumnoSchema(Schema):
     nombre = fields.Str()
@@ -45,3 +52,8 @@ class ActualizarAlumnoSchema(Schema):
     ))
     email = fields.Str(validate=email_opcional)
     activo = fields.Bool(validate=validate.OneOf([True, False]))
+    def handle_error(self, error, data, **kwargs):   
+        formatted_errors = {}
+        for field, messages in error.messages.items():
+            formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
+            raise BadRequest (formatted_errors[field])

@@ -14,6 +14,7 @@ from .routes.bloques import bloques_bp
 from .routes.tickets import tickets_bp
 from .routes.reportes import reportes_bp
 from .routes.paquetes import paquetes_bp
+from .error_handlers import register_error_handlers
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +25,8 @@ def create_app():
     limiter.init_app(app)
     cors.init_app(app)
     guard.init_app(app, Usuario,is_blacklisted=blacklist.is_blacklisted)
+
+    register_error_handlers(app)
 
     # Registrar los blueprints
     app.register_blueprint(alumnos_bp, url_prefix="/api/alumnos")
@@ -39,5 +42,6 @@ def create_app():
     app.register_blueprint(tickets_bp, url_prefix="/api/tickets")
     app.register_blueprint(reportes_bp, url_prefix="/api/reportes")
     app.register_blueprint(paquetes_bp, url_prefix="/api/paquetes")
+    
     
     return app

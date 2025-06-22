@@ -5,8 +5,10 @@ import { API_CONFIG } from "@/config/api.config";
 const handleResponse = async (apiCall) => {
   try {
     const response = await apiCall();
+    console.log(response.data)
     return { success: true, data: response.data };
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       error: error.response?.data?.mensaje || error.message,

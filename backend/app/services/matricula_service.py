@@ -12,7 +12,7 @@ from werkzeug.exceptions import BadRequest
 
 def crear_matricula(data):
     alumno = Alumno.query.get_or_404(data["id_alumno"])
-
+    
     # Validar que el alumno esté activo
     if not alumno.activo:
         raise BadRequest("El alumno no está activo")

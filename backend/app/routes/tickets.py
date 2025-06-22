@@ -23,6 +23,10 @@ def listar_tickets():
         alumno = t.asistencia.reserva.matricula.alumno
         return {
             **ver_schema.dump(t),
+            "placa_auto": t.auto.placa,
+            "marca_auto": t.auto.marca,
+            "modelo_auto": t.auto.modelo,
+            "color_auto": t.auto.color,
             "numero_clase_alumno": t.numero_clase_alumno,
             "fecha_asistencia": t.asistencia.fecha_asistencia,
             "nombre_alumno": f"{alumno.nombre} {alumno.apellidos}",

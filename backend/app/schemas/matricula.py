@@ -63,3 +63,5 @@ class MatriculaResumenSchema(Schema):
     pagos_realizados = fields.Float()
     saldo_pendiente = fields.Float()
     costo_total = fields.Float()
+    reservas_pendientes = fields.Int()
+    horas_disponibles_reserva = fields.Int()

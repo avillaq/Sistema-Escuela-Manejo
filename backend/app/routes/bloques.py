@@ -1,19 +1,18 @@
 from flask import Blueprint, jsonify, request
 import flask_praetorian
 from app.schemas.bloque import BloqueSchema
-from app.services.bloque_service import obtener_bloques_disponibles
+from app.services.bloque_service import obtener_bloques_semanal
 
 bloques_bp = Blueprint("bloques", __name__)
 ver_schema = BloqueSchema()
 
-@bloques_bp.route("/disponibles", methods=["GET"])
+@bloques_bp.route("/semanal", methods=["GET"])
 @flask_praetorian.roles_accepted("alumno", "admin")
-def ver_bloques_disponibles():
+def obtener_bloques():
     current_user = flask_praetorian.current_user()
     es_admin = current_user.rol == "admin"
-    id_alumno = None
-    if not es_admin:
-        id_alumno = current_user.id
+    id_alumno = request.args.get("id_alumno", type=int, default=None)  # Solo necesario si es admin
+    semana_offset = request.args.get("semana", type=int, default=0)  # -1, 0, 1
 
-    bloques = obtener_bloques_disponibles(id_alumno=id_alumno, por_admin=es_admin)
+    bloques = obtener_bloques_semanal(id_alumno=id_alumno, por_admin=es_admin, semana_offset=semana_offset)
     return jsonify(ver_schema.dump(bloques, many=True)), 200

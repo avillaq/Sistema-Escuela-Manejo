@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import flask_praetorian
 from app.extensions import guard, blacklist
 from app.schemas.login import LoginSchema
+from app.models import Alumno, Instructor, Administrador
 
 auth_bp = Blueprint("auth", __name__)
 login_schema = LoginSchema()
@@ -16,11 +17,37 @@ def login():
     usuario = guard.authenticate(data["nombre_usuario"], data["contraseña"])
     token = guard.encode_jwt_token(usuario)
 
-    return jsonify({
+    response_data = {
         "access_token": token,
-        "usuario_id": usuario.id,
         "rol": usuario.rol
-    }), 200
+    }
+
+    if usuario.rol == "alumno":
+        alumno = Alumno.query.filter_by(id_usuario=usuario.id).first()
+        if alumno:
+            response_data["alumno"] = {
+                "nombre": alumno.nombre,
+                "apellidos": alumno.apellidos
+            }
+            response_data["id"] = alumno.id
+    elif usuario.rol == "instructor":
+        instructor = Instructor.query.filter_by(id_usuario=usuario.id).first()
+        if instructor:
+            response_data["instructor"] = {
+                "nombre": instructor.nombre,
+                "apellidos": instructor.apellidos
+            }
+            response_data["id"] = instructor.id
+    elif usuario.rol == "admin":
+        admin = Administrador.query.filter_by(id_usuario=usuario.id).first()
+        if admin:
+            response_data["administrador"] = {
+                "nombre": admin.nombre,
+                "apellidos": admin.apellidos
+            }
+            response_data["id"] = admin.id
+
+    return jsonify(response_data), 200
 
 @auth_bp.route("/logout", methods=["POST"])
 @flask_praetorian.auth_required

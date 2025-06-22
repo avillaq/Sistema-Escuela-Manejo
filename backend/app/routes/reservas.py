@@ -41,16 +41,21 @@ def cancelar_reservas():
         return jsonify(errors), 400
 
     current_user = flask_praetorian.current_user()
-    eliminar_reservas(data, current_user.id, por_admin=(current_user.rol == "admin"))
-    return jsonify({"mensaje": "Reservas canceladas"}), 200
+    reservas = eliminar_reservas(data, current_user.id, por_admin=(current_user.rol == "admin"))
+    return jsonify({
+        "mensaje": "Reservas canceladas",
+        "reservas": ver_schema.dump(reservas, many=True)
+    }), 200
 
 @reservas_bp.route("/", methods=["GET"])
 @flask_praetorian.roles_accepted("admin", "alumno")
 def obtener_reservas(): 
     current_user = flask_praetorian.current_user()
     id_alumno = request.args.get("id_alumno", type=int)
+    semana_offset = request.args.get("semana", type=int, default=0)  # -1, 0, 1
     es_admin = current_user.rol == "admin"
-    reservas = listar_reservas(id_alumno=id_alumno, id_usuario=current_user.id, por_admin=es_admin)
+
+    reservas = listar_reservas(id_alumno=id_alumno, id_usuario=current_user.id, por_admin=es_admin, semana_offset=semana_offset)
     
     return jsonify(ver_schema.dump(reservas, many=True)), 200
 

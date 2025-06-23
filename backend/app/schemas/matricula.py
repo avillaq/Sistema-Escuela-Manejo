@@ -1,8 +1,9 @@
 from marshmallow import Schema, fields, validate
+from werkzeug.exceptions import BadRequest
 
 class CrearMatriculaSchema(Schema):
     id_alumno = fields.Int(required=True)
-    tipo_contratacion = fields.Str(required=True, validate=validate.OneOf(["paquete", "por_hora"]))
+    tipo_contratacion = fields.Str(required=True, validate=validate.OneOf(["paquete", "por_hora"], error="El paquete por hora esta incorrecto"))
     id_paquete = fields.Int()  # Opcional, dependiendo del tipo
     horas_contratadas = fields.Int(validate=validate.Range(
         min=1,
@@ -12,8 +13,13 @@ class CrearMatriculaSchema(Schema):
         min=1.0,
         error="La tarifa por hora debe ser al menos 1.0 soles"
     ))  # Opcional, solo para por_hora
-    categoria = fields.Str(required=True, validate=validate.OneOf(["A-I", "A-II"]))
-
+    categoria = fields.Str(required=True, validate=validate.OneOf(["A-I", "A-II"], error="La categoría debe ser A-I o A-II"))
+    def handle_error(self, error, data, **kwargs):   
+        formatted_errors = {}
+        for field, messages in error.messages.items():
+            formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
+            raise BadRequest (formatted_errors[field])
+        
 class MatriculaSchema(Schema):
     id = fields.Int()
     id_alumno = fields.Int()

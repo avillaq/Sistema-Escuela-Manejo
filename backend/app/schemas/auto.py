@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, validate
+from werkzeug.exceptions import BadRequest
 
 class TipoAutoResumenSchema(Schema):
     id = fields.Int()
@@ -16,15 +17,58 @@ class AutoSchema(Schema):
     fecha_creado = fields.DateTime()
 
 class CrearAutoSchema(Schema):
-    placa = fields.Str(required=True, validate=validate.Length(min=6, max=7))
-    marca = fields.Str(required=True)
-    modelo = fields.Str(required=True)
-    color = fields.Str(required=True)
-    id_tipo_auto = fields.Int(required=True)
+    placa = fields.Str(
+        required=True,
+        validate=validate.Regexp(
+            r'^[A-Z0-9]{6,7}$',
+            error="La placa debe tener entre 6 y 7 caracteres alfanuméricos en mayúscula, sin espacios ni símbolos."
+        ),
+        error_messages={"required": "La placa del auto es obligatoria."}
+    )
+    marca = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, error="La marca del auto no puede estar vacía."),
+        error_messages={"required": "La marca del auto es obligatoria."}
+    )
 
+    modelo = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, error="El modelo del auto no puede estar vacío."),
+        error_messages={"required": "El modelo del auto es obligatorio."}
+    )
+
+    color = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, error="El color del auto no puede estar vacío."),
+        error_messages={"required": "El color del auto es obligatorio."}
+    )
+
+    id_tipo_auto = fields.Int(
+        required=True,
+        error_messages={"required": "El tipo de auto es obligatorio."}
+    )
+    def handle_error(self, error, data, **kwargs):   
+        formatted_errors = {}
+        for field, messages in error.messages.items():
+            formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
+            raise BadRequest (formatted_errors[field])
+        
 class ActualizarAutoSchema(Schema):
-    marca = fields.Str()
-    modelo = fields.Str()
-    color = fields.Str()
+    marca = fields.Str(
+        validate=validate.Length(min=1, error="La marca no puede estar vacía.")
+    )
+    modelo = fields.Str(
+        validate=validate.Length(min=1, error="El modelo no puede estar vacía.")
+    )
+    color = fields.Str(
+        validate=validate.Length(min=1, error="El color no puede estar vacía.")
+    )
     id_tipo_auto = fields.Int()
-    activo = fields.Bool(validate=validate.OneOf([True, False]))
+    activo = fields.Bool(
+        validate=validate.OneOf([True, False], error="El estado 'activo' debe ser verdadero o falso.")
+    )
+    def handle_error(self, error, data, **kwargs):   
+        formatted_errors = {}
+        for field, messages in error.messages.items():
+            formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
+            raise BadRequest (formatted_errors[field])

@@ -23,7 +23,7 @@ def email_opcional(value):
     
 class CrearAlumnoSchema(Schema):
     nombre = fields.Str(required=True, validate=validate.Length(min=1, error="El nombre no tiene los caracteres suficientes"))
-    apellidos = fields.Str(required=True)
+    apellidos = fields.Str(required=True, validate=validate.Length(min=1, error="El apellido no tiene los caracteres suficientes"))
     dni = fields.Str(required=True, validate=validate.Regexp(
         r'^\d{8}$', 
         error="El DNI debe contener exactamente 8 dígitos numéricos."

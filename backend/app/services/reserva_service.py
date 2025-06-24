@@ -3,7 +3,6 @@ from app.models import Bloque, Reserva, Matricula, Asistencia
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.orm import joinedload
-from sqlalchemy import func
 
 
 def crear_reservas(data, por_admin=False):

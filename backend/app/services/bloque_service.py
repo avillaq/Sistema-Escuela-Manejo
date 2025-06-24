@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from app.models import Bloque, Matricula
 from werkzeug.exceptions import BadRequest
 
@@ -20,7 +20,7 @@ def obtener_bloques_semanal(id_alumno=None, por_admin=False, semana_offset=0):
     fecha_inicio = lunes_semana_objetivo
     fecha_fin = lunes_semana_objetivo + timedelta(days=6)
     
-    # Semanas pasadas, actuales y futuras
+    # Obtener todos los bloques de la semana
     bloques = Bloque.query.filter(
         Bloque.fecha >= fecha_inicio,
         Bloque.fecha <= fecha_fin
@@ -35,5 +35,19 @@ def obtener_bloques_semanal(id_alumno=None, por_admin=False, semana_offset=0):
         
         if not matricula:
             return []
+
+        # Obtener la fecha limite de la matrícula 
+        fecha_limite = matricula.fecha_limite
+        if isinstance(fecha_limite, datetime):
+            fecha_limite = fecha_limite.date()
+
+        # Filtrar bloques que no excedan la fecha limite de la matrícula
+        bloques_filtrados = []
+        for bloque in bloques:
+            fecha_bloque = bloque.fecha
+            if fecha_bloque <= fecha_limite:
+                bloques_filtrados.append(bloque)
+        
+        return bloques_filtrados
 
     return bloques

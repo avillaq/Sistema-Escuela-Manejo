@@ -9,15 +9,15 @@ def registrar_asistencia(data):
     matricula = reserva.matricula
     asistio = data.get("asistio", True)
     alumno = matricula.alumno
+    # Verificar si ya existe un registro de asistencia
+    asistencia_existente = Asistencia.query.filter_by(id_reserva=reserva.id).first()
+    if asistencia_existente:
+        raise BadRequest("Ya existe un registro de asistencia para esta reserva")
 
     hoy = datetime.today()
     if asistio:
         if matricula.fecha_limite < hoy:
             raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
-        
-        asistencia_existente = Asistencia.query.filter_by(id_reserva=reserva.id).first()
-        if asistencia_existente:
-            raise BadRequest("Ya existe un registro de asistencia para esta reserva")
 
         # Verificar si el instructor ya tiene una clase programada en ese horario
         instructor_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(

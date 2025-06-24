@@ -35,7 +35,17 @@ def crear_reservas(data, por_admin=False):
         
         if bloque.reservas_actuales >= bloque.capacidad_max:
             raise BadRequest(f"El bloque {bloque.fecha}: {bloque.hora_inicio} - {bloque.hora_fin} está lleno")
+
+         # Validar que la fecha del bloque no exceda la fecha límite de la matrícula
+        fecha_bloque = bloque.fecha
+        if isinstance(fecha_bloque, str):
+            fecha_bloque = datetime.strptime(fecha_bloque, '%Y-%m-%d').date()
+        elif isinstance(fecha_bloque, datetime):
+            fecha_bloque = fecha_bloque.date()
             
+        if fecha_bloque > fecha_limite:
+            raise BadRequest(f"No puedes reservar porque un bloque excede tu fecha límite de matrícula")
+        
         # Solo aplicar restricción de anticipación si no es admin
         if not por_admin and matricula.categoria == "A-II" and bloque.fecha <= hoy:
             raise BadRequest("Alumnos A-II deben reservar con 1 día de anticipación")

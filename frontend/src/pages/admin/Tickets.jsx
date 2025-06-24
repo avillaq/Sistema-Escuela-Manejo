@@ -77,13 +77,16 @@ export const Tickets = () => {
   // Formatear fecha y hora
   const formatearFechaHora = (fechaString) => {
     if (!fechaString) return 'N/A';
-    const fecha = new Date(fechaString);
+    // Crear la fecha desde el formato GMT del backend manteniendo la hora GMT
+    const fecha = new Date(fechaString + (fechaString.includes('GMT') ? '' : ' GMT'));
     return fecha.toLocaleString('es-PE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'GMT'
     });
   };
 
@@ -148,20 +151,6 @@ export const Tickets = () => {
             <p className="text-xs text-default-400">No asignado</p>
           )}
         </div>
-      )
-    },
-    {
-      key: "estado",
-      label: "ESTADO",
-      render: (ticket) => (
-        <Chip
-          color="success"
-          size="sm"
-          variant="flat"
-          startContent={<Icon icon="lucide:check-circle" width={14} height={14} />}
-        >
-          Completado
-        </Chip>
       )
     },
     {

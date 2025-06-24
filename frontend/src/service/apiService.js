@@ -46,7 +46,7 @@ export const administradoresService = {
 // Servicio de matrículas
 export const matriculasService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`)),
-  getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/${id}`)),
+  getById: (matriculaId) => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`, { params: { id_matricula: matriculaId } })),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.matriculas}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.matriculas}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.matriculas}/${id}`)),

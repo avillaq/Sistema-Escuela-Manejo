@@ -93,13 +93,20 @@ def obtener_estado_cuenta(id_matricula):
         "fecha_limite": matricula.fecha_limite.strftime("%Y-%m-%d")
     }
 
-def listar_matriculas(id_alumno=None): # TODO: agregar filtros y paginación
-    if id_alumno:
-        # Filtrar matricula con estado de clases activo (pendiente, en_progreso)
-        matricula = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).filter(
-            Matricula.id_alumno == id_alumno,
-            Matricula.estado_clases.in_(["pendiente", "en_progreso"])
-        ).first()
+def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtros y paginación
+    if id_matricula or id_alumno:
+        if id_matricula:
+            # Validar que la matrícula exista
+            matricula = Matricula.query.get_or_404(id_matricula)
+        else:
+            # Validar que el alumno exista
+            alumno = Alumno.query.get_or_404(id_alumno)
+            # Validar que el alumno tenga una matrícula
+            matricula = Matricula.query.filter_by(id_alumno=alumno.id).first_or_404()
+
+        #Filtrar matricula con estado de clases activo (pendiente, en_progreso)
+        #if matricula.estado_clases not in ["pendiente", "en_progreso"]:
+        #    raise BadRequest("La matrícula del alumno no está activa")
         
         # Calcular pagos realizados
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0

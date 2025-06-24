@@ -23,8 +23,11 @@ def registrar_matricula():
 @matriculas_bp.route("/", methods=["GET"])
 #@flask_praetorian.roles_required("admin")
 def obtener_matricula():
+    id_matricula = request.args.get("id_matricula", type=int, default=None)
     id_alumno = request.args.get("id_alumno", type=int, default=None)
-    matricula = listar_matriculas(id_alumno=id_alumno)
+    matricula = listar_matriculas(id_matricula=id_matricula, id_alumno=id_alumno)
+    if id_matricula or id_alumno:
+        return jsonify(lista_schema.dump(matricula)), 200
     return jsonify(lista_schema.dump(matricula, many=True)), 200
 
 @matriculas_bp.route("/<int:id>", methods=["DELETE"])

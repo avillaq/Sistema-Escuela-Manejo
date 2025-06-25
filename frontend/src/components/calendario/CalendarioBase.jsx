@@ -21,6 +21,7 @@ export const CalendarioBase = ({
   matriculaId,
   horasRestantes: horasRestantesProps = 0,
   estadoClases = "pendiente",
+  categoria = "A-I",
   onReservasChange
 }) => {
   const [modoCalendario, setModoCalendario] = useState("vista");
@@ -67,6 +68,21 @@ export const CalendarioBase = ({
     }
     return fechasSemana;
   };
+
+  // Verificar si una fecha requiere anticipación para A-II
+  const requiereAnticipacion = useCallback((fecha) => {
+    if (config.isAdminModo) return false;
+    if (categoria !== "A-II") return false;
+
+    const hoy = new Date();
+    hoy.setHours(23, 59, 59, 999); // Fin del día actual
+
+    const fechaBloque = new Date(fecha);
+    fechaBloque.setHours(0, 0, 0, 0); // Inicio del día del bloque
+
+    // 24 horas de anticipación
+    return fechaBloque <= hoy;
+  }, [config.isAdminModo, categoria]);
 
   // Determinar si una fecha está en el pasado
   const esFechaPasada = useCallback((fecha) => {
@@ -281,6 +297,16 @@ export const CalendarioBase = ({
         return;
       }
 
+      if (requiereAnticipacion(fecha)) {
+        addToast({
+          title: "Anticipación requerida",
+          description: "Los alumnos de categoría A-II deben reservar con al menos 24 horas de anticipación.",
+          severity: "warning",
+          color: "warning",
+        });
+        return;
+      }
+
       if (config.isAdminModo && horasRestantes <= 0) {
         addToast({
           title: "Sin horas disponibles",
@@ -489,6 +515,7 @@ export const CalendarioBase = ({
     const esHoraPas = esHoraPasada(fecha, hora);
     const tieneReserva = tieneReservaEnBloque(bloqueId);
     const isSeleccionado = slotsSeleccionados.includes(bloqueId);
+    const necesitaAnticipacion = requiereAnticipacion(fecha);
 
     // Obtener información de asistencia si existe reserva
     const reserva = obtenerReservaEnBloque(bloqueId);
@@ -511,10 +538,10 @@ export const CalendarioBase = ({
 
     // Solo se puede hacer clic si:
     // 1. No está en modo vista
-    // 2. Para reservar: bloque disponible, sin reserva, no es fecha/hora pasada
+    // 2. Para reservar: bloque disponible, sin reserva, no es fecha/hora pasada, cumple anticipación A-II
     // 3. Para cancelar: tiene reserva, no es fecha/hora pasada Y no tiene asistencia registrada
     const isClickeable = modoCalendario !== "vista" &&
-      ((modoCalendario === "reservar" && isDisponible && !tieneReserva && !esFechaPas && !esHoraPas) ||
+      ((modoCalendario === "reservar" && isDisponible && !tieneReserva && !esFechaPas && !esHoraPas && !necesitaAnticipacion) ||
         (modoCalendario === "cancelar" && tieneReserva && !esFechaPas && !esHoraPas && !tieneAsistenciaRegistrada));
 
     let bgColor = "bg-default-100";
@@ -553,6 +580,10 @@ export const CalendarioBase = ({
       } else if (isLleno) {
         bgColor = "bg-default-200";
         textColor = "text-default-500";
+      } else if (necesitaAnticipacion) {
+        bgColor = "bg-warning-50";
+        textColor = "text-warning-600";
+        borderColor = "border-warning-200";
       }
     }
 
@@ -571,6 +602,7 @@ export const CalendarioBase = ({
           ${isClickeable ? 'cursor-pointer hover:brightness-95' : 'cursor-default'}
           ${isSeleccionado ? 'shadow-sm' : ''}
           ${(esFechaPas || esHoraPas) ? 'opacity-75' : ''}
+          ${necesitaAnticipacion ? 'opacity-60' : ''}
           flex flex-col sm:flex-row items-center justify-center sm:justify-between
         `}
         onClick={() => isClickeable && handleSlotClick(bloqueId, fecha, hora)}
@@ -583,6 +615,11 @@ export const CalendarioBase = ({
           {/* Indicador de reserva */}
           {tieneReserva && (
             <Icon icon="lucide:check" width={10} height={10} className="sm:w-4 sm:h-4" />
+          )}
+
+          {/* Indicador de restricción A-II */}
+          {necesitaAnticipacion && !tieneReserva && (
+            <Icon icon="lucide:clock-alert" width={8} height={8} className="sm:w-3 sm:h-3 text-warning-600" />
           )}
 
           {/* Indicador de asistencia para fechas pasadas */}

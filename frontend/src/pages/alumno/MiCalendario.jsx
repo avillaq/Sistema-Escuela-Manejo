@@ -108,7 +108,8 @@ export const MiCalendario = () => {
     userId: id,
     matriculaId: matriculaActiva?.id,
     horasRestantes: Math.max(0, horas_disponibles),
-    estadoClases: matriculaActiva?.estado_clases
+    estadoClases: matriculaActiva?.estado_clases,
+    categoria: matriculaActiva?.categoria
   }), [id, matriculaActiva?.id, horas_disponibles, matriculaActiva?.estado_clases]);
 
   return (

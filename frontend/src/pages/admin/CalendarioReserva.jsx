@@ -213,6 +213,7 @@ export const CalendarioReserva = () => {
         matriculaId={matricula.id}
         horasRestantes={Math.max(0, horas_disponibles)}
         estadoClases={matricula.estado_clases}
+        categoria={matricula.categoria}
         onReservasChange={handleReservasChange}
       />
     </div>

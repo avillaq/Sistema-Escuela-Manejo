@@ -103,10 +103,6 @@ def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtro
             alumno = Alumno.query.get_or_404(id_alumno)
             # Validar que el alumno tenga una matrícula
             matricula = Matricula.query.filter_by(id_alumno=alumno.id).first_or_404()
-
-        #Filtrar matricula con estado de clases activo (pendiente, en_progreso)
-        #if matricula.estado_clases not in ["pendiente", "en_progreso"]:
-        #    raise BadRequest("La matrícula del alumno no está activa")
         
         # Calcular pagos realizados
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0

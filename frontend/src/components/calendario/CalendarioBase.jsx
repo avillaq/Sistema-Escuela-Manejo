@@ -20,6 +20,7 @@ export const CalendarioBase = ({
   userId,
   matriculaId,
   horasRestantes: horasRestantesProps = 0,
+  estadoClases = "pendiente",
   onReservasChange
 }) => {
   const [modoCalendario, setModoCalendario] = useState("vista");
@@ -39,8 +40,8 @@ export const CalendarioBase = ({
 
   // Configuración según el modo
   const isAdminModo = modo === "matricula" || modo === "global";
-  const canReservar = (modo === "alumno" && horasRestantes > 0) ||
-    (modo === "matricula" && horasRestantes > 0);
+  const canReservar = (modo === "alumno" && estadoClases != "completado" && estadoClases != "vencido") ||
+    (modo === "matricula" && estadoClases != "completado" && estadoClases != "vencido");
 
   // Actualizar horas restantes cuando cambien las props
   useEffect(() => {

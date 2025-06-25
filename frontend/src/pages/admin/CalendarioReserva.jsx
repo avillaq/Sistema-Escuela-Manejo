@@ -175,16 +175,31 @@ export const CalendarioReserva = () => {
         </Card>
       </div>
 
-      {/* Mensaje de advertencia solo si es crítico */}
-      {horas_disponibles <= 0 && (
-        <Card className="border-warning-200 bg-warning-50">
+      { (matricula.estado_clases == "completado") && (
+        <Card className="border-success-200 bg-success-50">
           <CardBody>
             <div className="flex items-center gap-3">
-              <Icon icon="lucide:alert-triangle" className="text-warning-600" width={20} height={20} />
+              <Icon icon="lucide:check-circle" className="text-success-600" width={20} height={20} />
               <div>
-                <h4 className="font-semibold text-warning-800">Sin horas disponibles para reservar</h4>
-                <p className="text-sm text-warning-700">
-                  El alumno ha utilizado todas sus horas disponibles.
+                <h4 className="font-semibold text-success-800">Matrícula Completada</h4>
+                <p className="text-sm text-success-700">
+                  Esta matrícula ha sido completada. No se pueden realizar más reservas.
+                </p>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      { (matricula.estado_clases == "vencido") && (
+        <Card className="border-danger-200 bg-danger-50">
+          <CardBody>
+            <div className="flex items-center gap-3">
+              <Icon icon="lucide:alert-circle" className="text-danger-600" width={20} height={20} />
+              <div>
+                <h4 className="font-semibold text-danger-800">Matrícula Vencida</h4>
+                <p className="text-sm text-danger-700">
+                  Esta matrícula ha vencido. No se pueden realizar más reservas.
                 </p>
               </div>
             </div>
@@ -197,6 +212,7 @@ export const CalendarioReserva = () => {
         userId={matricula.alumno.id}
         matriculaId={matricula.id}
         horasRestantes={Math.max(0, horas_disponibles)}
+        estadoClases={matricula.estado_clases}
         onReservasChange={handleReservasChange}
       />
     </div>

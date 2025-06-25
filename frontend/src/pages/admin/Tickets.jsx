@@ -27,7 +27,6 @@ export const Tickets = () => {
   // Cargar tickets al montar el componente
   useEffect(() => {
     const fetchTickets = async () => {
-      setIsLoading(true);
       try {
         const result = await ticketsService.getAll();
         if (result.success) {
@@ -171,17 +170,6 @@ export const Tickets = () => {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando tickets...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -201,7 +189,7 @@ export const Tickets = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">Total Tickets</p>
-              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
+              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -225,13 +213,22 @@ export const Tickets = () => {
             />
           </div>
 
-          <Tabla
-            title="Tickets de Clases"
-            columns={columns}
-            data={filteredTickets}
-            rowKey="id"
-            emptyContent="No se encontraron tickets"
-          />
+
+          {isLoading ?
+            (<div className="flex justify-center items-center min-h-64">
+              <div className="text-center">
+                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+                <p>Cargando tickets...</p>
+              </div>
+            </div>)
+            :
+            <Tabla
+              title="Tickets de Clases"
+              columns={columns}
+              data={filteredTickets}
+              rowKey="id"
+            />
+          }
         </CardBody>
       </Card>
 

@@ -38,7 +38,6 @@ export const Instructores = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        setIsLoading(true);
         const result = await instructoresService.getAll();
         if (result.success) {
           setUserData(result.data);
@@ -244,17 +243,6 @@ export const Instructores = () => {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando Usuarios...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -279,7 +267,7 @@ export const Instructores = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">Total Instructores</p>
-              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
+              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -292,7 +280,7 @@ export const Instructores = () => {
             <div>
               <p className="text-sm text-success-700">Instructores Activos</p>
               <p className="text-2xl font-semibold text-success-700">
-                {estadisticas.activos}
+                {isLoading ? "..." : estadisticas.activos}
               </p>
             </div>
           </div>
@@ -306,7 +294,7 @@ export const Instructores = () => {
             <div>
               <p className="text-sm text-danger-700">Instructores Inactivos</p>
               <p className="text-2xl font-semibold text-danger-700">
-                {estadisticas.inactivos}
+                {isLoading ? "..." : estadisticas.inactivos}
               </p>
             </div>
           </div>
@@ -338,12 +326,22 @@ export const Instructores = () => {
             </div>
           </div>
 
-          <Tabla
-            title="Lista de Instructores"
-            columns={columns}
-            data={filteredUsers}
-            rowKey="id"
-          />
+
+          {isLoading ?
+            (<div className="flex justify-center items-center min-h-64">
+              <div className="text-center">
+                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+                <p>Cargando Usuarios...</p>
+              </div>
+            </div>)
+            :
+            <Tabla
+              title="Lista de Instructores"
+              columns={columns}
+              data={filteredUsers}
+              rowKey="id"
+            />
+          }
         </CardBody>
       </Card>
 

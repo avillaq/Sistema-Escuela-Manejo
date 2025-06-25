@@ -39,7 +39,6 @@ export const Autos = () => {
   useEffect(() => {
     const fetchAutos = async () => {
       try {
-        setIsLoading(true);
         const result = await autosService.getAll();
         if (result.success) {
           setAutoData(result.data);
@@ -238,17 +237,6 @@ export const Autos = () => {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando Autos...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -273,7 +261,7 @@ export const Autos = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">{`Total ${tipo}s`}</p>
-              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
+              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -286,7 +274,7 @@ export const Autos = () => {
             <div>
               <p className="text-sm text-success-700">{`${tipo}s Activos`}</p>
               <p className="text-2xl font-semibold text-success-700">
-                {estadisticas.activos}
+                {isLoading ? "..." : estadisticas.activos}
               </p>
             </div>
           </div>
@@ -300,7 +288,7 @@ export const Autos = () => {
             <div>
               <p className="text-sm text-danger-700">{`${tipo}s Inactivos`}</p>
               <p className="text-2xl font-semibold text-danger-700">
-                {estadisticas.inactivos}
+                {isLoading ? "..." : estadisticas.inactivos}
               </p>
             </div>
           </div>
@@ -332,12 +320,22 @@ export const Autos = () => {
             </div>
           </div>
 
-          <Tabla
-            title="Lista de Autos"
-            columns={columns}
-            data={filteredAutos}
-            rowKey="id"
-          />
+          {isLoading ?
+            (<div className="flex justify-center items-center min-h-64">
+              <div className="text-center">
+                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+                <p>Cargando Autos...</p>
+              </div>
+            </div>)
+            :
+            <Tabla
+              title="Lista de Autos"
+              columns={columns}
+              data={filteredAutos}
+              rowKey="id"
+            />
+          }
+
         </CardBody>
       </Card>
 

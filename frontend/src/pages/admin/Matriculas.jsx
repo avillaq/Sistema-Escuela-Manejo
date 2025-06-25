@@ -16,42 +16,6 @@ import { Tabla } from '@/components/Tabla';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 
-// Mock data para matrículas
-const matri = [
-  {
-    id: 1,
-    alumno: { nombre: 'Juan', apellidos: 'Pérez García', dni: '12345678' },
-    categoria: 'A-I',
-    tipo_contratacion: 'paquete',
-    paquete: { nombre: 'Básico', tipo_auto: 'Mecánico', horas_total: 15, costo_total: 640.0 },
-    horas_contratadas: null,
-    tarifa_por_hora: null,
-    fecha_matricula: '2024-01-15',
-    estado_clases: 'en_progreso',
-    estado_pago: 'pendiente',
-    horas_completadas: 8,
-    pagos_realizados: 320.0,
-    saldo_pendiente: 320.0,
-    costo_total: 640.0
-  },
-  {
-    id: 2,
-    alumno: { nombre: 'María', apellidos: 'González López', dni: '87654321' },
-    categoria: 'A-II',
-    tipo_contratacion: 'por_hora',
-    paquete: null,
-    horas_contratadas: 10,
-    tarifa_por_hora: 48.0,
-    fecha_matricula: '2024-01-20',
-    estado_clases: 'completado',
-    estado_pago: 'completo',
-    horas_completadas: 10,
-    pagos_realizados: 480.0,
-    saldo_pendiente: 0.0,
-    costo_total: 480.0
-  }
-];
-
 export const Matriculas = () => {
   const navigate = useNavigate();
 
@@ -70,7 +34,6 @@ export const Matriculas = () => {
 
   useEffect(() => {
     const fetchMatriculas = async () => {
-      setIsLoading(true);
       try {
         const result = await matriculasService.getAll();
         if (result.success) {
@@ -356,17 +319,6 @@ export const Matriculas = () => {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando matriculas...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -392,7 +344,7 @@ export const Matriculas = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">Total Matrículas</p>
-              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
+              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -404,7 +356,7 @@ export const Matriculas = () => {
             </div>
             <div>
               <p className="text-sm text-warning-700">En Progreso</p>
-              <p className="text-2xl font-semibold text-warning-700">{estadisticas.enProgreso}</p>
+              <p className="text-2xl font-semibold text-warning-700">{isLoading ? "..." : estadisticas.enProgreso}</p>
             </div>
           </div>
         </Card>
@@ -416,7 +368,7 @@ export const Matriculas = () => {
             </div>
             <div>
               <p className="text-sm text-success-700">Completadas</p>
-              <p className="text-2xl font-semibold text-success-700">{estadisticas.completadas}</p>
+              <p className="text-2xl font-semibold text-success-700">{isLoading ? "..." : estadisticas.completadas}</p>
             </div>
           </div>
         </Card>
@@ -428,7 +380,7 @@ export const Matriculas = () => {
             </div>
             <div>
               <p className="text-sm text-success-700">Ingresos Totales</p>
-              <p className="text-2xl font-semibold text-success-700">S/ {estadisticas.ingresosTotales.toFixed(2)}</p>
+              <p className="text-2xl font-semibold text-success-700">S/ {isLoading ? "..." : estadisticas.ingresosTotales.toFixed(2)}</p>
             </div>
           </div>
         </Card>
@@ -486,12 +438,22 @@ export const Matriculas = () => {
             </div>
           </div>
 
-          <Tabla
-            title="Lista de Matrículas"
-            columns={columns}
-            data={filteredMatriculas}
-            rowKey="id"
-          />
+          {isLoading ?
+            (<div className="flex justify-center items-center min-h-64">
+              <div className="text-center">
+                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+                <p>Cargando matriculas...</p>
+              </div>
+            </div>)
+            :
+            <Tabla
+              title="Lista de Matrículas"
+              columns={columns}
+              data={filteredMatriculas}
+              rowKey="id"
+            />
+          }
+
         </CardBody>
       </Card>
 

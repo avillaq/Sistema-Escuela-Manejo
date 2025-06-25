@@ -29,7 +29,6 @@ export const Paquetes = () => {
   useEffect(() => { // TODO: añadir loading
     const fetchPaquetes = async () => {
       try {
-        setIsLoading(true);
         const result = await paquetesService.getAll();
         if (result.success) {
           setPaquetes(result.data);
@@ -149,17 +148,6 @@ export const Paquetes = () => {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando Paquetes...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="mb-4">
@@ -175,7 +163,7 @@ export const Paquetes = () => {
             </div>
             <div>
               <p className="text-sm text-primary-700">Total Paquetes</p>
-              <p className="text-2xl font-semibold text-primary-700">{estadisticas.total}</p>
+              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
             </div>
           </div>
         </Card>
@@ -193,12 +181,22 @@ export const Paquetes = () => {
             />
           </div>
 
-          <Tabla
-            title="Lista de Paquetes"
-            columns={columns}
-            data={filteredPaquetes}
-            rowKey="id"
-          />
+
+          {isLoading ?
+            (<div className="flex justify-center items-center min-h-64">
+              <div className="text-center">
+                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
+                <p>Cargando Paquetes...</p>
+              </div>
+            </div>)
+            :
+            <Tabla
+              title="Lista de Paquetes"
+              columns={columns}
+              data={filteredPaquetes}
+              rowKey="id"
+            />
+          }
         </CardBody>
       </Card>
 

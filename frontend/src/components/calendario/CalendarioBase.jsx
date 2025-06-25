@@ -102,6 +102,13 @@ export const CalendarioBase = ({
     if (semanaActual === -1) return 'Semana Anterior';
     if (semanaActual === 0) return 'Semana Actual';
     if (semanaActual === 1) return 'Semana Siguiente';
+
+    if (config.isAdminModo) {
+      if (semanaActual < -1) return `${Math.abs(semanaActual)} semanas atrás`;
+      if (semanaActual > 1) return `${semanaActual} semanas adelante`;
+    }
+
+    return `Semana ${semanaActual > 0 ? '+' : ''}${semanaActual}`;
   };
 
   // Obtener las fechas de la semana actual
@@ -210,7 +217,7 @@ export const CalendarioBase = ({
       }
     }, 1000);
   };
-  
+
   // Mapear bloques para acceso rápido
   const bloquesMap = useMemo(() => {
     const map = new Map();
@@ -446,17 +453,32 @@ export const CalendarioBase = ({
 
   // Navegación de semanas
   const irSemanaAnterior = () => {
-    if (semanaActual > -1) {
+    if (config.isAdminModo) {
       setSemanaActual(prev => prev - 1);
-      setSlotsSeleccionados([]);
+    } else {
+      // Alumnos limitados a semana anterior (-1)
+      if (semanaActual > -1) {
+        setSemanaActual(prev => prev - 1);
+      }
     }
+    setSlotsSeleccionados([]);
   };
 
   const irSemanaProxima = () => {
-    if (semanaActual < 1) {
+    if (config.isAdminModo) {
       setSemanaActual(prev => prev + 1);
-      setSlotsSeleccionados([]);
+    } else {
+      // Alumnos limitados a semana siguiente (+1)
+      if (semanaActual < 1) {
+        setSemanaActual(prev => prev + 1);
+      }
     }
+    setSlotsSeleccionados([]);
+  };
+
+  const irSemanaActual = () => {
+    setSemanaActual(0);
+    setSlotsSeleccionados([]);
   };
 
   // Render del slot de tiempo
@@ -649,10 +671,21 @@ export const CalendarioBase = ({
                 variant="flat"
                 isIconOnly
                 onPress={irSemanaAnterior}
-                isDisabled={semanaActual === -1}
+                isDisabled={!config.isAdminModo && semanaActual === -1}
               >
                 <Icon icon="lucide:chevron-left" width={16} height={16} />
               </Button>
+
+              {config.isAdminModo && semanaActual !== 0 && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={irSemanaActual}
+                  className="text-xs px-2"
+                >
+                  Hoy
+                </Button>
+              )}
 
               <span className="text-sm font-medium text-default-600 min-w-[120px] text-center">
                 {obtenerTextoSemana()}
@@ -663,7 +696,7 @@ export const CalendarioBase = ({
                 variant="flat"
                 isIconOnly
                 onPress={irSemanaProxima}
-                isDisabled={semanaActual === 1}
+                isDisabled={!config.isAdminModo && semanaActual === 1}
               >
                 <Icon icon="lucide:chevron-right" width={16} height={16} />
               </Button>

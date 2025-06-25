@@ -80,7 +80,9 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
         bloque.reservas_actuales -= 1
         db.session.delete(reserva)
 
-    matricula.ultima_modificacion_reserva = datetime.now()
+    # Solo actualizar timestamp si no es admin
+    if not por_admin:
+        matricula.ultima_modificacion_reserva = datetime.now()
     db.session.commit()
     return reservas
 

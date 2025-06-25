@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardBody,
@@ -102,15 +102,6 @@ export const MiCalendario = () => {
     : matriculaActiva.horas_contratadas;
 
   const horas_disponibles = matriculaActiva.horas_disponibles_reserva || 0;
-
-  const calendarioProps = useMemo(() => ({
-    modo: "alumno",
-    userId: id,
-    matriculaId: matriculaActiva?.id,
-    horasRestantes: Math.max(0, horas_disponibles),
-    estadoClases: matriculaActiva?.estado_clases,
-    categoria: matriculaActiva?.categoria
-  }), [id, matriculaActiva?.id, horas_disponibles, matriculaActiva?.estado_clases]);
 
   return (
     <div className="space-y-6">
@@ -228,7 +219,12 @@ export const MiCalendario = () => {
 
       {/* Calendario */}
       <CalendarioBase
-       {...calendarioProps}
+        modo='alumno'
+        userId={id}
+        matriculaId={matriculaActiva?.id}
+        horasRestantes={Math.max(0, horas_disponibles)}
+        estadoClases={matriculaActiva?.estado_clases}
+        categoria={matriculaActiva?.categoria}
         onReservasChange={handleReservasChange}
       />
     </div>

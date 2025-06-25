@@ -21,11 +21,6 @@ def crear_reservas_route():
     current_user = flask_praetorian.current_user()
     es_admin = current_user.rol == "admin"
 
-    if not es_admin:
-        matricula = Matricula.query.get_or_404(data["id_matricula"])
-        if current_user.alumno.id != matricula.id_alumno:
-            return jsonify({"error": "No puedes crear reservas para otro alumno"}), 403
-
     reservas = crear_reservas(data, por_admin=es_admin)
     return jsonify({
         "mensaje": f"Se han creado {len(reservas)} reservas correctamente",

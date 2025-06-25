@@ -655,6 +655,34 @@ export const CalendarioBase = ({
 
   return (
     <div className="space-y-4">
+      {/* Información sobre restricciones para alumnos */}
+      {!config.isAdminModo && categoria === "A-II" && (
+        <Card className="border-warning-200 bg-warning-50">
+          <CardBody className="py-3">
+            <div className="flex items-center gap-2 text-warning-700">
+              <Icon icon="lucide:info" width={16} height={16} />
+              <p className="text-sm">
+                <strong>Categoría A-II:</strong> Debes reservar con 24 horas de anticipación. 
+                Solo puedes cancelar reservas cada 24 horas.
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {!config.isAdminModo && categoria === "A-I" && (
+        <Card className="border-primary-200 bg-primary-50">
+          <CardBody className="py-3">
+            <div className="flex items-center gap-2 text-primary-700">
+              <Icon icon="lucide:info" width={16} height={16} />
+              <p className="text-sm">
+                Solo puedes cancelar reservas cada 24 horas para evitar cambios de último minuto.
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+      
       {/* Controles - Solo mostrar si puede reservar */}
       {config.canReservar && (
         <>

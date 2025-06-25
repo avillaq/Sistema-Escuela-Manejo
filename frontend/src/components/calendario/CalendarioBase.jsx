@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Card,
   CardBody,
@@ -30,18 +30,21 @@ export const CalendarioBase = ({
   const [reservasUsuario, setReservasUsuario] = useState([]);
 
   const [slotsSeleccionados, setSlotsSeleccionados] = useState([]);
-  const [isLoadingBloques, setIsLoadingBloques] = useState(true);
-  const [isLoadingReservas, setIsLoadingReservas] = useState(true);
+  const [isLoadingBloques, setIsLoadingBloques] = useState(false);
+  const [isLoadingReservas, setIsLoadingReservas] = useState(false);
   const [horasRestantes, setHorasRestantes] = useState(horasRestantesProps);
   const [semanaActual, setSemanaActual] = useState(0);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [modalAccion, setModalAccion] = useState("reservar");
+  const [isConfirmandoAccion, setIsConfirmandoAccion] = useState(false);
 
-  // Configuración según el modo
-  const isAdminModo = modo === "matricula" || modo === "global";
-  const canReservar = (modo === "alumno" && estadoClases != "completado" && estadoClases != "vencido") ||
-    (modo === "matricula" && estadoClases != "completado" && estadoClases != "vencido");
+  // Configuracion según el modo
+  const config = useMemo(() => ({
+    isAdminModo: modo === "matricula" || modo === "global",
+    canReservar: (modo === "alumno" && estadoClases !== "completado" && estadoClases !== "vencido") ||
+      (modo === "matricula" && estadoClases !== "completado" && estadoClases !== "vencido")
+  }), [modo, estadoClases]);
 
   // Actualizar horas restantes cuando cambien las props
   useEffect(() => {
@@ -66,24 +69,24 @@ export const CalendarioBase = ({
   };
 
   // Determinar si una fecha está en el pasado
-  const esFechaPasada = (fecha) => {
+  const esFechaPasada = useCallback((fecha) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fechaComparar = new Date(fecha);
     fechaComparar.setHours(0, 0, 0, 0);
     return fechaComparar < hoy;
-  };
+  }, []);
 
   // verificar si una hora específica ya pasó
-  const esHoraPasada = (fecha, hora) => {
+  const esHoraPasada = useCallback((fecha, hora) => {
     const ahora = new Date();
     // Tolerancia de 15 minutos para reservas o cancelaciones
     ahora.setMinutes(ahora.getMinutes() - 15);
     const fechaHora = new Date(fecha);
     fechaHora.setHours(hora, 0, 0, 0);
-    
+
     return fechaHora < ahora;
-  };
+  }, []);
 
   const esDiaActual = (fecha) => {
     const hoy = new Date();
@@ -101,10 +104,14 @@ export const CalendarioBase = ({
     if (semanaActual === 1) return 'Semana Siguiente';
   };
 
-  const fechasSemana = obtenerFechasSemana(new Date(), semanaActual);
+  // Obtener las fechas de la semana actual
+  const fechasSemana = useMemo(() => {
+    return obtenerFechasSemana(new Date(), semanaActual);
+  }, [semanaActual]);
 
   // Cargar datos iniciales (solo una vez por semana)
   const cargarDatosIniciales = async () => {
+    if (isLoadingBloques || isLoadingReservas) return;
     setIsLoadingBloques(true);
     setIsLoadingReservas(true);
 
@@ -203,25 +210,43 @@ export const CalendarioBase = ({
       }
     }, 1000);
   };
-
-  // Obtener bloque para una fecha y hora especifica
-  const obtenerBloque = (fecha, hora) => {
-    return bloques.find(bloque => {
+  
+  // Mapear bloques para acceso rápido
+  const bloquesMap = useMemo(() => {
+    const map = new Map();
+    bloques.forEach(bloque => {
       const fechaBloque = new Date(bloque.fecha + 'T00:00:00');
       const horaBloque = parseInt(bloque.hora_inicio.split(':')[0]);
-      return fechaBloque.toDateString() === fecha.toDateString() && horaBloque === hora;
+      const key = `${fechaBloque.toDateString()}-${horaBloque}`;
+      map.set(key, bloque);
     });
-  };
+    return map;
+  }, [bloques]);
+
+  // Obtener bloque para una fecha y hora especifica
+  const obtenerBloque = useCallback((fecha, hora) => {
+    const key = `${fecha.toDateString()}-${hora}`;
+    return bloquesMap.get(key);
+  }, [bloquesMap]);
+
+  // Mapear reservas del usuario para acceso rápido
+  const reservasMap = useMemo(() => {
+    const map = new Map();
+    reservasUsuario.forEach(reserva => {
+      map.set(reserva.id_bloque, reserva);
+    });
+    return map;
+  }, [reservasUsuario]);
 
   // Verificar si el usuario tiene una reserva en un bloque específico
-  const tieneReservaEnBloque = (bloqueId) => {
-    return reservasUsuario.some(reserva => reserva.id_bloque === bloqueId);
-  };
+  const tieneReservaEnBloque = useCallback((bloqueId) => {
+    return reservasMap.has(bloqueId);
+  }, [reservasMap]);
 
   // Obtener reserva del usuario para un bloque específico
-  const obtenerReservaEnBloque = (bloqueId) => {
-    return reservasUsuario.find(reserva => reserva.id_bloque === bloqueId);
-  };
+  const obtenerReservaEnBloque = useCallback((bloqueId) => {
+    return reservasMap.get(bloqueId);
+  }, [reservasMap]);
 
   // Manejo de modos
   const handleCambiarModo = (nuevoModo) => {
@@ -249,7 +274,7 @@ export const CalendarioBase = ({
         return;
       }
 
-      if (isAdminModo && horasRestantes <= 0) {
+      if (config.isAdminModo && horasRestantes <= 0) {
         addToast({
           title: "Sin horas disponibles",
           description: "El alumno no tiene horas restantes para reservar.",
@@ -280,7 +305,7 @@ export const CalendarioBase = ({
         return;
       }
 
-      if (isAdminModo && !slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
+      if (config.isAdminModo && !slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
         addToast({
           title: "Límite alcanzado",
           description: `Solo puedes seleccionar ${horasRestantes} hora(s).`,
@@ -339,6 +364,7 @@ export const CalendarioBase = ({
 
   // Confirmar acción
   const confirmarAccion = async () => {
+    setIsConfirmandoAccion(true);
     try {
       if (modalAccion === "reservar") {
         const reservasData = {
@@ -360,6 +386,7 @@ export const CalendarioBase = ({
             severity: "success",
             color: "success"
           });
+          onOpenChange(false);
 
         } else {
           addToast({
@@ -392,6 +419,8 @@ export const CalendarioBase = ({
             severity: "success",
             color: "success"
           });
+          onOpenChange(false);
+
         } else {
           addToast({
             title: "Error al cancelar",
@@ -403,11 +432,17 @@ export const CalendarioBase = ({
       }
     } catch (error) {
       await cargarDatosIniciales();
+    } finally {
+      setIsConfirmandoAccion(false);
     }
-
-    setSlotsSeleccionados([]);
-    setModoCalendario("vista");
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSlotsSeleccionados([]);
+      setModoCalendario("vista");
+    }
+  }, [isOpen]);
 
   // Navegación de semanas
   const irSemanaAnterior = () => {
@@ -562,7 +597,7 @@ export const CalendarioBase = ({
   return (
     <div className="space-y-4">
       {/* Controles - Solo mostrar si puede reservar */}
-      {canReservar && (
+      {config.canReservar && (
         <>
           {modoCalendario === "vista" ? (
             <div className="flex gap-2 justify-end">
@@ -706,6 +741,7 @@ export const CalendarioBase = ({
         accion={modalAccion}
         slotsCount={slotsSeleccionados.length}
         onConfirm={confirmarAccion}
+        isLoading={isConfirmandoAccion}
       />
     </div>
   );

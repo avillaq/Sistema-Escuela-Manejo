@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   Card,
@@ -54,11 +54,11 @@ export const CalendarioReserva = () => {
   }, [id, navigate]);
 
   // funcion para refrescar
-  const handleReservasChange = (senal) => {
+  const handleReservasChange = useCallback((senal) => {
     if (senal === "refresh") {
       cargarMatricula();
     }
-  };
+  }, []);
 
   const getProgreso = (horas_completadas, horas_total) => {
     if (!horas_total) return 0;
@@ -128,7 +128,7 @@ export const CalendarioReserva = () => {
               </div>
               <Chip color="primary" variant="flat" size="sm">{matricula.categoria}</Chip>
             </div>
-            
+
             <div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">Progreso de clases</span>
@@ -163,7 +163,7 @@ export const CalendarioReserva = () => {
               <p className="text-sm text-default-500 mt-1">
                 {horas_disponibles <= 0 ? "Sin horas disponibles" : "Horas para reservar"}
               </p>
-              
+
               <div className="mt-3 pt-3 border-t border-default-200">
                 <div className="flex justify-between text-xs text-default-500">
                   <span>Reservadas: {matricula.reservas_pendientes || 0}</span>
@@ -175,7 +175,7 @@ export const CalendarioReserva = () => {
         </Card>
       </div>
 
-      { (matricula.estado_clases == "completado") && (
+      {(matricula.estado_clases == "completado") && (
         <Card className="border-success-200 bg-success-50">
           <CardBody>
             <div className="flex items-center gap-3">
@@ -191,7 +191,7 @@ export const CalendarioReserva = () => {
         </Card>
       )}
 
-      { (matricula.estado_clases == "vencido") && (
+      {(matricula.estado_clases == "vencido") && (
         <Card className="border-danger-200 bg-danger-50">
           <CardBody>
             <div className="flex items-center gap-3">

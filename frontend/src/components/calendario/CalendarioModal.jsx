@@ -8,10 +8,9 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 
-export const CalendarioModal = ({ isOpen, onOpenChange, accion, slotsCount, onConfirm }) => {
+export const CalendarioModal = ({ isOpen, onOpenChange, accion, slotsCount, onConfirm, isLoading = false }) => {
   const handleConfirm = () => {
     onConfirm();
-    onOpenChange(false);
   };
 
   const isReservar = accion === "reservar";
@@ -22,6 +21,8 @@ export const CalendarioModal = ({ isOpen, onOpenChange, accion, slotsCount, onCo
       onOpenChange={onOpenChange}
       placement="center"
       size="md"
+      isDismissable={!isLoading}
+      hideCloseButton={isLoading}
     >
       <ModalContent>
         {(onClose) => (
@@ -61,12 +62,13 @@ export const CalendarioModal = ({ isOpen, onOpenChange, accion, slotsCount, onCo
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button variant="flat" onPress={onClose}>
+              <Button variant="flat" onPress={onClose} isDisabled={isLoading}>
                 Cancelar
               </Button>
               <Button
                 color={isReservar ? "success" : "danger"}
                 onPress={handleConfirm}
+                isLoading={isLoading}
               >
                 {isReservar ? "Confirmar Reservas" : "Confirmar Cancelación"}
               </Button>

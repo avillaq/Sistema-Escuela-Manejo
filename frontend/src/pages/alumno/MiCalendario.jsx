@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Card,
   CardBody,
@@ -50,11 +50,11 @@ export const MiCalendario = () => {
   }, [id]);
 
   // refrescar reservas
-  const handleReservasChange = (senal) => {
+  const handleReservasChange = useCallback((senal) => {
     if (senal === "refresh") {
       cargarMatriculaActiva();
     }
-  };
+  }, []);
 
   const getProgreso = (horas_completadas, horas_total) => {
     if (!horas_total) return 0;
@@ -102,6 +102,14 @@ export const MiCalendario = () => {
     : matriculaActiva.horas_contratadas;
 
   const horas_disponibles = matriculaActiva.horas_disponibles_reserva || 0;
+
+  const calendarioProps = useMemo(() => ({
+    modo: "alumno",
+    userId: id,
+    matriculaId: matriculaActiva?.id,
+    horasRestantes: Math.max(0, horas_disponibles),
+    estadoClases: matriculaActiva?.estado_clases
+  }), [id, matriculaActiva?.id, horas_disponibles, matriculaActiva?.estado_clases]);
 
   return (
     <div className="space-y-6">
@@ -185,7 +193,7 @@ export const MiCalendario = () => {
         </Card>
       </div>
 
-      { (matriculaActiva.estado_clases == "completado") && (
+      {(matriculaActiva.estado_clases == "completado") && (
         <Card className="border-success-200 bg-success-50">
           <CardBody>
             <div className="flex items-center gap-3">
@@ -201,7 +209,7 @@ export const MiCalendario = () => {
         </Card>
       )}
 
-      { (matriculaActiva.estado_clases == "vencido") && (
+      {(matriculaActiva.estado_clases == "vencido") && (
         <Card className="border-danger-200 bg-danger-50">
           <CardBody>
             <div className="flex items-center gap-3">
@@ -219,11 +227,7 @@ export const MiCalendario = () => {
 
       {/* Calendario */}
       <CalendarioBase
-        modo="alumno"
-        userId={id}
-        matriculaId={matriculaActiva.id}
-        horasRestantes={Math.max(0, horas_disponibles)}
-        estadoClases={matriculaActiva.estado_clases}
+       {...calendarioProps}
         onReservasChange={handleReservasChange}
       />
     </div>

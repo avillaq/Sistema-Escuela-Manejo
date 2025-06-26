@@ -11,7 +11,7 @@ ver_schema = InstructorSchema()
 actualizar_schema = ActualizarInstructorSchema()
 
 @instructores_bp.route("/", methods=["POST"])
-#@flask_praetorian.roles_required("admin") 
+@flask_praetorian.roles_required("admin") 
 def registrar_instructor():
     data = request.get_json()
     errors = crear_schema.validate(data)
@@ -22,19 +22,19 @@ def registrar_instructor():
     return ver_schema.dump(instructor), 201
 
 @instructores_bp.route("/", methods=["GET"])
-#@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_required("admin")
 def obtener_instructores():
     instructores = listar_instructores()
     return jsonify(ver_schema.dump(instructores, many=True)), 200
 
 @instructores_bp.route("/<int:instructor_id>", methods=["GET"])
-#@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_required("admin")
 def obtener_instructor(instructor_id):
     instructor = Instructor.query.get_or_404(instructor_id)
     return ver_schema.dump(instructor), 200
 
 @instructores_bp.route("/<int:instructor_id>", methods=["PUT"])
-#@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_required("admin")
 def editar_instructor(instructor_id):
     data = request.get_json()
     errors = actualizar_schema.validate(data)
@@ -45,7 +45,7 @@ def editar_instructor(instructor_id):
     return ver_schema.dump(instructor), 200
 
 @instructores_bp.route("/<int:instructor_id>", methods=["DELETE"])
-#@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_required("admin")
 def eliminar_instructor_route(instructor_id):
     eliminar_instructor(instructor_id)
     return jsonify({"mensaje": "Instructor eliminado"}), 200

@@ -28,7 +28,7 @@ def crear_reservas_route():
     }), 201
 
 @reservas_bp.route("/", methods=["DELETE"])
-@flask_praetorian.roles_accepted("alumno", "admin")
+@flask_praetorian.roles_accepted("admin", "alumno")
 def cancelar_reservas():
     data = request.get_json()
     errors = eliminar_schema.validate(data)

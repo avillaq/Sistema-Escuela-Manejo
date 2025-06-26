@@ -7,7 +7,7 @@ asistencias_bp = Blueprint("asistencias", __name__)
 crear_schema = CrearAsistenciaSchema()
 
 @asistencias_bp.route("/", methods=["POST"])
-#@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_required("admin")
 def marcar_asistencia():
     data = request.get_json()
     errors = crear_schema.validate(data)

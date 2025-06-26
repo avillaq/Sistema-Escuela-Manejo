@@ -3,7 +3,7 @@ from app.models import Bloque, Reserva, Matricula, Asistencia
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.orm import joinedload
-
+from sqlalchemy import func
 
 def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
@@ -24,8 +24,19 @@ def crear_reservas(data, por_admin=False):
         total_horas = matricula.horas_contratadas
     horas_usadas = matricula.horas_completadas
     nuevas_horas = len(data["reservas"])
-    if horas_usadas + nuevas_horas > total_horas:
-        raise BadRequest(f"No hay suficientes horas disponibles. Tiene {total_horas - horas_usadas} hora(s) restante(s).")
+
+    # Calcular reservas pendientes (futuras sin asistencia)
+    hoy = date.today()
+    reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
+        Reserva.id_matricula == matricula.id,
+        Bloque.fecha >= hoy
+    ).outerjoin(Asistencia).filter(
+        Asistencia.id.is_(None)  # Sin asistencia registrada
+    ).scalar() or 0
+
+    horas_disponibles_reserva = total_horas - horas_usadas - reservas_pendientes
+    if nuevas_horas > horas_disponibles_reserva:
+        raise BadRequest(f"No puedes reservar más horas ya que excede tus horas contratadas")
 
     # Procesar todas las reservas
     reservas_creadas = []
@@ -70,7 +81,10 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
     if not por_admin and matricula.ultima_modificacion_reserva:
         delta = datetime.now() - matricula.ultima_modificacion_reserva
         if delta.total_seconds() < 86400:
-            raise BadRequest("Solo puedes modificar reservas cada 24 horas")
+            tiempo_restante = 86400 - delta.total_seconds()
+            horas_restantes = int(tiempo_restante // 3600)
+            minutos_restantes = int((tiempo_restante % 3600) // 60)
+            raise BadRequest(f"Solo puedes modificar reservas cada 24 horas. Tiempo restante: {horas_restantes} horas y {minutos_restantes} minutos.")
 
     for reserva in reservas:
         if matricula.id_alumno != id_usuario and not por_admin:
@@ -86,7 +100,7 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
     db.session.commit()
     return reservas
 
-def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False, semana_offset=None): 
+def listar_reservas(id_alumno=None, por_admin=False, semana_offset=None): 
     query = Reserva.query.options(
         joinedload(Reserva.bloque),
         joinedload(Reserva.matricula).joinedload(Matricula.alumno),
@@ -109,17 +123,12 @@ def listar_reservas(id_alumno=None, id_usuario=None, por_admin=False, semana_off
         )
 
     # Filtros por usuario
-    if not por_admin:
+    if not por_admin and id_alumno:
         reservas = query.join(Matricula).filter(
-            Matricula.id_alumno == id_usuario
+            Matricula.id_alumno == id_alumno
         ).all()
     else:
-        if id_alumno:
-            reservas = query.join(Matricula).filter(
-                Matricula.id_alumno == id_alumno
-            ).all()
-        else:
-            reservas = query.all()
+        reservas = query.all()
     
     return reservas
 

@@ -50,7 +50,7 @@ def obtener_reservas():
     semana_offset = request.args.get("semana", type=int, default=0)  # -1, 0, 1
     es_admin = current_user.rol == "admin"
 
-    reservas = listar_reservas(id_alumno=id_alumno, id_usuario=current_user.id, por_admin=es_admin, semana_offset=semana_offset)
+    reservas = listar_reservas(id_alumno=id_alumno, por_admin=es_admin, semana_offset=semana_offset)
     
     return jsonify(ver_schema.dump(reservas, many=True)), 200
 

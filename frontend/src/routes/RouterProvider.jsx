@@ -10,7 +10,10 @@ const NextUIRouteProvider = () => {
 
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
-      <ToastProvider />
+      <ToastProvider
+        maxVisibleToasts={1}
+        toastProps={{ timeout: 2000 }}
+      />
       <Routes>
         {/* Rutas públicas */}
         {publicRoutes.map(({ path, element }) => (

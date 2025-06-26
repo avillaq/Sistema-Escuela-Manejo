@@ -307,11 +307,13 @@ export const CalendarioBase = ({
         return;
       }
 
-      if (config.isAdminModo && horasRestantes <= 0) {
+      if (horasRestantes <= 0) {
         addToast({
           title: "Sin horas disponibles",
-          description: "El alumno no tiene horas restantes para reservar.",
-          severity: "warning",
+          description: config.isAdminModo
+            ? "El alumno no tiene horas restantes para reservar."
+            : "No tienes horas disponibles para reservar.",
+            severity: "warning",
           color: "warning",
         });
         return;
@@ -338,7 +340,7 @@ export const CalendarioBase = ({
         return;
       }
 
-      if (config.isAdminModo && !slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
+      if (!slotsSeleccionados.includes(bloqueId) && slotsSeleccionados.length >= horasRestantes) {
         addToast({
           title: "Límite alcanzado",
           description: `Solo puedes seleccionar ${horasRestantes} hora(s).`,
@@ -688,13 +690,15 @@ export const CalendarioBase = ({
         <>
           {modoCalendario === "vista" ? (
             <div className="flex gap-2 justify-end">
-              <Button
-                color="primary"
-                startContent={<Icon icon="lucide:plus" width={14} height={14} />}
-                onPress={() => handleCambiarModo("reservar")}
-              >
-                Reservar
-              </Button>
+              {horasRestantes > 0 && (
+                <Button
+                  color="primary"
+                  startContent={<Icon icon="lucide:plus" width={14} height={14} />}
+                  onPress={() => handleCambiarModo("reservar")}
+                >
+                  Reservar
+                </Button>
+              )}
               <Button
                 color="danger"
                 variant="flat"

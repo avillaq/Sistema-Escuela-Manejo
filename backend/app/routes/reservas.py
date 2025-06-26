@@ -36,7 +36,7 @@ def cancelar_reservas():
         return jsonify(errors), 400
 
     current_user = flask_praetorian.current_user()
-    reservas = eliminar_reservas(data, current_user.id, por_admin=(current_user.rol == "admin"))
+    reservas = eliminar_reservas(data, por_admin=(current_user.rol == "admin"))
     return jsonify({
         "mensaje": "Reservas canceladas",
         "reservas": ver_schema.dump(reservas, many=True)

@@ -7,6 +7,10 @@ from sqlalchemy import func
 
 def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
+    id_alumno = data.get("id_alumno", None)
+    if matricula.id_alumno != id_alumno and not por_admin:
+        raise BadRequest("No puedes cancelar reservas que no te pertenecen")
+    
     hoy = date.today()
 
     fecha_limite = matricula.fecha_limite
@@ -48,10 +52,6 @@ def crear_reservas(data, por_admin=False):
 
          # Validar que la fecha del bloque no exceda la fecha límite de la matrícula
         fecha_bloque = bloque.fecha
-        if isinstance(fecha_bloque, str):
-            fecha_bloque = datetime.strptime(fecha_bloque, '%Y-%m-%d').date()
-        elif isinstance(fecha_bloque, datetime):
-            fecha_bloque = fecha_bloque.date()
             
         if fecha_bloque > fecha_limite:
             raise BadRequest(f"No puedes reservar porque un bloque excede tu fecha límite de matrícula")
@@ -72,8 +72,12 @@ def crear_reservas(data, por_admin=False):
     db.session.commit()
     return reservas_creadas
 
-def eliminar_reservas(data, id_usuario, por_admin=False):
+def eliminar_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
+    id_alumno = data.get("id_alumno", None)
+    if matricula.id_alumno != id_alumno and not por_admin:
+        raise BadRequest("No puedes cancelar reservas que no te pertenecen")
+
     reservas = Reserva.query.filter(Reserva.id.in_(data["ids_reservas"])).all()
     if not reservas:
         raise BadRequest("Reservas no encontradas")
@@ -87,9 +91,6 @@ def eliminar_reservas(data, id_usuario, por_admin=False):
             raise BadRequest(f"Solo puedes modificar reservas cada 24 horas. Tiempo restante: {horas_restantes} horas y {minutos_restantes} minutos.")
 
     for reserva in reservas:
-        if matricula.id_alumno != id_usuario and not por_admin:
-            raise BadRequest("No puedes cancelar reservas que no te pertenecen")
-
         bloque = reserva.bloque
         bloque.reservas_actuales -= 1
         db.session.delete(reserva)

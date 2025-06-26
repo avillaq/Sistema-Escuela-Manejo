@@ -7,6 +7,7 @@ class ReservaItemSchema(Schema):
 class CrearReservasSchema(Schema):
     id_matricula = fields.Int(required=True)
     reservas = fields.List(fields.Nested(ReservaItemSchema), required=True)
+    id_alumno = fields.Int(required=False, validate=validate.Range(min=1, error="El ID de alumno debe ser un número entero positivo."))
     def handle_error(self, error, data, **kwargs):   
         formatted_errors = {}
         for field, messages in error.messages.items():
@@ -15,8 +16,8 @@ class CrearReservasSchema(Schema):
         
 class EliminarReservasSchema(Schema):
     id_matricula = fields.Int(required=True)
-    ids_reservas = fields.List(fields.Int(), required=True, validate=validate.Length(min=1, error="Debe proporcionar al menos un ID de reserva para eliminar.")
-    )
+    ids_reservas = fields.List(fields.Int(), required=True, validate=validate.Length(min=1, error="Debe proporcionar al menos un ID de reserva para eliminar."))
+    id_alumno = fields.Int(required=False, validate=validate.Range(min=1, error="El ID de alumno debe ser un número entero positivo."))
     def handle_error(self, error, data, **kwargs):   
         formatted_errors = {}
         for field, messages in error.messages.items():

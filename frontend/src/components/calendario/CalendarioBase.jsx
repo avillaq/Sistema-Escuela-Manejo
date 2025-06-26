@@ -404,7 +404,8 @@ export const CalendarioBase = ({
       if (modalAccion === "reservar") {
         const reservasData = {
           id_matricula: parseInt(matriculaId),
-          reservas: slotsSeleccionados.map(bloqueId => ({ id_bloque: bloqueId }))
+          reservas: slotsSeleccionados.map(bloqueId => ({ id_bloque: bloqueId })),
+          id_alumno: userId
         };
 
         const result = await reservasService.create(reservasData);
@@ -439,7 +440,8 @@ export const CalendarioBase = ({
 
         const cancelarData = {
           id_matricula: parseInt(matriculaId),
-          ids_reservas: reservasACancelar
+          ids_reservas: reservasACancelar,
+          id_alumno: userId
         };
 
         const result = await reservasService.delete(cancelarData);

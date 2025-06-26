@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.schemas.reserva import CrearReservasSchema, ReservaSchema, EliminarReservasSchema
-from app.services.reserva_service import crear_reservas, eliminar_reservas, listar_reservas, listar_reservas_hoy
+from app.services.reserva_service import crear_reservas, eliminar_reservas, listar_reservas, listar_reservas_hoy, listar_reservas_actuales
 from app.models.matricula import Matricula
 import flask_praetorian
 
@@ -51,6 +51,13 @@ def obtener_reservas():
     es_admin = current_user.rol == "admin"
 
     reservas = listar_reservas(id_alumno=id_alumno, por_admin=es_admin, semana_offset=semana_offset)
+    
+    return jsonify(ver_schema.dump(reservas, many=True)), 200
+
+@reservas_bp.route("/actuales", methods=["GET"])
+@flask_praetorian.roles_accepted("admin")
+def obtener_reservas_actuales(): 
+    reservas = listar_reservas_actuales()
     
     return jsonify(ver_schema.dump(reservas, many=True)), 200
 

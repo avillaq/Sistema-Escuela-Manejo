@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.models import Reserva, Asistencia, Ticket, Bloque
 from app.extensions import db
 from sqlalchemy import func, and_
@@ -13,6 +13,18 @@ def registrar_asistencia(data):
     asistencia_existente = Asistencia.query.filter_by(id_reserva=reserva.id).first()
     if asistencia_existente:
         raise BadRequest("Ya existe un registro de asistencia para esta reserva")
+
+    # Verificar tolerancia de tiempo para registro de asistencia
+    ahora = datetime.now()
+    fecha_bloque = reserva.bloque.fecha
+    hora_inicio_bloque = reserva.bloque.hora_inicio
+    tolerancia = 15 # minutos de tolerancia
+    
+    inicio_bloque = datetime.combine(fecha_bloque, hora_inicio_bloque)
+    limite_registro = inicio_bloque + timedelta(minutes=tolerancia)
+    # Solo validar si no es del día actual o si ya pasó la tolerancia
+    if fecha_bloque != ahora.date() or (fecha_bloque == ahora.date() and ahora > limite_registro):
+        raise BadRequest(f"No se puede registrar asistencia. El bloque inició a las {hora_inicio_bloque.strftime('%H:%M')} y la tolerancia es de 15 minutos.")
 
     hoy = datetime.today()
     if asistio:

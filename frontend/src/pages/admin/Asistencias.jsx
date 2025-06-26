@@ -16,6 +16,7 @@ import { reservasService, asistenciasService, instructoresService, autosService 
 
 export const Asistencias = () => {
   // Estados principales
+  const [reservasActuales, setReservasActuales] = useState([]);
   const [reservasHoy, setReservasHoy] = useState([]);
   const [instructores, setInstructores] = useState([]);
   const [autos, setAutos] = useState([]);
@@ -37,11 +38,24 @@ export const Asistencias = () => {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const [reservasResult, instructoresResult, autosResult] = await Promise.all([
+        const [reservasActualesResult, reservasResult, instructoresResult, autosResult] = await Promise.all([
+          reservasService.getActuales(),
           reservasService.getHoy(),
           instructoresService.getAll(),
           autosService.getAll()
         ]);
+
+        if (reservasActualesResult.success) {
+          setReservasActuales(reservasActualesResult.data);
+          console.log("Reservas actuales:", reservasActualesResult.data);
+        } else {
+          addToast({
+            title: "Error al cargar reservas actuales",
+            description: reservasActualesResult.error || "No se pudieron cargar las reservas actuales.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
 
         if (reservasResult.success) {
           setReservasHoy(reservasResult.data);
@@ -100,7 +114,7 @@ export const Asistencias = () => {
 
   // Preparar datos para los Autocomplete
   const reservasParaAutocomplete = useMemo(() => {
-    return reservasHoy
+    return reservasActuales
       .filter(reserva => !reserva.asistencia?.id)
       .map(reserva => ({
         key: reserva.id.toString(),
@@ -108,7 +122,7 @@ export const Asistencias = () => {
         description: `DNI: ${reserva.matricula?.alumno?.dni} • ${formatearHora(reserva.bloque?.hora_inicio)} - ${formatearHora(reserva.bloque?.hora_fin)}`,
         data: reserva
       }));
-  }, [reservasHoy]);
+  }, [reservasActuales]);
 
   const instructoresParaAutocomplete = useMemo(() => {
     return instructores.map(instructor => ({
@@ -130,8 +144,8 @@ export const Asistencias = () => {
 
   // Obtener información de la reserva seleccionada
   const reservaSeleccionada = useMemo(() => {
-    return reservasHoy.find(r => r.id.toString() === formData.id_reserva);
-  }, [reservasHoy, formData.id_reserva]);
+    return reservasActuales.find(r => r.id.toString() === formData.id_reserva);
+  }, [reservasActuales, formData.id_reserva]);
 
   // Manejar cambios en el formulario
   const handleChange = (field, value) => {
@@ -217,14 +231,18 @@ export const Asistencias = () => {
         });
 
         // Recargar reservas para actualizar la lista
-        const reservasResult = await reservasService.getHoy();
-        if (reservasResult.success) {
-          setReservasHoy(reservasResult.data);
+        const [reservasActualesResult, reservasHoyResult] = await Promise.all([
+          reservasService.getActuales(),
+          reservasService.getHoy()
+        ]);
+
+        if (reservasActualesResult.success) {
+          setReservasActuales(reservasActualesResult.data);
         }
 
-        console.log("Registro de asistencia exitoso:", result.data);
-        console.log("Reservas actualizadas:", reservasResult.data);
-
+        if (reservasHoyResult.success) {
+          setReservasHoy(reservasHoyResult.data);
+        }
 
       } else {
         console.log("Error al registrar asistencia:", result.validationErrors);
@@ -273,12 +291,15 @@ export const Asistencias = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:calendar-check" className="text-primary-500" width={24} height={24} />
+            <div className="p-3 rounded-full bg-warning-500/20">
+              <Icon icon="lucide:clock" className="text-warning-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-primary-700">Reservas Hoy</p>
-              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : reservasHoy.length}</p>
+              <p className="text-sm text-warning-700">Disponibles para Registro</p>
+              <p className="text-2xl font-semibold text-warning-700">
+                {isLoading ? "..." : reservasActuales.filter(r => !r.asistencia?.id).length}
+              </p>
+              <p className="text-xs text-warning-600">Con tolerancia de 15 min</p>
             </div>
           </div>
         </Card>
@@ -289,28 +310,47 @@ export const Asistencias = () => {
               <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-success-700">Con Asistencia</p>
+              <p className="text-sm text-success-700">Asistencias Hoy</p>
               <p className="text-2xl font-semibold text-success-700">
-                {isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.id).length}
+                {isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === true).length}
               </p>
+              <p className="text-xs text-success-600">Clases completadas</p>
             </div>
           </div>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-warning-500/20">
-              <Icon icon="lucide:clock" className="text-warning-500" width={24} height={24} />
+            <div className="p-3 rounded-full bg-danger-500/20">
+              <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
             </div>
             <div>
-              <p className="text-sm text-warning-700">Pendientes</p>
-              <p className="text-2xl font-semibold text-warning-700">
-                {isLoading ? "..." : reservasHoy.filter(r => !r.asistencia?.id).length}
+              <p className="text-sm text-danger-700">Faltas Hoy</p>
+              <p className="text-2xl font-semibold text-danger-700">
+                {isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === false).length}
               </p>
+              <p className="text-xs text-danger-600">No asistieron</p>
             </div>
           </div>
         </Card>
       </div>
+
+      {!isLoading && reservasActuales.length === 0 && (
+        <Card className="border-info-200 bg-info-50">
+          <CardBody className="py-3">
+            <div className="flex items-center gap-2 text-info-700">
+              <Icon icon="lucide:info" width={16} height={16} />
+              <p className="text-sm">
+                <strong>No hay clases disponibles para registro.</strong>
+                {reservasHoy.length > 0
+                  ? ` Se registraron ${reservasHoy.filter(r => r.asistencia?.id).length} de ${reservasHoy.length} clases de hoy.`
+                  : " No hay reservas programadas para hoy."
+                }
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Formulario de registro */}
@@ -345,7 +385,7 @@ export const Asistencias = () => {
                 {/* Selección de reserva */}
                 <div className="space-y-3">
                   <Autocomplete
-                    label="Reserva del Día"
+                    label="Reserva Disponible"
                     placeholder="Buscar reserva por alumno, DNI o horario..."
                     defaultItems={reservasParaAutocomplete}
                     selectedKey={formData.id_reserva}
@@ -354,7 +394,7 @@ export const Asistencias = () => {
                     isInvalid={!!errors.id_reserva}
                     errorMessage={errors.id_reserva}
                     listboxProps={{
-                      emptyContent: "No hay reservas para hoy",
+                      emptyContent: "No hay reservas disponibles desde la hora actual",
                     }}
                     startContent={<Icon icon="lucide:calendar" className="text-default-400" width={16} height={16} />}
                   >
@@ -541,6 +581,12 @@ export const Asistencias = () => {
                 <CardBody className="space-y-3">
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
+                      <Icon icon="lucide:clock" className="text-warning-500 mt-0.5" width={14} height={14} />
+                      <p className="text-xs text-default-600">
+                        <strong>Tolerancia:</strong> 15 minutos después del inicio de clase para registrar asistencia
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <Icon icon="lucide:check" className="text-success-500 mt-0.5" width={14} height={14} />
                       <p className="text-xs text-default-600">
                         Si el alumno <strong>asiste</strong>, se genera un ticket automáticamente
@@ -550,12 +596,6 @@ export const Asistencias = () => {
                       <Icon icon="lucide:x" className="text-danger-500 mt-0.5" width={14} height={14} />
                       <p className="text-xs text-default-600">
                         Si el alumno <strong>no asiste</strong>, no es necesario asignar instructor ni auto
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Icon icon="lucide:clock" className="text-warning-500 mt-0.5" width={14} height={14} />
-                      <p className="text-xs text-default-600">
-                        Solo se muestran las reservas programadas para hoy
                       </p>
                     </div>
                   </div>

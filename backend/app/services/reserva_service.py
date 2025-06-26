@@ -150,3 +150,20 @@ def listar_reservas_hoy():
         joinedload(Reserva.asistencia)
     ).order_by(Bloque.hora_inicio).all()
     return reservas
+
+def listar_reservas_actuales():
+    tolerancia = 15 # minutos de tolerancia
+    ahora = datetime.now()
+    hoy = ahora.date()
+    hora_con_tolerancia = ahora - timedelta(minutes=tolerancia)
+    
+    reservas = Reserva.query.join(Bloque).outerjoin(Asistencia).filter(
+        Bloque.fecha == hoy,
+        Bloque.hora_inicio >= hora_con_tolerancia.time()
+    ).options(
+        joinedload(Reserva.bloque),
+        joinedload(Reserva.matricula).joinedload(Matricula.alumno),
+        joinedload(Reserva.asistencia)
+    ).order_by(Bloque.hora_inicio).all()
+    
+    return reservas

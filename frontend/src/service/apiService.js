@@ -103,6 +103,7 @@ export const reservasService = {
     return handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/`, { params }));
   },
   getHoy: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/hoy`)),
+  getActuales: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reservas}/actuales`)),
 };
 
 // Servicio de Asistencias

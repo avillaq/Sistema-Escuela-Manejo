@@ -28,7 +28,7 @@ def obtener_instructores():
     return jsonify(ver_schema.dump(instructores, many=True)), 200
 
 @instructores_bp.route("/<int:instructor_id>", methods=["GET"])
-@flask_praetorian.roles_required("admin")
+@flask_praetorian.roles_accepted("admin", "instructor")
 def obtener_instructor(instructor_id):
     instructor = Instructor.query.get_or_404(instructor_id)
     return ver_schema.dump(instructor), 200

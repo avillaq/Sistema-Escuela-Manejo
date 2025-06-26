@@ -11,11 +11,11 @@ ver_schema = TicketSchema()
 def listar_tickets():
     filtros = request.args.to_dict()
     current_usuario = flask_praetorian.current_user()
-
+    id_instructor = request.args.get("id_instructor", type=int, default=None)
     if current_usuario.rol == "admin":
         tickets = listar_tickets_admin(filtros)
-    elif current_usuario.rol == "instructor":
-        tickets = listar_tickets_instructor(current_usuario.id, filtros)
+    elif id_instructor:
+        tickets = listar_tickets_instructor(id_instructor, filtros)
     else:
         return jsonify({"error": "No autorizado"}), 403
 

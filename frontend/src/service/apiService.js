@@ -30,6 +30,7 @@ export const alumnosService = {
 // Servicio de instructores
 export const instructoresService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.instructores}/`)),
+  getById: (id) => handleResponse(() => api.get(`${API_CONFIG.endpoints.instructores}/${id}`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.instructores}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.instructores}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.instructores}/${id}`)),
@@ -114,5 +115,8 @@ export const asistenciasService = {
 // Servicio de Tickets
 export const ticketsService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`)),
-  getByInstructor: (instructorId) => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/${instructorId}`)),
+  getByInstructor: (instructorId) => {
+    const params = { id_instructor: instructorId };
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`, { params }));
+  },
 };

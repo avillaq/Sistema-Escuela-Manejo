@@ -1,8 +1,13 @@
+import { TicketBase } from '@/components/ticket/TicketBase';
+import { useAuthStore } from '@/store/auth-store';
+
 export const MisTickets = () => {
+  const { id } = useAuthStore();
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-bold mb-4">Mis Tickets</h1>
-      <p className="text-gray-600">Esta página está en construcción.</p>
-    </div>
+    <TicketBase 
+      id_instructor={id}
+      titulo="Mis Tickets"
+      descripcion="Registro de todas las clases que has impartido."
+    />
   );
-}
+};

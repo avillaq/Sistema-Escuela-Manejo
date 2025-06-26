@@ -9,7 +9,7 @@ def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
     id_alumno = data.get("id_alumno", None)
     if matricula.id_alumno != id_alumno and not por_admin:
-        raise BadRequest("No puedes cancelar reservas que no te pertenecen")
+        raise BadRequest("No puedes crear reservas que no te pertenecen")
     
     hoy = date.today()
 
@@ -30,10 +30,16 @@ def crear_reservas(data, por_admin=False):
     nuevas_horas = len(data["reservas"])
 
     # Calcular reservas pendientes (futuras sin asistencia)
-    hoy = date.today()
+    ahora = datetime.now()
     reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
         Reserva.id_matricula == matricula.id,
-        Bloque.fecha >= hoy
+        db.or_(
+            Bloque.fecha > ahora.date(),
+            db.and_(
+                Bloque.fecha == ahora.date(),
+                Bloque.hora_inicio > ahora.time()
+            )
+        )
     ).outerjoin(Asistencia).filter(
         Asistencia.id.is_(None)  # Sin asistencia registrada
     ).scalar() or 0
@@ -57,8 +63,9 @@ def crear_reservas(data, por_admin=False):
             raise BadRequest(f"No puedes reservar porque un bloque excede tu fecha límite de matrícula")
         
         # Solo aplicar restricción de anticipación si no es admin
-        if not por_admin and matricula.categoria == "A-II" and bloque.fecha <= hoy:
-            raise BadRequest("Alumnos A-II deben reservar con 1 día de anticipación")
+        if not por_admin and matricula.categoria == "A-II":
+            if bloque.fecha <= hoy:
+                raise BadRequest("Alumnos A-II deben reservar con 1 día de anticipación")
             
         reserva = Reserva(
             id_bloque=bloque.id,

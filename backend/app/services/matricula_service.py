@@ -108,10 +108,16 @@ def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtro
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
 
         # Calcular reservas pendientes (futuras sin asistencia)
-        hoy = date.today()
+        ahora = datetime.now()
         reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
             Reserva.id_matricula == matricula.id,
-            Bloque.fecha >= hoy
+            db.or_(
+                Bloque.fecha > ahora.date(),
+                db.and_(
+                    Bloque.fecha == ahora.date(),
+                    Bloque.hora_inicio > ahora.time()
+                )
+            )
         ).outerjoin(Asistencia).filter(
             Asistencia.id.is_(None)  # Sin asistencia registrada
         ).scalar() or 0

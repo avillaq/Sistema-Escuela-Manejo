@@ -120,3 +120,9 @@ export const ticketsService = {
     return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`, { params }));
   },
 };
+
+// Servicio de Reportes
+export const reportesService = {
+  getDashboardAdmin: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reportes}/admin-dashboard`)),
+  getAdminInfo: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reportes}/admin-info`)),
+};

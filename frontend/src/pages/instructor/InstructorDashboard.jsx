@@ -6,13 +6,11 @@ import {
   Chip,
   addToast,
   Divider,
-  Avatar,
-  Button
+  Avatar
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
 import { ticketsService, instructoresService } from '@/service/apiService';
-import { useNavigate } from 'react-router';
 
 export const InstructorDashboard = () => {
   const { id } = useAuthStore();

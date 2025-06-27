@@ -8,7 +8,14 @@ export const useAuthStore = create()(
       id: null,
       token: null,
       rol: '',
-      user: null,
+      user: {
+        nombre: '',
+        apellidos: '',
+        dni: '',
+        telefono: '',
+        email: '',
+        activo: false
+      },
 
       login: (data) => {
         set({

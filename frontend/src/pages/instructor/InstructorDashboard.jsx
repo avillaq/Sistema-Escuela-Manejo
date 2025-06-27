@@ -10,22 +10,18 @@ import {
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
-import { ticketsService, instructoresService } from '@/service/apiService';
+import { ticketsService } from '@/service/apiService';
 
 export const InstructorDashboard = () => {
-  const { id } = useAuthStore();
+  const { id, user } = useAuthStore();
   const [tickets, setTickets] = useState([]);
-  const [instructorInfo, setInstructorInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Cargar datos del instructor
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const [ticketsResult, instructorResult] = await Promise.all([
-          ticketsService.getByInstructor(id),
-          instructoresService.getById(id)
-        ]);
+        const ticketsResult = await ticketsService.getByInstructor(id);
 
         if (ticketsResult.success) {
           setTickets(ticketsResult.data);
@@ -38,12 +34,10 @@ export const InstructorDashboard = () => {
           });
         }
 
-        if (instructorResult.success) {
-          setInstructorInfo(instructorResult.data);
-        } else {
+        if (!user) {
           addToast({
             title: "Error al cargar información",
-            description: instructorResult.error || "No se pudo cargar la información del instructor.",
+            description: "No se pudo cargar la información del instructor.",
             severity: "danger",
             color: "danger",
           });
@@ -130,7 +124,7 @@ export const InstructorDashboard = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">
-            ¡Bienvenido, {instructorInfo?.nombre || 'Instructor'}! 👋
+            ¡Bienvenido, {user?.nombre || 'Instructor'}! 👋
           </h1>
           <p className="text-default-500">
             Aquí tienes un resumen de tu actividad como instructor.
@@ -146,7 +140,7 @@ export const InstructorDashboard = () => {
               <div className="flex items-center gap-3">
                 <Avatar
                   size="lg"
-                  name={instructorInfo ? `${instructorInfo.nombre} ${instructorInfo.apellidos}` : 'I'}
+                  name={user ? `${user.nombre} ${user.apellidos}` : 'I'}
                   className="bg-primary-100 text-primary-700"
                 />
                 <div>
@@ -156,12 +150,12 @@ export const InstructorDashboard = () => {
               </div>
             </CardHeader>
             <CardBody className="space-y-4">
-              {instructorInfo && (
+              {user && (
                 <>
                   <div>
                     <p className="text-sm text-default-500">Nombre Completo</p>
                     <p className="font-medium">
-                      {instructorInfo.nombre} {instructorInfo.apellidos}
+                      {user.nombre} {user.apellidos}
                     </p>
                   </div>
 
@@ -169,18 +163,18 @@ export const InstructorDashboard = () => {
 
                   <div>
                     <p className="text-sm text-default-500">DNI</p>
-                    <p className="font-medium">{instructorInfo.dni}</p>
+                    <p className="font-medium">{user.dni}</p>
                   </div>
 
                   <div>
                     <p className="text-sm text-default-500">Teléfono</p>
-                    <p className="font-medium">{instructorInfo.telefono}</p>
+                    <p className="font-medium">{user.telefono}</p>
                   </div>
 
-                  {instructorInfo.email && (
+                  {user.email && (
                     <div>
                       <p className="text-sm text-default-500">Email</p>
-                      <p className="font-medium text-sm">{instructorInfo.email}</p>
+                      <p className="font-medium text-sm">{user.email}</p>
                     </div>
                   )}
 
@@ -190,10 +184,10 @@ export const InstructorDashboard = () => {
                     <p className="text-sm text-default-500">Estado</p>
                     <Chip
                       size="sm"
-                      color={instructorInfo.activo ? "success" : "danger"}
+                      color={user.activo ? "success" : "danger"}
                       variant="flat"
                     >
-                      {instructorInfo.activo ? "Activo" : "Inactivo"}
+                      {user.activo ? "Activo" : "Inactivo"}
                     </Chip>
                   </div>
                 </>

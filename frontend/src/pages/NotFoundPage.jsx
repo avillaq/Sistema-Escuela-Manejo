@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, rol } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   const handleGoHome = () => {
     if (isAuthenticated) {

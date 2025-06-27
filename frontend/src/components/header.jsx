@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { authService } from '@/service/apiService';
 
 export const Header = ({ toggleSidebar }) => {
-  const { rol, logout } = useAuthStore();
+  const { rol, user, logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -51,10 +51,13 @@ export const Header = ({ toggleSidebar }) => {
             >
               <Avatar
                 size="sm"
-                color="primary"
-                icon={<Icon icon="lucide:user" width={20} height={20} />}
+                name={user.nombre ? user.nombre.charAt(0) : 'U'}
+                className="bg-primary-100 text-primary-700"
               />
-              <span className="hidden md:inline">{mostrarNombre(rol)}</span>
+              <div clasName="hidden md:inline">
+                <p className="text-sm font-medium">{user.nombre}</p>
+                <p className="text-xs text-default-500">{mostrarNombre(rol)}</p>
+              </div>
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">

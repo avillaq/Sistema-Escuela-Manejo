@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, date
-from sqlalchemy import func, extract, and_
+from sqlalchemy import func
 from app.extensions import db
 from app.models import (
-    Alumno, Matricula, Reserva, Pago, Bloque, Asistencia, Ticket, 
-    Instructor, Auto, Usuario
+    Alumno, Matricula, Reserva, Pago, Bloque, Asistencia,
+    Instructor, Auto
 )
 
 def obtener_reporte_admin():
@@ -64,6 +64,9 @@ def obtener_reporte_admin():
     # === ACTIVIDAD HOY Y MAÑANA ===
     mañana = hoy + timedelta(days=1)
     
+    tolerancia = 15
+    ahora_con_tolerancia = ahora - timedelta(minutes=tolerancia)
+
     # Reservas hoy (desde la hora actual)
     reservas_hoy = db.session.query(
         Bloque.hora_inicio,
@@ -82,7 +85,7 @@ def obtener_reporte_admin():
              Bloque.fecha > hoy,
              db.and_(
                  Bloque.fecha == hoy,
-                 Bloque.hora_inicio >= ahora.time()
+                 Bloque.hora_inicio >= ahora_con_tolerancia.time()
              )
          )
      ).order_by(Bloque.hora_inicio).all()

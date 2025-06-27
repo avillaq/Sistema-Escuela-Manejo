@@ -124,5 +124,4 @@ export const ticketsService = {
 // Servicio de Reportes
 export const reportesService = {
   getDashboardAdmin: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reportes}/admin-dashboard`)),
-  getAdminInfo: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.reportes}/admin-info`)),
 };

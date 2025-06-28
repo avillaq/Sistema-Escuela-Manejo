@@ -51,11 +51,11 @@ export const Header = ({ toggleSidebar }) => {
             >
               <Avatar
                 size="sm"
-                name={user.nombre ? user.nombre.charAt(0) : 'U'}
+                name={user ? user.nombre.charAt(0) : 'U'}
                 className="bg-primary-100 text-primary-700"
               />
-              <div clasName="hidden md:inline">
-                <p className="text-sm font-medium">{user.nombre}</p>
+              <div className="hidden md:inline">
+                <p className="text-sm font-medium">{user ? user.nombre : "Usuario" }</p>
                 <p className="text-xs text-default-500">{mostrarNombre(rol)}</p>
               </div>
             </Button>

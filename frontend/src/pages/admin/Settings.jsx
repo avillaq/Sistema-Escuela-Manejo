@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { PageHeader } from '@/components';
 
 export const Settings = () => {
-  const [selectedTab, setSelectedTab] = useState("perfil");
+  const [selectedTab, setSelectedTab] = useState("seguridad");
 
   return (
     <div className="space-y-6">
@@ -17,13 +17,13 @@ export const Settings = () => {
       <Card>
         <CardBody className="p-0">
           <Tabs
-            aria-label="Settings tabs"
+            aria-label="Tabs de configuración"
             selectedKey={selectedTab}
             onSelectionChange={setSelectedTab}
             className="w-full"
           >
             <Tab
-              key="security"
+              key="seguridad"
               title={
                 <div className="flex items-center gap-2">
                   <Icon icon="lucide:shield" width={18} height={18} />
@@ -57,7 +57,7 @@ export const Settings = () => {
               </div>
             </Tab>
             <Tab
-              key="notifications"
+              key="notificaciones"
               title={
                 <div className="flex items-center gap-2">
                   <Icon icon="lucide:bell" width={18} height={18} />

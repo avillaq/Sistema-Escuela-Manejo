@@ -12,7 +12,7 @@ import {
   AutocompleteItem
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { PageHeader } from '@/components';
+import { PageHeader,StatCard } from '@/components';
 import { reservasService, asistenciasService, instructoresService, autosService } from '@/service/apiService';
 
 export const Asistencias = () => {
@@ -289,50 +289,30 @@ export const Asistencias = () => {
 
       {/* Estadísticas del día */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-warning-500/20">
-              <Icon icon="lucide:clock" className="text-warning-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-warning-700">Disponibles para Registro</p>
-              <p className="text-2xl font-semibold text-warning-700">
-                {isLoading ? "..." : reservasActuales.filter(r => !r.asistencia?.id).length}
-              </p>
-              <p className="text-xs text-warning-600">Con tolerancia de 15 min</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-success-700">Asistencias Hoy</p>
-              <p className="text-2xl font-semibold text-success-700">
-                {isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === true).length}
-              </p>
-              <p className="text-xs text-success-600">Clases completadas</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-danger-500/20">
-              <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-danger-700">Faltas Hoy</p>
-              <p className="text-2xl font-semibold text-danger-700">
-                {isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === false).length}
-              </p>
-              <p className="text-xs text-danger-600">No asistieron</p>
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          icon="lucide:clock"
+          title="Disponibles para Registro"
+          value={isLoading ? "..." : reservasActuales.filter(r => !r.asistencia?.id).length}
+          subtitle="Con tolerancia de 15 min"
+          color="warning"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:check"
+          title="Asistencias Hoy"
+          value={isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === true).length}
+          subtitle="Clases completadas"
+          color="success"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:user-x"
+          title="Faltas Hoy"
+          value={isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === false).length}
+          subtitle="No asistieron"
+          color="danger"
+          size="large"
+        />
       </div>
 
       {!isLoading && reservasActuales.length === 0 && (

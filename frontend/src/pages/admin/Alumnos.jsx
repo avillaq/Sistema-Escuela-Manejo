@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader } from '@/components';
+import { Tabla, PageHeader, StatCard } from '@/components';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -258,45 +258,27 @@ export const Alumnos = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:users" className="text-primary-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-primary-700">{`Total ${tipo}s`}</p>
-              <p className="text-2xl font-semibold text-primary-700">{isLoading ? ".." : estadisticas.total}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:user-check" className="text-success-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-success-700">{`${tipo}s Activos`}</p>
-              <p className="text-2xl font-semibold text-success-700">
-                {isLoading ? ".." : estadisticas.activos}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-danger-500/20">
-              <Icon icon="lucide:user-x" className="text-danger-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-danger-700">{`${tipo}s Inactivos`}</p>
-              <p className="text-2xl font-semibold text-danger-700">
-                {isLoading ? ".." : estadisticas.inactivos}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          icon="lucide:users"
+          title={`Total ${tipo}s`}
+          value={isLoading ? ".." : estadisticas.total}
+          color="primary"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:user-check"
+          title={`${tipo}s Activos`}
+          value={isLoading ? ".." : estadisticas.activos}
+          color="success"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:user-x"
+          title={`${tipo}s Inactivos`}
+          value={isLoading ? ".." : estadisticas.inactivos}
+          color="danger"
+          size="large"
+        />
       </div>
 
       <Card>

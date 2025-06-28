@@ -8,7 +8,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader } from '@/components';
+import { Tabla, PageHeader, StatCard } from '@/components';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';
@@ -156,17 +156,13 @@ export const Paquetes = () => {
         emoji=""
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:box" className="text-primary-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-primary-700">Total Paquetes</p>
-              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          icon="lucide:box"
+          title="Total Paquetes"
+          value={isLoading ? "..." : estadisticas.total}
+          color="primary"
+          size="large"
+        />
       </div>
 
       <Card>

@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader } from '@/components';
+import { Tabla, PageHeader, StatCard } from '@/components';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 
@@ -336,55 +336,43 @@ export const Matriculas = () => {
         </Button>
       </div>
 
-      {/* Tarjetas de estadisticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-primary-500/20">
-              <Icon icon="lucide:graduation-cap" className="text-primary-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-primary-700">Total Matrículas</p>
-              <p className="text-2xl font-semibold text-primary-700">{isLoading ? "..." : estadisticas.total}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-warning-500/20">
-              <Icon icon="lucide:clock" className="text-warning-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-warning-700">En Progreso</p>
-              <p className="text-2xl font-semibold text-warning-700">{isLoading ? "..." : estadisticas.enProgreso}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:check-circle" className="text-success-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-success-700">Completadas</p>
-              <p className="text-2xl font-semibold text-success-700">{isLoading ? "..." : estadisticas.completadas}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-success-500/20">
-              <Icon icon="lucide:dollar-sign" className="text-success-500" width={24} height={24} />
-            </div>
-            <div>
-              <p className="text-sm text-success-700">Ingresos Totales</p>
-              <p className="text-2xl font-semibold text-success-700">S/ {isLoading ? "..." : estadisticas.ingresosTotales.toFixed(2)}</p>
-            </div>
-          </div>
-        </Card>
+      {/* Estadisticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard
+          icon="lucide:graduation-cap"
+          title="Total Matrículas"
+          value={isLoading ? "..." : estadisticas.total}
+          color="primary"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:clock"
+          title="En Progreso"
+          value={isLoading ? "..." : estadisticas.enProgreso}
+          color="warning"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:check-circle"
+          title="Completadas"
+          value={isLoading ? "..." : estadisticas.completadas}
+          color="success"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:dollar-sign"
+          title="Ingresos Totales"
+          value={isLoading ? "..." : `S/ ${estadisticas.ingresosTotales.toFixed(2)}`}
+          color="success"
+          size="large"
+        />
+        <StatCard
+          icon="lucide:alert-triangle"
+          title="Saldos Pendientes"
+          value= {isLoading ? "..." : `S/ ${estadisticas.saldosPendientes.toFixed(2)}`}
+          color="danger"
+          size="large"
+        />
       </div>
 
       {/* Tabla de matriculas */}

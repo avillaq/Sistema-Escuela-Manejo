@@ -1,4 +1,4 @@
-export const DashboardHeader = ({ 
+export const PageHeader = ({ 
   title, 
   subtitle, 
   userName,

@@ -10,7 +10,7 @@ import {
   addToast,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase } from '@/components';
+import { CalendarioBase, PageHeader } from '@/components';
 import { matriculasService } from '@/service/apiService';
 
 export const CalendarioReserva = () => {
@@ -103,12 +103,11 @@ export const CalendarioReserva = () => {
         >
           <Icon icon="lucide:arrow-left" width={20} height={20} />
         </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">Reservas de Clases</h1>
-          <p className="text-default-500">
-            {matricula.alumno.nombre} {matricula.alumno.apellidos} - Matrícula #{matricula.id}
-          </p>
-        </div>
+        <PageHeader
+          title="Reservas de Clases"
+          subtitle={`${matricula.alumno.nombre} ${matricula.alumno.apellidos} - Matrícula #${matricula.id}`}
+          emoji=""
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

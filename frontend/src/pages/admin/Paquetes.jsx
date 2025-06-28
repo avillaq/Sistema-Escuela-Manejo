@@ -8,7 +8,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components';
+import { Tabla, PageHeader } from '@/components';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';
@@ -150,11 +150,11 @@ export const Paquetes = () => {
 
   return (
     <div className="space-y-6">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold">Paquetes</h1>
-        <p className="text-default-500">Gestión de paquetes disponibles.</p>
-      </div>
-
+      <PageHeader
+        title="Paquetes"
+        subtitle="Gestión de paquetes disponibles."
+        emoji=""
+      />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-4">

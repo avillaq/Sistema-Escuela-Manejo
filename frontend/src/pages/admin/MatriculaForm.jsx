@@ -17,6 +17,7 @@ import { alumnosService } from '@/service/apiService';
 import { paquetesService } from '@/service/apiService';
 import { matriculasService } from '@/service/apiService';
 import { pagosService } from '@/service/apiService';
+import { PageHeader } from '@/components';
 
 export const MatriculaForm = () => {
   const navigate = useNavigate();
@@ -190,7 +191,7 @@ export const MatriculaForm = () => {
         ),
       };
       console.log('Datos de matrícula:', matriculaData);
-      
+
 
       const matriculaResult = await matriculasService.create(matriculaData);
       if (matriculaResult.success) {
@@ -232,7 +233,7 @@ export const MatriculaForm = () => {
       navigate('/matriculas');
     } catch (error) {
       console.log('Error al procesar matrícula:', error);
-      
+
       addToast({
         title: "Error",
         description: "Ha ocurrido un error al procesar la matrícula.",
@@ -254,14 +255,11 @@ export const MatriculaForm = () => {
         >
           <Icon icon="lucide:arrow-left" width={20} height={20} />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? 'Editar Matrícula' : 'Nueva Matrícula'}
-          </h1>
-          <p className="text-default-500">
-            {isEditing ? 'Modifica los datos de la matrícula' : 'Completa la información para crear una nueva matrícula'}
-          </p>
-        </div>
+        <PageHeader
+          title={isEditing ? 'Editar Matrícula' : 'Nueva Matrícula'}
+          subtitle={isEditing ? 'Modifica los datos de la matrícula' : 'Completa la información para crear una nueva matrícula'}
+          emoji=""
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

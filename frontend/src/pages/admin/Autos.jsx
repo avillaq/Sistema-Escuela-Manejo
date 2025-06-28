@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components';
+import { Tabla, PageHeader } from '@/components';
 import { AutoFormModal } from '@/pages/admin/AutoFormModal';
 import { AutoViewModal } from '@/pages/admin/AutoViewModal';
 import { AutoDeleteModal } from '@/pages/admin/AutoDeleteModal';
@@ -240,10 +240,11 @@ export const Autos = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Autos</h1>
-          <p className="text-default-500">Gestión de Autos del sistema.</p>
-        </div>
+        <PageHeader
+          title="Autos"
+          subtitle="Gestión de Autos del sistema."
+          emoji=""
+        />
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}

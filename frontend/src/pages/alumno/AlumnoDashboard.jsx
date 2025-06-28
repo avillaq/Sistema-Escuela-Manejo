@@ -11,7 +11,7 @@ import { matriculasService, reservasService } from '@/service/apiService';
 import { useNavigate } from 'react-router';
 import {
   LoadingSpinner,
-  DashboardHeader,
+  PageHeader,
   StatCard,
   ActivityCard,
   ActivityItem,
@@ -160,7 +160,7 @@ export const AlumnoDashboard = () => {
   if (!matriculaActiva) {
     return (
       <div className="space-y-6">
-        <DashboardHeader
+        <PageHeader
           title="¡Bienvenido!"
           subtitle="Tu panel de control personal."
         />
@@ -186,7 +186,7 @@ export const AlumnoDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Bienvenida */}
-      <DashboardHeader
+      <PageHeader
         title="¡Bienvenido,"
         userName={matriculaActiva.alumno.nombre}
         subtitle="Aquí tienes el resumen de tu progreso y próximas clases."

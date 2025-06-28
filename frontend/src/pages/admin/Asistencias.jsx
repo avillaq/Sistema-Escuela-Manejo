@@ -12,6 +12,7 @@ import {
   AutocompleteItem
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
+import { PageHeader } from '@/components';
 import { reservasService, asistenciasService, instructoresService, autosService } from '@/service/apiService';
 
 export const Asistencias = () => {
@@ -280,12 +281,11 @@ export const Asistencias = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Registro de Asistencias</h1>
-        <p className="text-default-500">
-          Gestiona las asistencias de las clases programadas para hoy.
-        </p>
-      </div>
+      <PageHeader
+        title="Registro de Asistencias"
+        subtitle="Gestiona las asistencias de las clases programadas para hoy."
+        emoji=""
+      />
 
       {/* Estadísticas del día */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

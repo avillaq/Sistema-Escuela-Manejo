@@ -14,53 +14,7 @@ import {
 import { Icon } from '@iconify/react';
 import { PagoModal } from '@/pages/admin/PagoModal';
 import { matriculasService } from '@/service/apiService';
-
-// Mock data para cargar la matrícula
-const getMatriculaById = (id) => {
-  const matriculasData = [
-    {
-      id: 1,
-      alumno: { nombre: 'Juan', apellidos: 'Pérez García', dni: '12345678', email: 'juan@email.com', telefono: '123456789' },
-      categoria: 'A-I',
-      tipo_contratacion: 'paquete',
-      paquete: { nombre: 'Básico', tipo_auto: 'Mecánico', horas_total: 15, costo_total: 640.0 },
-      horas_contratadas: null,
-      tarifa_por_hora: null,
-      fecha_matricula: '2024-01-15',
-      estado_clases: 'en_progreso',
-      estado_pago: 'pendiente',
-      horas_completadas: 8,
-      pagos_realizados: 320.0,
-      saldo_pendiente: 320.0,
-      costo_total: 640.0,
-      pagos: [
-        { id: 1, fecha: '2024-01-15', monto: 320.0 }
-      ]
-    },
-    {
-      id: 2,
-      alumno: { nombre: 'María', apellidos: 'González López', dni: '87654321', email: 'maria@email.com', telefono: '987654321' },
-      categoria: 'A-II',
-      tipo_contratacion: 'por_hora',
-      paquete: null,
-      horas_contratadas: 10,
-      tarifa_por_hora: 48.0,
-      fecha_matricula: '2024-01-20',
-      estado_clases: 'completado',
-      estado_pago: 'completo',
-      horas_completadas: 10,
-      pagos_realizados: 480.0,
-      saldo_pendiente: 0.0,
-      costo_total: 480.0,
-      pagos: [
-        { id: 1, fecha: '2024-01-20', monto: 240.0 },
-        { id: 2, fecha: '2024-02-01', monto: 240.0 }
-      ]
-    }
-  ];
-
-  return matriculasData.find(m => m.id === parseInt(id));
-};
+import { PageHeader } from '@/components';
 
 export const MatriculaDetalle = () => {
   const navigate = useNavigate();
@@ -195,12 +149,11 @@ export const MatriculaDetalle = () => {
         >
           <Icon icon="lucide:arrow-left" width={20} height={20} />
         </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">Detalles de Matrícula #{matricula.id}</h1>
-          <p className="text-default-500">
-            {matricula.alumno.nombre} {matricula.alumno.apellidos} - {matricula.categoria}
-          </p>
-        </div>
+        <PageHeader
+          title={`Detalles de Matrícula #${matricula.id}`}
+          subtitle={`${matricula.alumno.nombre} ${matricula.alumno.apellidos} - ${matricula.categoria}`}
+          emoji=""
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

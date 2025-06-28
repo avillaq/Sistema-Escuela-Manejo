@@ -3,7 +3,6 @@ export { Header } from './Header';
 export { Sidebar } from './Sidebar';
 
 // Dashboard
-export { DashboardHeader } from './dashboard/DashboardHeader';
 export { StatCard } from './dashboard/StatCard';
 export { EmptyState } from './dashboard/EmptyState';
 export { ActivityCard, ActivityItem } from './dashboard/ActivityCard';
@@ -24,6 +23,7 @@ export { TicketBase } from './ticket/TicketBase';
 export { TicketViewModal } from './ticket/TicketViewModal';
 
 // Otros
+export { PageHeader } from './PageHeader';
 export { LoadingSpinner } from './LoadingSpinner';
 export { TemaSwitcher } from './TemaSwitcher';
 export { Tabla } from './Tabla';

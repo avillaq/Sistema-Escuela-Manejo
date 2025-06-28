@@ -4,7 +4,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase } from '@/components';
+import { CalendarioBase, PageHeader } from '@/components';
 import { reservasService } from '@/service/apiService';
 
 export const CalendarioGeneral = () => {
@@ -50,10 +50,11 @@ export const CalendarioGeneral = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Calendario General</h1>
-        <p className="text-default-500">Vista global de reservas y horarios disponibles.</p>
-      </div>
+      <PageHeader
+        title="Calendario General"
+        subtitle="Vista global de reservas y horarios disponibles."
+        emoji=""
+      />
 
       {/* Estadísticas del día */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

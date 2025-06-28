@@ -6,7 +6,7 @@ import { reportesService } from '@/service/apiService';
 import { useAuthStore } from '@/store/auth-store';
 import {
   LoadingSpinner,
-  DashboardHeader,
+  PageHeader,
   StatCard,
   SectionHeader,
   ActivityCard,
@@ -119,7 +119,7 @@ export const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader
+      <PageHeader
         title="¡Bienvenido,"
         userName={user?.nombre || 'Administrador'}
         subtitle="Aquí tienes el resumen general de la escuela de manejo."

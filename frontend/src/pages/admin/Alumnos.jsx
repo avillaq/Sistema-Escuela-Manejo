@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components';
+import { Tabla, PageHeader } from '@/components';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -243,10 +243,11 @@ export const Alumnos = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Alumnos</h1>
-          <p className="text-default-500">Gestión de Alumnos del sistema.</p>
-        </div>
+        <PageHeader
+          title="Alumnos"
+          subtitle="Gestión de Alumnos del sistema."
+          emoji=""
+        />
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}
@@ -323,13 +324,13 @@ export const Alumnos = () => {
             </div>
           </div>
 
-          { isLoading ? 
+          {isLoading ?
             (<div className="flex justify-center items-center min-h-64">
               <div className="text-center">
                 <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
                 <p>Cargando Usuarios...</p>
               </div>
-            </div>) 
+            </div>)
             :
             <Tabla
               title="Lista de Alumnos"

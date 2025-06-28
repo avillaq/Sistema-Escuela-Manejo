@@ -8,12 +8,11 @@ import { useAuthStore } from '@/store/auth-store';
 import { ticketsService } from '@/service/apiService';
 import {
   LoadingSpinner,
-  DashboardHeader,
+  PageHeader,
   ActivityCard,
   ActivityItem,
   EmptyState,
-  InfoCard,
-  SectionHeader
+  InfoCard
 } from '@/components';
 
 export const InstructorDashboard = () => {
@@ -118,7 +117,7 @@ export const InstructorDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Bienvenida */}
-      <DashboardHeader
+      <PageHeader
         title="¡Bienvenido,"
         userName={user?.nombre || 'Instructor'}
         subtitle="Aquí tienes un resumen de tu actividad como instructor."

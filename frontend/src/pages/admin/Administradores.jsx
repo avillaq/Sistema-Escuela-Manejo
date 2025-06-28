@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components';
+import { Tabla, PageHeader } from '@/components';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -246,10 +246,11 @@ export const Administradores = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Administradores</h1>
-          <p className="text-default-500">Gestión de Administradores del sistema.</p>
-        </div>
+        <PageHeader
+          title="Administradores"
+          subtitle="Gestión de Administradores del sistema."
+          emoji=""
+        />
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}

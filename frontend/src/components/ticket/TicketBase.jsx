@@ -9,11 +9,11 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, TicketViewModal } from '@/components';
+import { Tabla, TicketViewModal, PageHeader } from '@/components';
 import { ticketsService } from '@/service/apiService';
 
-export const TicketBase = ({ 
-  id_instructor = null, 
+export const TicketBase = ({
+  id_instructor = null,
   titulo = "Tickets de Clases",
   descripcion = "Registro de todas las clases completadas con éxito."
 }) => {
@@ -74,7 +74,7 @@ export const TicketBase = ({
     const total = tickets.length;
     const hoy = new Date();
     const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    
+
     const ticketsHoy = tickets.filter(ticket => {
       const fechaTicket = new Date(ticket.fecha_asistencia);
       return fechaTicket >= inicioHoy;
@@ -188,11 +188,11 @@ export const TicketBase = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">{titulo}</h1>
-        <p className="text-default-500">{descripcion}</p>
-      </div>
+      <PageHeader
+        title={titulo}
+        subtitle={descripcion}
+        emoji=""
+      />
 
       {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -249,8 +249,8 @@ export const TicketBase = ({
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <Input
-              placeholder={id_instructor 
-                ? "Buscar por alumno o número de ticket..." 
+              placeholder={id_instructor
+                ? "Buscar por alumno o número de ticket..."
                 : "Buscar por alumno, instructor o número de ticket..."
               }
               value={searchQuery}

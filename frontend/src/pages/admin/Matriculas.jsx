@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components';
+import { Tabla, PageHeader } from '@/components';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 
@@ -322,10 +322,11 @@ export const Matriculas = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Matrículas</h1>
-          <p className="text-default-500">Gestión de matrículas y seguimiento académico.</p>
-        </div>
+        <PageHeader
+          title="Matrículas"
+          subtitle="Gestión de matrículas y seguimiento académico."
+          emoji=""
+        />
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}

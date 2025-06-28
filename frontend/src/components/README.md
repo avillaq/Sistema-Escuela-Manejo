@@ -18,13 +18,13 @@ Spinner de carga uniforme para todos los dashboards.
 
 ---
 
-### 2. DashboardHeader
-**Ubicación**: `src/components/DashboardHeader.jsx`
+### 2. PageHeader
+**Ubicación**: `src/components/PageHeader.jsx`
 
 Header personalizable para dashboards con título, nombre de usuario y subtítulo.
 
 ```jsx
-<DashboardHeader
+<PageHeader
   title="¡Bienvenido,"
   userName="Juan Pérez"
   subtitle="Aquí tienes el resumen de tu actividad."
@@ -249,7 +249,7 @@ Para usar estos componentes, impórtalos desde el archivo de índice:
 ```jsx
 import {
   LoadingSpinner,
-  DashboardHeader,
+  PageHeader,
   StatCard,
   EmptyState,
   ActivityCard,

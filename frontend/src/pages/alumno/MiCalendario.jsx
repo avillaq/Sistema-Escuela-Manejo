@@ -7,7 +7,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase } from '@/components';
+import { CalendarioBase, PageHeader } from '@/components';
 import { matriculasService } from '@/service/apiService';
 import { useAuthStore } from '@/store/auth-store';
 
@@ -105,10 +105,11 @@ export const MiCalendario = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Mi Calendario</h1>
-        <p className="text-default-500">Gestiona tus reservaciones de clases.</p>
-      </div>
+      <PageHeader
+        title="Mi Calendario"
+        subtitle="Gestiona tus reservaciones de clases."
+        emoji=""
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Progreso de Clases */}

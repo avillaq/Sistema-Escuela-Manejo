@@ -3,18 +3,22 @@ import { useNavigate, useParams } from 'react-router';
 import {
   Card,
   CardBody,
-  CardHeader,
   Button,
-  Chip,
-  Progress,
-  Divider,
   addToast,
   useDisclosure,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { PagoModal } from '@/pages/admin/PagoModal';
 import { matriculasService } from '@/service/apiService';
-import { PageHeader, LoadingSpinner } from '@/components';
+import { 
+  PageHeader, 
+  LoadingSpinner, 
+  InfoCard, 
+  MatriculaCard, 
+  FinancialCard,
+  ActivityCard,
+  ActivityItem
+} from '@/components';
 
 export const MatriculaDetalle = () => {
   const navigate = useNavigate();
@@ -153,234 +157,110 @@ export const MatriculaDetalle = () => {
         {/* Información principal */}
         <div className="lg:col-span-2 space-y-6">
           {/* Información del alumno */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Icon icon="lucide:user" width={20} height={20} />
-                <h3 className="text-lg font-semibold">Información del Alumno</h3>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Nombre Completo</p>
-                  <p className="font-medium">{matricula.alumno.nombre} {matricula.alumno.apellidos}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">DNI</p>
-                  <p className="font-medium">{matricula.alumno.dni}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Email</p>
-                  <p className="font-medium">{matricula.alumno.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Teléfono</p>
-                  <p className="font-medium">{matricula.alumno.telefono}</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+          <InfoCard
+            title="Información del Alumno"
+            subtitle="Datos personales del estudiante"
+            avatarName={`${matricula.alumno.nombre} ${matricula.alumno.apellidos}`}
+            fields={[
+              {
+                label: "Nombre Completo",
+                value: `${matricula.alumno.nombre} ${matricula.alumno.apellidos}`,
+                dividerBefore: false
+              },
+              {
+                label: "DNI",
+                value: matricula.alumno.dni,
+                dividerBefore: true
+              },
+              {
+                label: "Email",
+                value: matricula.alumno.email
+              },
+              {
+                label: "Teléfono",
+                value: matricula.alumno.telefono
+              }
+            ]}
+            chips={[{
+              label: matricula.alumno.activo ? "Activo" : "Inactivo",
+              color: matricula.alumno.activo ? "success" : "danger",
+              size: "sm"
+            }]}
+          />
 
           {/* Información de la matrícula */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Icon icon="lucide:graduation-cap" width={20} height={20} />
-                <h3 className="text-lg font-semibold">Información de la Matrícula</h3>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Categoría</p>
-                  <Chip color="primary" variant="flat">{matricula.categoria}</Chip>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Fecha de Matrícula</p>
-                  <p className="font-medium">{new Date(matricula.fecha_matricula).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Estado de Clases</p>
-                  <Chip
-                    color={getEstadoClasesColor(matricula.estado_clases)}
-                    variant="flat"
-                  >
-                    {matricula.estado_clases.charAt(0).toUpperCase() + matricula.estado_clases.slice(1).replace('_', ' ')}
-                  </Chip>
-                </div>
-                <div>
-                  <p className="text-sm text-default-500 mb-1">Estado de Pago</p>
-                  <Chip
-                    color={getEstadoPagoColor(matricula.estado_pago)}
-                    variant="flat"
-                  >
-                    {matricula.estado_pago.charAt(0).toUpperCase() + matricula.estado_pago.slice(1)}
-                  </Chip>
-                </div>
-              </div>
-
-              <Divider className="my-4" />
-
-              {/* Detalles del paquete o contratación por horas */}
-              {matricula.tipo_contratacion === 'paquete' && matricula.paquete ? (
-                <div>
-                  <h4 className="font-semibold mb-3">Paquete Contratado</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-default-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-default-500">Paquete</p>
-                      <p className="font-medium">{matricula.paquete.nombre}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-default-500">Tipo de Auto</p>
-                      <p className="font-medium">{matricula.paquete.tipo_auto.tipo}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-default-500">Horas Totales</p>
-                      <p className="font-medium">{matricula.paquete.horas_total} horas</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <h4 className="font-semibold mb-3">Contratación por Horas</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-default-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-default-500">Horas Contratadas</p>
-                      <p className="font-medium">{matricula.horas_contratadas} horas</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-default-500">Tarifa por Hora</p>
-                      <p className="font-medium">S/ {matricula.tarifa_por_hora}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Progreso de clases */}
-              <div className="mt-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Progreso de Clases</span>
-                  <span className="text-sm text-default-500">
-                    {matricula.horas_completadas}/{horas_total} horas ({getProgreso(matricula.horas_completadas, horas_total)}%)
-                  </span>
-                </div>
-                <Progress
-                  value={getProgreso(matricula.horas_completadas, horas_total)}
-                  color="primary"
-                  className="w-full"
-                  aria-label="Progreso de Clases"
-                />
-              </div>
-            </CardBody>
-          </Card>
+          <MatriculaCard
+            matricula={matricula}
+            estadisticas={{
+              horas_total,
+              horas_completadas: matricula.horas_completadas,
+              progreso: getProgreso(matricula.horas_completadas, horas_total)
+            }}
+            getEstadoClasesColor={getEstadoClasesColor}
+            getEstadoPagoColor={getEstadoPagoColor}
+          />
 
           {/* Historial de pagos */}
           {matricula.pagos && matricula.pagos.length > 0 && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Icon icon="lucide:history" width={20} height={20} />
-                  <h3 className="text-lg font-semibold">Historial de Pagos</h3>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <div className="space-y-3">
-                  {matricula.pagos.map((pago) => (
-                    <div key={pago.id} className="flex justify-between items-center p-3 bg-default-50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Pago</p>
-                        <p className="text-sm text-default-500">
-                          {new Date(pago.fecha).toLocaleDateString()}
-                        </p>
-                      </div>
+            <ActivityCard
+              title="Historial de Pagos"
+              headerIcon="lucide:history"
+            >
+              <div className="space-y-3">
+                {matricula.pagos.map((pago) => (
+                  <ActivityItem
+                    key={pago.id}
+                    icon="lucide:credit-card"
+                    title={`Pago del ${new Date(pago.fecha).toLocaleDateString('es-PE')}`}
+                    subtitle={`Monto: S/ ${pago.monto.toFixed(2)}`}
+                    color="success"
+                    rightContent={
                       <div className="text-right">
                         <p className="font-semibold text-success-600">S/ {pago.monto.toFixed(2)}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </CardBody>
-            </Card>
+                    }
+                  />
+                ))}
+              </div>
+            </ActivityCard>
           )}
         </div>
 
         {/* Resumen financiero */}
         <div>
-          <Card className="sticky top-4">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Icon icon="lucide:credit-card" width={20} height={20} />
-                <h3 className="text-lg font-semibold">Resumen Financiero</h3>
-              </div>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div>
-                <p className="text-sm text-default-500 mb-1">Costo Total</p>
-                <p className="text-2xl font-bold">{matricula.costo_total.toFixed(2)}</p>
-              </div>
-
-              <Divider />
-
-              <div>
-                <p className="text-sm text-default-500 mb-1">Monto Pagado</p>
-                <p className="text-lg font-semibold text-success-600">S/ {matricula.pagos_realizados.toFixed(2)}</p>
-              </div>
-
-              <div>
-                <p className="text-sm text-default-500 mb-1">Saldo Pendiente</p>
-                <p className="text-lg font-semibold text-danger-600">S/ {matricula.saldo_pendiente.toFixed(2)}</p>
-              </div>
-
-              {/* Progreso de pagos */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Progreso de Pagos</span>
-                  <span className="text-sm text-default-500">
-                    {getPorcentajePagado(matricula.pagos_realizados, matricula.costo_total)}%
-                  </span>
-                </div>
-                <Progress
-                  value={getPorcentajePagado(matricula.pagos_realizados, matricula.costo_total)}
-                  color="success"
-                  className="w-full"
-                  aria-label="Progreso de Pagos"
-                />
-              </div>
-
-              <Divider />
-
-              {matricula.saldo_pendiente > 0 && (
+          <div className="sticky top-4 space-y-4">
+            <FinancialCard
+              matricula={matricula}
+              estadisticas={{
+                progresoPago: getPorcentajePagado(matricula.pagos_realizados, matricula.costo_total)
+              }}
+            />
+            
+            {/* Botones de acción */}
+            <Card>
+              <CardBody className="space-y-3">
+                {matricula.saldo_pendiente > 0 && (
+                  <Button
+                    color="success"
+                    className="w-full"
+                    startContent={<Icon icon="lucide:credit-card" width={16} height={16} />}
+                    onPress={onPagoModalOpen}
+                  >
+                    Registrar Pago
+                  </Button>
+                )}
                 <Button
-                  color="success"
+                  color="primary"
+                  variant="flat"
                   className="w-full"
-                  startContent={<Icon icon="lucide:credit-card" width={16} height={16} />}
-                  onPress={onPagoModalOpen}
+                  startContent={<Icon icon="lucide:calendar" width={16} height={16} />}
+                  onPress={() => navigate(`/matriculas/${matricula.id}/reservas`)}
                 >
-                  Registrar Pago
+                  Gestionar Reservas
                 </Button>
-              )}
-              <Button
-                color="primary"
-                variant="flat"
-                className="w-full"
-                startContent={<Icon icon="lucide:calendar" width={16} height={16} />}
-                onPress={() => navigate(`/matriculas/${matricula.id}/reservas`)}
-              >
-                Gestionar Reservas
-              </Button>
-
-              <Button
-                color="primary"
-                variant="flat"
-                className="w-full"
-                startContent={<Icon icon="lucide:edit" width={16} height={16} />}
-                onPress={() => navigate(`/matriculas/${matricula.id}/editar`)}
-              >
-                Editar Matrícula
-              </Button>
-            </CardBody>
-          </Card>
+              </CardBody>
+            </Card>
+          </div>
         </div>
       </div>
 

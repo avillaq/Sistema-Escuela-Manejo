@@ -13,7 +13,12 @@ import {
   LoadingSpinner,
   PageHeader,
   StatCard,
-  DashboardContent
+  ActivityCard,
+  ActivityItem,
+  EmptyState,
+  MatriculaCard,
+  FinancialCard,
+  InfoCard
 } from '@/components';
 
 export const AlumnoDashboard = () => {
@@ -233,43 +238,98 @@ export const AlumnoDashboard = () => {
         />
       </div>
 
-      {/* Obtener componentes reutilizables */}
-      {(() => {
-        const components = DashboardContent({
-          user,
-          matriculaActiva,
-          estadisticas,
-          proximasClases,
-          formatearFechaClase,
-          getEstadoClasesColor,
-          getEstadoPagoColor,
-          navigate
-        });
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Mi Información */}
+        <div className="order-1 lg:order-1">
+          <InfoCard
+            title="Mi Información"
+            subtitle="Información del estudiante"
+            avatarName={`${user.nombre} ${user.apellidos}`}
+            fields={[
+              {
+                label: "Nombre Completo",
+                value: `${user.nombre} ${user.apellidos}`,
+                dividerBefore: false
+              },
+              {
+                label: "DNI",
+                value: user.dni,
+                dividerBefore: true
+              },
+              {
+                label: "Teléfono",
+                value: user.telefono
+              },
+              ...(user.email ? [{
+                label: "Email",
+                value: user.email,
+                className: "text-sm"
+              }] : [])
+            ]}
+            chips={[{
+              label: user.activo ? "Activo" : "Inactivo",
+              color: user.activo ? "success" : "danger",
+              size: "sm"
+            }]}
+          />
+        </div>
 
-        return (
-          <>
-            {/* Layout para móviles */}
-            <div className="block lg:hidden space-y-6">
-              {components.InfoCard}
-              {components.MatriculaCard}
-              {components.FinancialCard}
-              {components.ProximasClases}
-            </div>
+        {/* Información de Matrícula */}
+        <div className="order-2 lg:order-2">
+          <MatriculaCard
+            matricula={matriculaActiva}
+            estadisticas={estadisticas}
+            getEstadoClasesColor={getEstadoClasesColor}
+            getEstadoPagoColor={getEstadoPagoColor}
+          />
+        </div>
 
-            {/* Layout para desktop */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-              <div className="space-y-6">
-                {components.InfoCard}
-                {components.MatriculaCard}
+        {/* Estado Financiero */}
+        <div className="order-3 lg:order-3">
+          <FinancialCard
+            matricula={matriculaActiva}
+            estadisticas={estadisticas}
+          />
+        </div>
+
+        {/* Próximas Clases */}
+        <div className="order-4 lg:order-4 lg:col-span-2">
+          <ActivityCard
+            title="Próximas Clases"
+            headerIcon="lucide:calendar-clock"
+            actionLabel="Reservar"
+            actionIcon="lucide:plus"
+            onAction={() => navigate('/mi-calendario')}
+          >
+            {proximasClases.length > 0 ? (
+              <div className="space-y-4">
+                {proximasClases.map((reserva, index) => (
+                  <ActivityItem
+                    key={reserva.id}
+                    icon="lucide:calendar"
+                    title={formatearFechaClase(reserva.bloque.fecha, reserva.bloque.hora_inicio)}
+                    subtitle={`${reserva.bloque.hora_inicio} - ${reserva.bloque.hora_fin}`}
+                    isHighlighted={index === 0}
+                    color="primary"
+                    rightContent={index === 0 && (
+                      <Chip size="sm" color="primary" variant="flat">
+                        Próxima
+                      </Chip>
+                    )}
+                  />
+                ))}
               </div>
-              <div className="lg:col-span-2 space-y-6">
-                {components.FinancialCard}
-                {components.ProximasClases}
-              </div>
-            </div>
-          </>
-        );
-      })()}
+            ) : (
+              <EmptyState
+                icon="lucide:calendar-x"
+                title="No tienes clases programadas"
+                description="Reserva tus clases para continuar con tu aprendizaje"
+                size="large"
+              />
+            )}
+          </ActivityCard>
+        </div>
+      </div>
     </div>
   );
 };

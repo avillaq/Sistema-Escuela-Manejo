@@ -11,7 +11,6 @@ export { SectionHeader } from './dashboard/SectionHeader';
 export { QuickActions } from './dashboard/QuickActions';
 export { MatriculaCard } from './dashboard/MatriculaCard';
 export { FinancialCard } from './dashboard/FinancialCard';
-export { DashboardContent } from './dashboard/DashboardContent';
 export { AreaChartCard } from './dashboard/area-chart';
 export { BarChartCard } from './dashboard/bar-chart';
 

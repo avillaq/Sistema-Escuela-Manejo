@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Divider, Chip, addToast } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router';
@@ -23,55 +23,8 @@ export const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const dashboardResult = await reportesService.getDashboardAdmin();
-
-        if (dashboardResult.success) {
-          setDashboardData(dashboardResult.data);
-        } else {
-          addToast({
-            title: "Error al cargar dashboard",
-            description: dashboardResult.error || "No se pudieron cargar los datos del dashboard.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-      } catch (error) {
-        addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar los datos.",
-          severity: "danger",
-          color: "danger",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    cargarDatos();
-  }, []);
-
-  // Formatear datos para gráficos
-  const chartData = useMemo(() => {
-    if (!dashboardData) return { matriculas: [], ingresos: [] };
-
-    const matriculasChart = dashboardData.matriculas_por_mes.map(item => ({
-      name: item.mes,
-      cantidad: item.cantidad
-    }));
-
-    const ingresosChart = dashboardData.ingresos_por_mes.map(item => ({
-      name: item.mes,
-      ingresos: item.total
-    }));
-
-    return { matriculas: matriculasChart, ingresos: ingresosChart };
-  }, [dashboardData]);
-
-  // Configuración de acciones rápidas
-  const quickActions = [
+  // Configuración de acciones rapidas
+  const quickActions = useMemo(() => [
     {
       icon: "lucide:users",
       label: "Alumnos",
@@ -108,7 +61,54 @@ export const AdminDashboard = () => {
       color: "default",
       onPress: () => navigate('/autos')
     }
-  ];
+  ], [navigate]);
+
+  const cargarDatos = useCallback(async () => {
+    try {
+      const dashboardResult = await reportesService.getDashboardAdmin();
+
+      if (dashboardResult.success) {
+        setDashboardData(dashboardResult.data);
+      } else {
+        addToast({
+          title: "Error al cargar dashboard",
+          description: dashboardResult.error || "No se pudieron cargar los datos del dashboard.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar los datos.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [cargarDatos]);
+
+  // Formatear datos para gráficos
+  const chartData = useMemo(() => {
+    if (!dashboardData) return { matriculas: [], ingresos: [] };
+
+    const matriculasChart = dashboardData.matriculas_por_mes.map(item => ({
+      name: item.mes,
+      cantidad: item.cantidad
+    }));
+
+    const ingresosChart = dashboardData.ingresos_por_mes.map(item => ({
+      name: item.mes,
+      ingresos: item.total
+    }));
+
+    return { matriculas: matriculasChart, ingresos: ingresosChart };
+  }, [dashboardData]);
 
   if (isLoading) {
     return <LoadingSpinner mensaje="Cargando dashboard..." />;

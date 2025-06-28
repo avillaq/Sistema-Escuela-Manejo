@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Card,
   CardBody,
@@ -13,12 +13,7 @@ import {
   LoadingSpinner,
   PageHeader,
   StatCard,
-  ActivityCard,
-  ActivityItem,
-  EmptyState,
-  MatriculaCard,
-  FinancialCard,
-  InfoCard
+  DashboardContent
 } from '@/components';
 
 export const AlumnoDashboard = () => {
@@ -29,63 +24,66 @@ export const AlumnoDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Cargar datos del alumno
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const [matriculaResult, reservasResult] = await Promise.all([
-          matriculasService.getByAlumno(id),
-          reservasService.getByAlumno(id)
-        ]);
+  const cargarDatos = useCallback(async () => {
+    try {
+      const [matriculaResult, reservasResult] = await Promise.all([
+        matriculasService.getByAlumno(id),
+        reservasService.getByAlumno(id)
+      ]);
 
-        if (matriculaResult.success) {
-          setMatriculaActiva(matriculaResult.data);
-        } else if (matriculaResult.error !== "No se encontró matrícula activa") {
-          addToast({
-            title: "Error al cargar matrícula",
-            description: matriculaResult.error || "No se pudo cargar tu información de matrícula.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-
-        if (reservasResult.success) {
-          // Filtrar y ordenar próximas clases (futuras)
-          const ahora = new Date();
-          const reservasFuturas = reservasResult.data
-            .filter(reserva => {
-              const fechaClase = new Date(`${reserva.bloque.fecha}T${reserva.bloque.hora_inicio}`);
-              return fechaClase > ahora && !reserva.asistencia;
-            })
-            .sort((a, b) => {
-              const fechaA = new Date(`${a.bloque.fecha}T${a.bloque.hora_inicio}`);
-              const fechaB = new Date(`${b.bloque.fecha}T${b.bloque.hora_inicio}`);
-              return fechaA - fechaB;
-            })
-            .slice(0, 3); // Solo las próximas 3
-
-          setProximasClases(reservasFuturas);
-        } else {
-          addToast({
-            title: "Error al cargar reservas",
-            description: reservasResult.error || "No se pudieron cargar tus reservas.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-      } catch (error) {
+      if (matriculaResult.success) {
+        setMatriculaActiva(matriculaResult.data);
+      } else if (matriculaResult.error !== "No se encontró matrícula activa") {
         addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar tus datos.",
+          title: "Error al cargar matrícula",
+          description: matriculaResult.error || "No se pudo cargar tu información de matrícula.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoading(false);
       }
-    };
 
-    cargarDatos();
+      if (reservasResult.success) {
+        // Filtrar y ordenar próximas clases (futuras) - Optimizado
+        const ahora = new Date();
+        const ahoraTime = ahora.getTime();
+        
+        const reservasFuturas = reservasResult.data
+          .filter(reserva => {
+            if (reserva.asistencia) return false;
+            const fechaClase = new Date(`${reserva.bloque.fecha}T${reserva.bloque.hora_inicio}`);
+            return fechaClase.getTime() > ahoraTime;
+          })
+          .sort((a, b) => {
+            const fechaA = new Date(`${a.bloque.fecha}T${a.bloque.hora_inicio}`);
+            const fechaB = new Date(`${b.bloque.fecha}T${b.bloque.hora_inicio}`);
+            return fechaA.getTime() - fechaB.getTime();
+          })
+          .slice(0, 3); // Solo las próximas 3
+
+        setProximasClases(reservasFuturas);
+      } else {
+        addToast({
+          title: "Error al cargar reservas",
+          description: reservasResult.error || "No se pudieron cargar tus reservas.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar tus datos.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [cargarDatos]);
 
   // Estadísticas calculadas
   const estadisticas = useMemo(() => {
@@ -112,15 +110,19 @@ export const AlumnoDashboard = () => {
   }, [matriculaActiva]);
 
   // Formatear fecha para mostrar
-  const formatearFechaClase = (fecha, hora) => {
+  const formatearFechaClase = useCallback((fecha, hora) => {
     const fechaCompleta = new Date(`${fecha}T${hora}`);
     const hoy = new Date();
     const mañana = new Date(hoy);
     mañana.setDate(hoy.getDate() + 1);
 
-    if (fechaCompleta.toDateString() === hoy.toDateString()) {
+    const fechaStr = fechaCompleta.toDateString();
+    const hoyStr = hoy.toDateString();
+    const mañanaStr = mañana.toDateString();
+
+    if (fechaStr === hoyStr) {
       return `Hoy ${fechaCompleta.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`;
-    } else if (fechaCompleta.toDateString() === mañana.toDateString()) {
+    } else if (fechaStr === mañanaStr) {
       return `Mañana ${fechaCompleta.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`;
     } else {
       return fechaCompleta.toLocaleDateString('es-PE', {
@@ -131,10 +133,10 @@ export const AlumnoDashboard = () => {
         minute: '2-digit'
       });
     }
-  };
+  }, []);
 
   // Estados de la matrícula
-  const getEstadoClasesColor = (estado) => {
+  const getEstadoClasesColor = useCallback((estado) => {
     switch (estado) {
       case 'pendiente': return 'warning';
       case 'en_progreso': return 'primary';
@@ -142,15 +144,15 @@ export const AlumnoDashboard = () => {
       case 'vencido': return 'danger';
       default: return 'default';
     }
-  };
+  }, []);
 
-  const getEstadoPagoColor = (estado) => {
+  const getEstadoPagoColor = useCallback((estado) => {
     switch (estado) {
       case 'pendiente': return 'danger';
       case 'completo': return 'success';
       default: return 'default';
     }
-  };
+  }, []);
 
   if (isLoading) {
     return <LoadingSpinner mensaje="Cargando tu información..." />;
@@ -231,180 +233,43 @@ export const AlumnoDashboard = () => {
         />
       </div>
 
-      <div className="block lg:hidden space-y-6">
-        {/* Información Personal */}
-        <InfoCard
-          title="Mi Información"
-          subtitle="Información del estudiante"
-          avatarName={`${user.nombre} ${user.apellidos}`}
-          fields={[
-            {
-              label: "Nombre Completo",
-              value: `${user.nombre} ${user.apellidos}`,
-              dividerBefore: false
-            },
-            {
-              label: "DNI",
-              value: user.dni,
-              dividerBefore: true
-            },
-            {
-              label: "Teléfono",
-              value: user.telefono
-            },
-            ...(user.email ? [{
-              label: "Email",
-              value: user.email,
-              className: "text-sm"
-            }] : [])
-          ]}
-          chips={[{
-            label: user.activo ? "Activo" : "Inactivo",
-            color: user.activo ? "success" : "danger",
-            size: "sm"
-          }]}
-        />
+      {/* Obtener componentes reutilizables */}
+      {(() => {
+        const components = DashboardContent({
+          user,
+          matriculaActiva,
+          estadisticas,
+          proximasClases,
+          formatearFechaClase,
+          getEstadoClasesColor,
+          getEstadoPagoColor,
+          navigate
+        });
 
-        {/* Información de la matrícula */}
-        <MatriculaCard
-          matricula={matriculaActiva}
-          estadisticas={estadisticas}
-          getEstadoClasesColor={getEstadoClasesColor}
-          getEstadoPagoColor={getEstadoPagoColor}
-        />
-
-        {/* Estado Financiero */}
-        <FinancialCard
-          matricula={matriculaActiva}
-          estadisticas={estadisticas}
-        />
-
-        {/* Próximas clases */}
-        <ActivityCard
-          title="Próximas Clases"
-          headerIcon="lucide:calendar-clock"
-          actionLabel="Reservar"
-          actionIcon="lucide:plus"
-          onAction={() => navigate('/mi-calendario')}
-        >
-          {proximasClases.length > 0 ? (
-            <div className="space-y-4">
-              {proximasClases.map((reserva, index) => (
-                <ActivityItem
-                  key={reserva.id}
-                  icon="lucide:calendar"
-                  title={formatearFechaClase(reserva.bloque.fecha, reserva.bloque.hora_inicio)}
-                  subtitle={`${reserva.bloque.hora_inicio} - ${reserva.bloque.hora_fin}`}
-                  isHighlighted={index === 0}
-                  color="primary"
-                  rightContent={index === 0 && (
-                    <Chip size="sm" color="primary" variant="flat">
-                      Próxima
-                    </Chip>
-                  )}
-                />
-              ))}
+        return (
+          <>
+            {/* Layout para móviles */}
+            <div className="block lg:hidden space-y-6">
+              {components.InfoCard}
+              {components.MatriculaCard}
+              {components.FinancialCard}
+              {components.ProximasClases}
             </div>
-          ) : (
-            <EmptyState
-              icon="lucide:calendar-x"
-              title="No tienes clases programadas"
-              description="Reserva tus clases para continuar con tu aprendizaje"
-              size="large"
-            />
-          )}
-        </ActivityCard>
-      </div>
 
-      {/* Layout para desktop */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-        <div className="space-y-6">
-          {/* Información Personal */}
-          <InfoCard
-            title="Mi Información"
-            subtitle="Información del estudiante"
-            avatarName={`${user.nombre} ${user.apellidos}`}
-            fields={[
-              {
-                label: "Nombre Completo",
-                value: `${user.nombre} ${user.apellidos}`,
-                dividerBefore: false
-              },
-              {
-                label: "DNI",
-                value: user.dni,
-                dividerBefore: true
-              },
-              {
-                label: "Teléfono",
-                value: user.telefono
-              },
-              ...(user.email ? [{
-                label: "Email",
-                value: user.email,
-                className: "text-sm"
-              }] : [])
-            ]}
-            chips={[{
-              label: user.activo ? "Activo" : "Inactivo",
-              color: user.activo ? "success" : "danger",
-              size: "sm"
-            }]}
-          />
-
-          {/* Información de la matrícula */}
-          <MatriculaCard
-            matricula={matriculaActiva}
-            estadisticas={estadisticas}
-            getEstadoClasesColor={getEstadoClasesColor}
-            getEstadoPagoColor={getEstadoPagoColor}
-          />
-        </div>
-
-        <div className="lg:col-span-2 space-y-6">
-          {/* Estado Financiero */}
-          <FinancialCard
-            matricula={matriculaActiva}
-            estadisticas={estadisticas}
-          />
-
-          {/* Próximas clases */}
-          <ActivityCard
-            title="Próximas Clases"
-            headerIcon="lucide:calendar-clock"
-            actionLabel="Reservar"
-            actionIcon="lucide:plus"
-            onAction={() => navigate('/mi-calendario')}
-          >
-            {proximasClases.length > 0 ? (
-              <div className="space-y-4">
-                {proximasClases.map((reserva, index) => (
-                  <ActivityItem
-                    key={reserva.id}
-                    icon="lucide:calendar"
-                    title={formatearFechaClase(reserva.bloque.fecha, reserva.bloque.hora_inicio)}
-                    subtitle={`${reserva.bloque.hora_inicio} - ${reserva.bloque.hora_fin}`}
-                    isHighlighted={index === 0}
-                    color="primary"
-                    rightContent={index === 0 && (
-                      <Chip size="sm" color="primary" variant="flat">
-                        Próxima
-                      </Chip>
-                    )}
-                  />
-                ))}
+            {/* Layout para desktop */}
+            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+              <div className="space-y-6">
+                {components.InfoCard}
+                {components.MatriculaCard}
               </div>
-            ) : (
-              <EmptyState
-                icon="lucide:calendar-x"
-                title="No tienes clases programadas"
-                description="Reserva tus clases para continuar con tu aprendizaje"
-                size="large"
-              />
-            )}
-          </ActivityCard>
-        </div>
-      </div>
+              <div className="lg:col-span-2 space-y-6">
+                {components.FinancialCard}
+                {components.ProximasClases}
+              </div>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 };

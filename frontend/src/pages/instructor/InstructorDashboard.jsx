@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   addToast,
   Divider
@@ -21,44 +21,57 @@ export const InstructorDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Cargar datos del instructor
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const ticketsResult = await ticketsService.getByInstructor(id);
+  const cargarDatos = useCallback(async () => {
+    try {
+      const ticketsResult = await ticketsService.getByInstructor(id);
 
-        if (ticketsResult.success) {
-          setTickets(ticketsResult.data);
-        } else {
-          addToast({
-            title: "Error al cargar tickets",
-            description: ticketsResult.error || "No se pudieron cargar los tickets.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-
-        if (!user) {
-          addToast({
-            title: "Error al cargar información",
-            description: "No se pudo cargar la información del instructor.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-      } catch (error) {
+      if (ticketsResult.success) {
+        setTickets(ticketsResult.data);
+      } else {
         addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar los datos.",
+          title: "Error al cargar tickets",
+          description: ticketsResult.error || "No se pudieron cargar los tickets.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoading(false);
       }
-    };
 
+      if (!user) {
+        addToast({
+          title: "Error al cargar información",
+          description: "No se pudo cargar la información del instructor.",
+          severity: "danger",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar los datos.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, user]);
+
+  useEffect(() => {
     cargarDatos();
-  }, [id]);
+  }, [cargarDatos]);
+
+  // Formatear fecha para mostrar
+  const formatearFecha = useCallback((fechaString) => {
+    if (!fechaString) return 'N/A';
+    const fecha = new Date(fechaString);
+    return fecha.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }, []);
 
   // Estadísticas calculadas
   const estadisticas = useMemo(() => {
@@ -96,19 +109,6 @@ export const InstructorDashboard = () => {
       ultimosTickets
     };
   }, [tickets]);
-
-  // Formatear fecha para mostrar
-  const formatearFecha = (fechaString) => {
-    if (!fechaString) return 'N/A';
-    const fecha = new Date(fechaString);
-    return fecha.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   if (isLoading) {
     return <LoadingSpinner mensaje="Cargando dashboard..." />;

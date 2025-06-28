@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, MatriculaResumenSchema
-from app.services.matricula_service import crear_matricula, listar_matriculas, eliminar_matricula, obtener_estado_cuenta
-from app.models.matricula import Matricula
+from app.services.matricula_service import crear_matricula, listar_matriculas, eliminar_matricula
 import flask_praetorian
 
 matriculas_bp = Blueprint("matriculas", __name__)
@@ -35,16 +34,3 @@ def obtener_matricula():
 def eliminar_matricula_route(id):
     eliminar_matricula(id)
     return jsonify({"mensaje": "Matrícula eliminada"}), 200
-
-@matriculas_bp.route("/<int:id>/estado-cuenta", methods=["GET"])
-@flask_praetorian.roles_accepted("admin", "alumno")
-def estado_cuenta_matricula(id):
-    # Verificar permisos si es alumno
-    current_user = flask_praetorian.current_user()
-    if current_user.rol == "alumno":
-        matricula = Matricula.query.get_or_404(id)
-        if matricula.id_alumno != current_user.alumno.id:
-            return jsonify({"error": "No tienes permiso para ver esta matrícula"}), 403
-    
-    estado_cuenta = obtener_estado_cuenta(id)
-    return jsonify(estado_cuenta), 200

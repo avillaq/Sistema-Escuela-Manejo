@@ -301,14 +301,6 @@ export const Matriculas = () => {
             isIconOnly
             size="sm"
             variant="light"
-            onPress={() => navigate(`/matriculas/${matricula.id}/editar`)}
-          >
-            <Icon icon="lucide:edit" width={16} height={16} />
-          </Button>
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
             color="danger"
             onPress={() => handleDeleteConfirm(matricula)}
           >

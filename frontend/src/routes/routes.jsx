@@ -88,11 +88,6 @@ export const protectedRoutes = [
     element: <ProtectedRoute requiredRole="admin"><MatriculaDetalle /></ProtectedRoute>,
   },
   {
-    path: '/matriculas/:id/editar',
-    element: <ProtectedRoute requiredRole="admin"><MatriculaForm /></ProtectedRoute>,
-
-  },
-  {
     path: '/matriculas/:id/reservas',
     element: <ProtectedRoute requiredRole="admin"><CalendarioReserva /></ProtectedRoute>,
   },

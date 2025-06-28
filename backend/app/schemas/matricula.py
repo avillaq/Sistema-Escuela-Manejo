@@ -43,6 +43,7 @@ class AlumnoResumenSchema(Schema):
     dni = fields.Str()
     email = fields.Email()
     telefono = fields.Str()
+    activo = fields.Boolean()
 
 class TipoAutoResumenSchema(Schema):
     id = fields.Int()

@@ -73,26 +73,6 @@ def crear_matricula(data):
     db.session.commit()
     return matricula
 
-def obtener_estado_cuenta(id_matricula):
-    matricula = Matricula.query.get_or_404(id_matricula)
-    
-    # Calcular total pagado
-    total_pagado = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0
-    
-    horas_completadas = matricula.horas_completadas
-    
-    return {
-        "matricula_id": matricula.id,
-        "tipo_contratacion": matricula.tipo_contratacion,
-        "costo_total": matricula.costo_total,
-        "total_pagado": total_pagado,
-        "saldo_pendiente": matricula.costo_total - total_pagado,
-        "estado_pago": matricula.estado_pago,
-        "horas_contratadas": matricula.horas_contratadas if matricula.tipo_contratacion == "por_hora" else matricula.paquete.horas_total,
-        "horas_completadas": horas_completadas,
-        "fecha_limite": matricula.fecha_limite.strftime("%Y-%m-%d")
-    }
-
 def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtros y paginación
     if id_matricula or id_alumno:
         if id_matricula:

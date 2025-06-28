@@ -22,7 +22,6 @@ import { PageHeader } from '@/components';
 export const MatriculaForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const isEditing = !!id;
 
   const [formData, setFormData] = useState({
     alumno: null,
@@ -75,14 +74,6 @@ export const MatriculaForm = () => {
     fetchAlumnosDisponibles();
     fetchPaquetes();
   }, []);
-
-
-  useEffect(() => {
-    if (isEditing) {
-      // Cargar datos de la matrícula para editar
-      // TODO: Analiza si en el sistema deberá editar una matrícula existente
-    }
-  }, [id, isEditing]);
 
   // prevenir el scroll wheel
   const preventWheel = (e) => {
@@ -224,8 +215,8 @@ export const MatriculaForm = () => {
       }
 
       addToast({
-        title: isEditing ? "Matrícula actualizada" : "Matrícula creada",
-        description: `La matrícula para ${formData.alumno.nombre} ${formData.alumno.apellidos} ha sido ${isEditing ? 'actualizada' : 'creada'} correctamente.`,
+        title: "Matrícula creada",
+        description: `La matrícula para ${formData.alumno.nombre} ${formData.alumno.apellidos} ha sido creada correctamente.`,
         severity: "success",
         color: "success",
       });
@@ -256,8 +247,8 @@ export const MatriculaForm = () => {
           <Icon icon="lucide:arrow-left" width={20} height={20} />
         </Button>
         <PageHeader
-          title={isEditing ? 'Editar Matrícula' : 'Nueva Matrícula'}
-          subtitle={isEditing ? 'Modifica los datos de la matrícula' : 'Completa la información para crear una nueva matrícula'}
+          title="Nueva Matrícula"
+          subtitle="Completa la información para crear una nueva matrícula"
           emoji=""
         />
       </div>
@@ -285,7 +276,6 @@ export const MatriculaForm = () => {
                 isRequired
                 isInvalid={!!errors.alumno}
                 errorMessage={errors.alumno}
-                isDisabled={isEditing}
               >
                 {alumnosDisponibles.filter(a => a.activo).map((alumno) => (
                   <SelectItem key={alumno.id.toString()} textValue={`${alumno.nombre} ${alumno.apellidos} (DNI: ${alumno.dni})`}>
@@ -506,7 +496,7 @@ export const MatriculaForm = () => {
                   isDisabled={!costoTotal || !formData.monto_pago}
                   className="flex-1"
                 >
-                  {isEditing ? 'Actualizar' : 'Crear Matrícula'}
+                  Crear Matrícula
                 </Button>
               </div>
             </CardBody>

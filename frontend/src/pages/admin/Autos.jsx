@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components/Tabla';
+import { Tabla } from '@/components';
 import { AutoFormModal } from '@/pages/admin/AutoFormModal';
 import { AutoViewModal } from '@/pages/admin/AutoViewModal';
 import { AutoDeleteModal } from '@/pages/admin/AutoDeleteModal';

@@ -9,8 +9,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components/Tabla';
-import { TicketViewModal } from '@/components/ticket/TicketViewModal';
+import { Tabla, TicketViewModal } from '@/components';
 import { ticketsService } from '@/service/apiService';
 
 export const TicketBase = ({ 

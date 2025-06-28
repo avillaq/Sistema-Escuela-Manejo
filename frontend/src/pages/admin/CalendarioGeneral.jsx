@@ -4,7 +4,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase } from '@/components/calendario/CalendarioBase';
+import { CalendarioBase } from '@/components';
 import { reservasService } from '@/service/apiService';
 
 export const CalendarioGeneral = () => {

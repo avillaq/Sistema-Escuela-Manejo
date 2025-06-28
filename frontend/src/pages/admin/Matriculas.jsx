@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components/Tabla';
+import { Tabla } from '@/components';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 

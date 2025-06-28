@@ -8,7 +8,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components/Tabla';
+import { Tabla } from '@/components';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';

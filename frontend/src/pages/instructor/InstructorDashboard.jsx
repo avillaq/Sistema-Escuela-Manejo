@@ -1,16 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
   addToast,
-  Divider,
-  Avatar
+  Divider
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
 import { ticketsService } from '@/service/apiService';
+import {
+  LoadingSpinner,
+  DashboardHeader,
+  ActivityCard,
+  ActivityItem,
+  EmptyState,
+  InfoCard,
+  SectionHeader
+} from '@/components';
 
 export const InstructorDashboard = () => {
   const { id, user } = useAuthStore();
@@ -108,102 +112,59 @@ export const InstructorDashboard = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Cargando dashboard..." />;
   }
 
   return (
     <div className="space-y-6">
       {/* Bienvenida */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            ¡Bienvenido, {user?.nombre || 'Instructor'}! 👋
-          </h1>
-          <p className="text-default-500">
-            Aquí tienes un resumen de tu actividad como instructor.
-          </p>
-        </div>
-      </div>
+      <DashboardHeader
+        title="¡Bienvenido,"
+        userName={user?.nombre || 'Instructor'}
+        subtitle="Aquí tienes un resumen de tu actividad como instructor."
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Información Personal */}
         <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Avatar
-                  size="lg"
-                  name={user ? `${user.nombre} ${user.apellidos}` : 'I'}
-                  className="bg-primary-100 text-primary-700"
-                />
-                <div>
-                  <h3 className="text-lg font-semibold">Mi Información</h3>
-                  <p className="text-sm text-default-500">Datos personales</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              {user && (
-                <>
-                  <div>
-                    <p className="text-sm text-default-500">Nombre Completo</p>
-                    <p className="font-medium">
-                      {user.nombre} {user.apellidos}
-                    </p>
-                  </div>
-
-                  <Divider />
-
-                  <div>
-                    <p className="text-sm text-default-500">DNI</p>
-                    <p className="font-medium">{user.dni}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-default-500">Teléfono</p>
-                    <p className="font-medium">{user.telefono}</p>
-                  </div>
-
-                  {user.email && (
-                    <div>
-                      <p className="text-sm text-default-500">Email</p>
-                      <p className="font-medium text-sm">{user.email}</p>
-                    </div>
-                  )}
-
-                  <Divider />
-
-                  <div>
-                    <p className="text-sm text-default-500">Estado</p>
-                    <Chip
-                      size="sm"
-                      color={user.activo ? "success" : "danger"}
-                      variant="flat"
-                    >
-                      {user.activo ? "Activo" : "Inactivo"}
-                    </Chip>
-                  </div>
-                </>
-              )}
-            </CardBody>
-          </Card>
+          <InfoCard
+            title="Mi Información"
+            subtitle="Datos personales del instructor"
+            avatarName={user ? `${user.nombre} ${user.apellidos}` : 'I'}
+            fields={user ? [
+              {
+                label: "Nombre Completo",
+                value: `${user.nombre} ${user.apellidos}`,
+                dividerBefore: false
+              },
+              {
+                label: "DNI",
+                value: user.dni,
+                dividerBefore: true
+              },
+              {
+                label: "Teléfono",
+                value: user.telefono
+              },
+              ...(user.email ? [{
+                label: "Email",
+                value: user.email,
+                className: "text-sm"
+              }] : [])
+            ] : []}
+            chips={user ? [{
+              label: user.activo ? "Activo" : "Inactivo",
+              color: user.activo ? "success" : "danger",
+              size: "sm"
+            }] : []}
+          />
 
           {/* Estadísticas Rápidas */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Icon icon="lucide:bar-chart-3" width={20} height={20} />
-                <h3 className="text-lg font-semibold">Resumen de Actividad</h3>
-              </div>
-            </CardHeader>
-            <CardBody className="space-y-4">
+          <ActivityCard
+            title="Resumen de Actividad"
+            headerIcon="lucide:bar-chart-3"
+          >
+            <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-default-500">Total de Clases</p>
@@ -228,67 +189,46 @@ export const InstructorDashboard = () => {
                   <p className="text-xl font-semibold text-primary-600">{estadisticas.mes}</p>
                 </div>
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </ActivityCard>
         </div>
 
         {/* Actividad Reciente */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Icon icon="lucide:clock" width={20} height={20} />
-                  <h3 className="text-lg font-semibold">Actividad Reciente</h3>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              {estadisticas.ultimosTickets.length > 0 ? (
-                <div className="space-y-4">
-                  {estadisticas.ultimosTickets.map((ticket, index) => (
-                    <div
-                      key={ticket.id}
-                      className={`p-4 rounded-lg border ${index === 0 ? 'bg-primary-50 border-primary-200' : 'bg-default-50 border-default-200'}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${index === 0 ? 'bg-primary-100' : 'bg-default-100'}`}>
-                            <Icon
-                              icon="lucide:ticket"
-                              className={index === 0 ? 'text-primary-600' : 'text-default-600'}
-                              width={16}
-                              height={16}
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium">{ticket.nombre_alumno}</p>
-                            <p className="text-sm text-default-500">
-                              Clase #{ticket.numero_clase_alumno} • {ticket.placa_auto}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium">#{ticket.id}</p>
-                          <p className="text-xs text-default-500">
-                            {formatearFecha(ticket.fecha_asistencia)}
-                          </p>
-                        </div>
+          <ActivityCard
+            title="Actividad Reciente"
+            headerIcon="lucide:clock"
+          >
+            {estadisticas.ultimosTickets.length > 0 ? (
+              <div className="space-y-4">
+                {estadisticas.ultimosTickets.map((ticket, index) => (
+                  <ActivityItem
+                    key={ticket.id}
+                    icon="lucide:ticket"
+                    title={ticket.nombre_alumno}
+                    subtitle={`Clase #${ticket.numero_clase_alumno} • ${ticket.placa_auto}`}
+                    isHighlighted={index === 0}
+                    color="primary"
+                    rightContent={
+                      <div className="text-right">
+                        <p className="text-sm font-medium">#{ticket.id}</p>
+                        <p className="text-xs text-default-500">
+                          {formatearFecha(ticket.fecha_asistencia)}
+                        </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Icon icon="lucide:ticket" className="mx-auto mb-4 text-default-300" width={48} height={48} />
-                  <p className="text-default-500">No hay tickets registrados aún.</p>
-                  <p className="text-sm text-default-400">
-                    Los tickets aparecerán aquí cuando se registren asistencias de tus clases.
-                  </p>
-                </div>
-              )}
-            </CardBody>
-          </Card>
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon="lucide:ticket"
+                title="No hay tickets registrados aún."
+                description="Los tickets aparecerán aquí cuando se registren asistencias de tus clases."
+                size="large"
+              />
+            )}
+          </ActivityCard>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { TicketBase } from '@/components/ticket/TicketBase';
+import { TicketBase } from '@/components';
 
 export const Tickets = () => {
   return (

@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla } from '@/components/Tabla';
+import { Tabla } from '@/components';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';

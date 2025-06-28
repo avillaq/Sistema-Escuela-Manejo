@@ -10,7 +10,7 @@ import {
   addToast,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase } from '@/components/calendario/CalendarioBase';
+import { CalendarioBase } from '@/components';
 import { matriculasService } from '@/service/apiService';
 
 export const CalendarioReserva = () => {

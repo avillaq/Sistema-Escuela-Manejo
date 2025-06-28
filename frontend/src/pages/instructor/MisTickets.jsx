@@ -1,4 +1,4 @@
-import { TicketBase } from '@/components/ticket/TicketBase';
+import { TicketBase } from '@/components';
 import { useAuthStore } from '@/store/auth-store';
 
 export const MisTickets = () => {

@@ -231,14 +231,141 @@ export const AlumnoDashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="block lg:hidden space-y-6">
+        {/* Información Personal */}
+        <InfoCard
+          title="Mi Información"
+          subtitle="Información del estudiante"
+          avatarName={`${user.nombre} ${user.apellidos}`}
+          fields={[
+            {
+              label: "Nombre Completo",
+              value: `${user.nombre} ${user.apellidos}`,
+              dividerBefore: false
+            },
+            {
+              label: "DNI",
+              value: user.dni,
+              dividerBefore: true
+            },
+            {
+              label: "Teléfono",
+              value: user.telefono
+            },
+            ...(user.email ? [{
+              label: "Email",
+              value: user.email,
+              className: "text-sm"
+            }] : [])
+          ]}
+          chips={[{
+            label: user.activo ? "Activo" : "Inactivo",
+            color: user.activo ? "success" : "danger",
+            size: "sm"
+          }]}
+        />
+
         {/* Información de la matrícula */}
-        <div className="lg:col-span-2 space-y-6">
+        <MatriculaCard
+          matricula={matriculaActiva}
+          estadisticas={estadisticas}
+          getEstadoClasesColor={getEstadoClasesColor}
+          getEstadoPagoColor={getEstadoPagoColor}
+        />
+
+        {/* Estado Financiero */}
+        <FinancialCard
+          matricula={matriculaActiva}
+          estadisticas={estadisticas}
+        />
+
+        {/* Próximas clases */}
+        <ActivityCard
+          title="Próximas Clases"
+          headerIcon="lucide:calendar-clock"
+          actionLabel="Reservar"
+          actionIcon="lucide:plus"
+          onAction={() => navigate('/mi-calendario')}
+        >
+          {proximasClases.length > 0 ? (
+            <div className="space-y-4">
+              {proximasClases.map((reserva, index) => (
+                <ActivityItem
+                  key={reserva.id}
+                  icon="lucide:calendar"
+                  title={formatearFechaClase(reserva.bloque.fecha, reserva.bloque.hora_inicio)}
+                  subtitle={`${reserva.bloque.hora_inicio} - ${reserva.bloque.hora_fin}`}
+                  isHighlighted={index === 0}
+                  color="primary"
+                  rightContent={index === 0 && (
+                    <Chip size="sm" color="primary" variant="flat">
+                      Próxima
+                    </Chip>
+                  )}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon="lucide:calendar-x"
+              title="No tienes clases programadas"
+              description="Reserva tus clases para continuar con tu aprendizaje"
+              size="large"
+            />
+          )}
+        </ActivityCard>
+      </div>
+
+      {/* Layout para desktop */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+          {/* Información Personal */}
+          <InfoCard
+            title="Mi Información"
+            subtitle="Información del estudiante"
+            avatarName={`${user.nombre} ${user.apellidos}`}
+            fields={[
+              {
+                label: "Nombre Completo",
+                value: `${user.nombre} ${user.apellidos}`,
+                dividerBefore: false
+              },
+              {
+                label: "DNI",
+                value: user.dni,
+                dividerBefore: true
+              },
+              {
+                label: "Teléfono",
+                value: user.telefono
+              },
+              ...(user.email ? [{
+                label: "Email",
+                value: user.email,
+                className: "text-sm"
+              }] : [])
+            ]}
+            chips={[{
+              label: user.activo ? "Activo" : "Inactivo",
+              color: user.activo ? "success" : "danger",
+              size: "sm"
+            }]}
+          />
+
+          {/* Información de la matrícula */}
           <MatriculaCard
             matricula={matriculaActiva}
             estadisticas={estadisticas}
             getEstadoClasesColor={getEstadoClasesColor}
             getEstadoPagoColor={getEstadoPagoColor}
+          />
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
+          {/* Estado Financiero */}
+          <FinancialCard
+            matricula={matriculaActiva}
+            estadisticas={estadisticas}
           />
 
           {/* Próximas clases */}
@@ -276,47 +403,6 @@ export const AlumnoDashboard = () => {
               />
             )}
           </ActivityCard>
-        </div>
-
-        <div className="space-y-6">
-          {/* Información Personal */}
-          <InfoCard
-            title="Mi Información"
-            subtitle="Información del estudiante"
-            avatarName={`${user.nombre} ${user.apellidos}`}
-            fields={[
-              {
-                label: "Nombre Completo",
-                value: `${user.nombre} ${user.apellidos}`,
-                dividerBefore: false
-              },
-              {
-                label: "DNI",
-                value: user.dni,
-                dividerBefore: true
-              },
-              {
-                label: "Teléfono",
-                value: user.telefono
-              },
-              ...(user.email ? [{
-                label: "Email",
-                value: user.email,
-                className: "text-sm"
-              }] : [])
-            ]}
-            chips={[{
-              label: user.activo ? "Activo" : "Inactivo",
-              color: user.activo ? "success" : "danger",
-              size: "sm"
-            }]}
-          />
-
-          {/* Resumen financiero */}
-          <FinancialCard
-            matricula={matriculaActiva}
-            estadisticas={estadisticas}
-          />
         </div>
       </div>
     </div>

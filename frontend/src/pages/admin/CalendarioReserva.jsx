@@ -10,7 +10,7 @@ import {
   addToast,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase, PageHeader } from '@/components';
+import { CalendarioBase, PageHeader, LoadingSpinner } from '@/components';
 import { matriculasService } from '@/service/apiService';
 
 export const CalendarioReserva = () => {
@@ -66,14 +66,7 @@ export const CalendarioReserva = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando datos de la matrícula...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner mensaje="Cargando datos de matricula..." />
   }
 
   if (!matricula) {

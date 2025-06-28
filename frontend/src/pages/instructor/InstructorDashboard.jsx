@@ -111,7 +111,7 @@ export const InstructorDashboard = () => {
   };
 
   if (isLoading) {
-    return <LoadingSpinner message="Cargando dashboard..." />;
+    return <LoadingSpinner mensaje="Cargando dashboard..." />;
   }
 
   return (

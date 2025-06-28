@@ -9,7 +9,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, TicketViewModal, PageHeader, StatCard } from '@/components';
+import { Tabla, TicketViewModal, PageHeader, StatCard, LoadingSpinner } from '@/components';
 import { ticketsService } from '@/service/apiService';
 
 export const TicketBase = ({
@@ -241,12 +241,7 @@ export const TicketBase = ({
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center items-center min-h-64">
-              <div className="text-center">
-                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-                <p>Cargando tickets...</p>
-              </div>
-            </div>
+            <LoadingSpinner mensaje="Cargando tickets..." />
           ) : (
             <Tabla
               title="Tickets de Clases"

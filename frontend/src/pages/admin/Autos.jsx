@@ -12,7 +12,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader, StatCard } from '@/components';
+import { Tabla, PageHeader, StatCard, LoadingSpinner } from '@/components';
 import { AutoFormModal } from '@/pages/admin/AutoFormModal';
 import { AutoViewModal } from '@/pages/admin/AutoViewModal';
 import { AutoDeleteModal } from '@/pages/admin/AutoDeleteModal';
@@ -304,12 +304,7 @@ export const Autos = () => {
           </div>
 
           {isLoading ?
-            (<div className="flex justify-center items-center min-h-64">
-              <div className="text-center">
-                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-                <p>Cargando Autos...</p>
-              </div>
-            </div>)
+            (<LoadingSpinner mensaje="Cargando autos..." />)
             :
             <Tabla
               title="Lista de Autos"

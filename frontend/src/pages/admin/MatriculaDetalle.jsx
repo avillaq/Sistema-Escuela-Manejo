@@ -14,7 +14,7 @@ import {
 import { Icon } from '@iconify/react';
 import { PagoModal } from '@/pages/admin/PagoModal';
 import { matriculasService } from '@/service/apiService';
-import { PageHeader } from '@/components';
+import { PageHeader, LoadingSpinner } from '@/components';
 
 export const MatriculaDetalle = () => {
   const navigate = useNavigate();
@@ -113,14 +113,7 @@ export const MatriculaDetalle = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando datos de la matrícula...</p>
-        </div>
-      </div>
-    );
+    return (<LoadingSpinner mensaje="Cargando datos de la matricula..." />);
   }
 
   if (!matricula) {

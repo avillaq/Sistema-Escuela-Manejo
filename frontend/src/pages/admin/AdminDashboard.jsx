@@ -111,7 +111,7 @@ export const AdminDashboard = () => {
   ];
 
   if (isLoading) {
-    return <LoadingSpinner message="Cargando dashboard..." />;
+    return <LoadingSpinner mensaje="Cargando dashboard..." />;
   }
 
   const stats = dashboardData?.estadisticas_generales || {};

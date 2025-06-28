@@ -12,7 +12,7 @@ import {
   AutocompleteItem
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { PageHeader,StatCard } from '@/components';
+import { PageHeader,StatCard, LoadingSpinner } from '@/components';
 import { reservasService, asistenciasService, instructoresService, autosService } from '@/service/apiService';
 
 export const Asistencias = () => {
@@ -336,12 +336,11 @@ export const Asistencias = () => {
         {/* Formulario de registro */}
 
         {isLoading ?
-          (<div className="flex justify-center items-center min-h-64 col-span-3">
-            <div className="text-center">
-              <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-              <p>Cargando datos...</p>
+          (
+            <div className='col-span-3'>
+              <LoadingSpinner mensaje="Cargando datos..." />
             </div>
-          </div>)
+          )
           :
           (<><div className="lg:col-span-2">
             <Card>

@@ -8,7 +8,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader, StatCard } from '@/components';
+import { Tabla, PageHeader, StatCard, LoadingSpinner } from '@/components';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';
@@ -179,12 +179,7 @@ export const Paquetes = () => {
 
 
           {isLoading ?
-            (<div className="flex justify-center items-center min-h-64">
-              <div className="text-center">
-                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-                <p>Cargando Paquetes...</p>
-              </div>
-            </div>)
+            (<LoadingSpinner mensaje="Cargando paquetes..." />)
             :
             <Tabla
               title="Lista de Paquetes"

@@ -153,7 +153,7 @@ export const AlumnoDashboard = () => {
   };
 
   if (isLoading) {
-    return <LoadingSpinner message="Cargando tu información..." />;
+    return <LoadingSpinner mensaje="Cargando tu información..." />;
   }
 
   // Si no hay matrícula activa

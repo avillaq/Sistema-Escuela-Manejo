@@ -11,7 +11,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader, StatCard } from '@/components';
+import { Tabla, PageHeader, StatCard, LoadingSpinner } from '@/components';
 import { UserFormModal } from '@/pages/admin/UserFormModal';
 import { UserViewModal } from '@/pages/admin/UserViewModal';
 import { UserDeleteModal } from '@/pages/admin/UserDeleteModal';
@@ -312,12 +312,7 @@ export const Instructores = () => {
 
 
           {isLoading ?
-            (<div className="flex justify-center items-center min-h-64">
-              <div className="text-center">
-                <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-                <p>Cargando Usuarios...</p>
-              </div>
-            </div>)
+            (<LoadingSpinner mensaje="Cargando usuarios..." />)
             :
             <Tabla
               title="Lista de Instructores"

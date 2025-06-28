@@ -8,7 +8,7 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioModal } from '@/components';
+import { CalendarioModal, LoadingSpinner } from '@/components';
 import { bloquesService, reservasService } from '@/service/apiService';
 
 // Constantes
@@ -611,14 +611,7 @@ export const CalendarioBase = ({
   };
 
   if (isLoadingBloques || isLoadingReservas) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="text-center">
-          <Icon icon="lucide:loader-2" className="animate-spin mx-auto mb-4" width={32} height={32} />
-          <p>Cargando horarios y reservas...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner mensaje="Cargando horarios y reservas..." />;
   }
 
   return (

@@ -14,7 +14,7 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const history = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, login } = useAuthStore();
 
@@ -80,10 +80,15 @@ export const LoginPage = () => {
     if (validarForm()) {
       try {
         const result = await authService.login(formData.username, formData.password);
-
         if (result.success) {
           login(result.data);
-          history.replace(from);
+          navigate(from, { replace: true });
+          addToast({
+            title: "Inicio de Sesión Exitoso",
+            description: "Bienvenido a la Escuela de Manejo Jesús Nazareno.",
+            severity: "success",
+            color: "success",
+          });
         } else {
           addToast({
             title: "Error de Acceso",

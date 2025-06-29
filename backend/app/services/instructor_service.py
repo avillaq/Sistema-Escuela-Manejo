@@ -6,7 +6,7 @@ from werkzeug.exceptions import BadRequest
 def crear_instructor(data):
     dni = data["dni"]
     if Usuario.query.filter_by(nombre_usuario=dni).first():
-        raise BadRequest("Ya existe un usuario con este DNI")
+        raise BadRequest("Ya existe un instructor con este DNI")
 
     # Crear usuario
     usuario = Usuario(

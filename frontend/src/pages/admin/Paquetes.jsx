@@ -40,14 +40,14 @@ export const Paquetes = () => {
             color: "danger",
           });
         }
-      } catch (error) {
+      } /*catch (error) {
         addToast({
           title: "Error",
           description: "Ha ocurrido un error al cargar los paquetes.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
+      } */finally {
         setIsLoading(false);
       }
     };

@@ -11,6 +11,7 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  addToast
 } from '@heroui/react';
 const tiposAuto = [
     {
@@ -128,9 +129,17 @@ export const AutoFormModal = ({ isOpen, onOpenChange, onAddAuto, editMode = fals
           onAddAuto(result.data);
           onOpenChange(false);
         } else {
+          addToast({
+          title: "Error al añadir auto",
+          description: result.error,
+          severity: "danger",
+          color: "danger",
+          });
+        }
+        /*{
           console.log(result.validationErrors);
           alert(result.validationErrors.placa || 'Error al añadir el auto');
-        }
+        }*/
       }
     }
     setIsLoading(false);

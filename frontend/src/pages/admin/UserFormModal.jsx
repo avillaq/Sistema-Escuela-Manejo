@@ -117,6 +117,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
           onAddUser(result.data);
           onOpenChange(false);
         } else {
+          
           addToast({
             title: "Error al crear el usuario",
             description: result.error,

@@ -6,7 +6,7 @@ export const API_CONFIG = {
     auth: {
       login: '/auth/login',
       logout: '/auth/logout',
-      me: '/auth/me'
+      refresh: '/auth/refresh',
     },
     // Usuarios
     alumnos: {

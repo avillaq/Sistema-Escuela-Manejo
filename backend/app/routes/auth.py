@@ -53,6 +53,15 @@ def login():
 
     return jsonify(response_data), 200
 
+@auth_bp.route("/refresh", methods=["POST"])
+def refresh():
+    old_token = guard.read_token_from_header()
+    new_token = guard.refresh_jwt_token(old_token)
+    response_data = {
+        "access_token": new_token
+    }
+    return jsonify(response_data), 200
+
 @auth_bp.route("/logout", methods=["POST"])
 @flask_praetorian.auth_required
 def logout():

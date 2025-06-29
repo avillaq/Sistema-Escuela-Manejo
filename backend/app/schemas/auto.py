@@ -20,8 +20,8 @@ class CrearAutoSchema(Schema):
     placa = fields.Str(
         required=True,
         validate=validate.Regexp(
-            r'^[A-Z0-9]{6,7}$',
-            error="La placa debe tener entre 6 y 7 caracteres alfanuméricos en mayúscula, sin espacios ni símbolos."
+            r'^[A-Z]{3}-\d{3}$',
+            error="La placa debe tener el formato ABC-123, con 3 letras en mayúscula, un guion y 3 dígitos."
         ),
         error_messages={"required": "La placa del auto es obligatoria."}
     )

@@ -15,20 +15,32 @@ from .routes.tickets import tickets_bp
 from .routes.reportes import reportes_bp
 from .routes.paquetes import paquetes_bp
 from .error_handlers import register_error_handlers
+from flask_mail import Mail
+
+mail = Mail()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
 
+    # Configuración de correo
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = 'acahuib@unsa.edu.pe'
+    app.config['MAIL_PASSWORD'] = 'contrasena'
+
+    # Inicializar extensiones
     db.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
     cors.init_app(app)
-    guard.init_app(app, Usuario,is_blacklisted=blacklist.is_blacklisted)
+    guard.init_app(app, Usuario, is_blacklisted=blacklist.is_blacklisted)
+    mail.init_app(app) 
 
     register_error_handlers(app)
 
-    # Registrar los blueprints
+    # Registrar blueprints
     app.register_blueprint(alumnos_bp, url_prefix="/api/alumnos")
     app.register_blueprint(instructores_bp, url_prefix="/api/instructores")
     app.register_blueprint(administradores_bp, url_prefix="/api/administradores")
@@ -42,6 +54,5 @@ def create_app():
     app.register_blueprint(tickets_bp, url_prefix="/api/tickets")
     app.register_blueprint(reportes_bp, url_prefix="/api/reportes")
     app.register_blueprint(paquetes_bp, url_prefix="/api/paquetes")
-    
-    
+
     return app

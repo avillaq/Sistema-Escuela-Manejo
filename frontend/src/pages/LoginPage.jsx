@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Navigate } from "react-router";
-import { Card, CardBody, CardHeader, Input, Button, Link, Form } from "@heroui/react";
+import { Card, CardBody, CardHeader, Input, Button, Link, addToast } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAuthStore } from "@/store/auth-store";
 import { motion } from "framer-motion";
@@ -7,72 +7,103 @@ import { useState } from "react";
 import { authService } from "@/service/apiService";
 
 export const LoginPage = () => {
-  const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: ""
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  
+  const [errors, setErrors] = useState({});
+
   const history = useNavigate();
   const location = useLocation();
   const { isAuthenticated, login } = useAuthStore();
-  
+
   const from = location.state?.from?.pathname || "/dashboard";
-  
+
   if (isAuthenticated) {
     return <Navigate to={from} />;
   }
 
-  const handleDNIChange = (value) => {
-    const nuevoValue = value.replace(/\D/g, "").slice(0, 8);
-    setUserName(nuevoValue);
-  }
+  const handleChange = (field, value) => {
+    if (field === 'username') {
+      const nuevoValue = value.replace(/\D/g, "").slice(0, 8);
+      setFormData({
+        ...formData,
+        [field]: nuevoValue
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [field]: value
+      });
+    }
+
+    // Eliminar errores cuando se está editando
+    if (errors[field]) {
+      setErrors({
+        ...errors,
+        [field]: ''
+      });
+    }
+  };
+
+  const validarForm = () => {
+    const newErrors = {};
+
+    if (!formData.username.trim()) {
+      newErrors.username = 'El DNI es obligatorio';
+    } else if (formData.username.length !== 8) {
+      newErrors.username = 'El DNI debe tener exactamente 8 dígitos';
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = 'La contraseña es obligatoria';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+    } else if (formData.password.length > 12) {
+      newErrors.password = 'La contraseña no puede tener más de 12 caracteres';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // prevenir el scroll wheel
   const preventWheel = (e) => {
     e.target.blur();
   };
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
-    if (username.trim() === "" || password.trim() === "") {
-      setError("Por favor, ingresa tu DNI en ambos campos.");
-      setIsLoading(false);
-      return;
-    }
+    if (validarForm()) {
+      try {
+        const result = await authService.login(formData.username, formData.password);
 
-    // Validar formato de DNI (8 dígitos)
-    const dniRegex = /^\d{8}$/;
-    if (!dniRegex.test(username.trim())) {
-      setError("El DNI debe tener exactamente 8 dígitos.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!dniRegex.test(password.trim())) {
-      setError("El DNI debe tener exactamente 8 dígitos.");
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      const result = await authService.login(username, password);
-      if (result.success) {
-        console.log(result)
-        login(result.data);
-        history.replace(from);
-      } else {
-        setError("DNI no válido o no registrado en el sistema.");
+        if (result.success) {
+          login(result.data);
+          history.replace(from);
+        } else {
+          addToast({
+            title: "Error de Acceso",
+            description: "Usuario o contraseña incorrectos.",
+            severity: "danger",
+            color: "danger",
+          });
+        }
+      } catch (err) {
+        addToast({
+          title: "Error de Conexión",
+          description: "Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.",
+          severity: "danger",
+          color: "danger",
+        });
       }
-    } catch (err) {
-      setError("Ha ocurrido un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-default-50 p-4">
       <motion.div
@@ -87,60 +118,64 @@ export const LoginPage = () => {
               <Icon icon="lucide:layout-dashboard" className="text-white" width={24} height={24} />
             </div>
             <h1 className="text-2xl font-bold text-center">Escuela de Manejo Jesús Nazareno</h1>
-            <p className="text-default-500 text-center">Ingresa tu DNI para acceder al sistema</p>
+            <p className="text-default-500 text-center">Accede con tu DNI y contraseña</p>
           </CardHeader>
-          
+
           <CardBody className="py-6">
             <form onSubmit={handleLogin} className="space-y-6">
-              {error && (
-                <div className="p-3 rounded-md bg-danger-100 text-danger-700 text-sm text-center">
-                  {error}
-                </div>
-              )}
-              
               <Input
-                label="DNI (Usuario)"
+                label="DNI"
                 placeholder="Ingresa tu DNI"
                 type="number"
-                value={username}
-                onValueChange={handleDNIChange}
+                value={formData.username}
+                onValueChange={(value) => handleChange('username', value)}
                 onWheel={preventWheel}
                 variant="bordered"
                 isRequired
+                isInvalid={!!errors.username}
+                errorMessage={errors.username}
                 description="Tu número de DNI de 8 dígitos"
                 startContent={
                   <Icon icon="lucide:id-card" className="text-default-400" width={18} height={18} />
                 }
               />
-              
+
               <Input
-                label="DNI (Contraseña)"
-                placeholder="Confirma tu DNI"
+                label="Contraseña"
+                placeholder="Ingresa tu contraseña"
                 type="password"
-                value={password}
-                onValueChange={setPassword}
+                value={formData.password}
+                onValueChange={(value) => handleChange('password', value)}
                 variant="bordered"
                 isRequired
-                maxLength={8}
-                description="Ingresa nuevamente tu DNI"
+                isInvalid={!!errors.password}
+                errorMessage={errors.password}
+                description="Por defecto es tu DNI, pero puede haber sido cambiada"
                 startContent={
                   <Icon icon="lucide:lock" className="text-default-400" width={18} height={18} />
                 }
               />
-              
+
               <div className="flex justify-end items-center">
-                <Link size="sm" onClick={() => alert("Si olvidaste tu DNI o tienes problemas para acceder, contacta al administrador de la escuela.")}>
+                <Link size="sm" onClick={() => {
+                  addToast({
+                    title: "Recuperación de Acceso",
+                    description: "Si tienes problemas para acceder, contacta a tu administrador.",
+                    severity: "warning",
+                    color: "warning",
+                  });
+                }}>
                   ¿Problemas para acceder?
                 </Link>
               </div>
-              
-              <Button 
-                type="submit" 
-                color="primary" 
-                fullWidth 
+
+              <Button
+                type="submit"
+                color="primary"
+                fullWidth
                 isLoading={isLoading}
               >
-                {isLoading ? "Verificando DNI..." : "Iniciar sesión"}
+                {isLoading ? "Verificando..." : "Iniciar sesión"}
               </Button>
             </form>
           </CardBody>

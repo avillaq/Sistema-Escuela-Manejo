@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import db, migrate, limiter, cors, guard, blacklist
+from .extensions import db, migrate, limiter, cors, guard, blacklist, mail
 from .models.usuario import Usuario
 from .routes.alumnos import alumnos_bp
 from .routes.auto import autos_bp
@@ -15,20 +15,10 @@ from .routes.tickets import tickets_bp
 from .routes.reportes import reportes_bp
 from .routes.paquetes import paquetes_bp
 from .error_handlers import register_error_handlers
-from flask_mail import Mail
-
-mail = Mail()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
-
-    # Configuración de correo
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = 'acahuib@unsa.edu.pe'
-    app.config['MAIL_PASSWORD'] = 'contrasena'
 
     # Inicializar extensiones
     db.init_app(app)

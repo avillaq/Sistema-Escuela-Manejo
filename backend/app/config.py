@@ -9,3 +9,8 @@ class Config:
   SQLALCHEMY_TRACK_MODIFICATIONS = False
   JWT_ACCESS_LIFESPAN = {"hours": 1}
   JWT_REFRESH_LIFESPAN = {"days": 7}
+  MAIL_SERVER = 'smtp.gmail.com'
+  MAIL_PORT = 587
+  MAIL_USE_TLS = True
+  MAIL_USERNAME = 'acahuib@unsa.edu.pe'
+  MAIL_PASSWORD = 'contrasena' 

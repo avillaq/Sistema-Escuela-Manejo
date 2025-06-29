@@ -7,6 +7,7 @@ from flask_praetorian import Praetorian
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+from flask_mail import Mail
 
 load_dotenv()
 
@@ -56,3 +57,5 @@ class TokenBlacklist:
 
 blacklist = TokenBlacklist()
 guard = Praetorian()
+# Inicializacion de correo
+mail = Mail()

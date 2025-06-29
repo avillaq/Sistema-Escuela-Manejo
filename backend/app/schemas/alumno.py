@@ -22,22 +22,43 @@ def email_opcional(value):
         raise BadRequest ("Debe ser un correo electrónico válido o dejarse vacío.")
     
 class CrearAlumnoSchema(Schema):
-    nombre = fields.Str(required=True, validate=validate.Length(min=1, error="El nombre no tiene los caracteres suficientes"))
-    apellidos = fields.Str(required=True, validate=validate.Length(min=1, error="El apellido no tiene los caracteres suficientes"))
-    dni = fields.Str(required=True, validate=validate.Regexp(
-        r'^\d{8}$', 
-        error="El DNI debe contener exactamente 8 dígitos numéricos."
-    ))
-    telefono = fields.Str(required=True, validate=validate.Regexp(
-        r'^\d{9}$', 
-        error="El teléfono debe contener exactamente 9 dígitos numéricos."
-    ))
+    nombre = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, error="El nombre no tiene los caracteres suficientes."),
+        error_messages={"required": "El nombre es obligatorio."}
+    )
+
+    apellidos = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, error="El apellido no tiene los caracteres suficientes."),
+        error_messages={"required": "El apellido es obligatorio."}
+    )
+
+    dni = fields.Str(
+        required=True,
+        validate=validate.Regexp(
+            r'^\d{8}$', 
+            error="El DNI debe contener exactamente 8 dígitos numéricos."
+        ),
+        error_messages={"required": "El DNI es obligatorio."}
+    )
+
+    telefono = fields.Str(
+        required=True,
+        validate=validate.Regexp(
+            r'^\d{9}$', 
+            error="El teléfono debe contener exactamente 9 dígitos numéricos."
+        ),
+        error_messages={"required": "El teléfono es obligatorio."}
+    )
+
     email = fields.Str(validate=email_opcional)
-    def handle_error(self, error, data, **kwargs):   
+
+    def handle_error(self, error, data, **kwargs):
         formatted_errors = {}
         for field, messages in error.messages.items():
             formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
-            raise BadRequest (formatted_errors[field])
+        raise BadRequest(formatted_errors[field])
 
 class ActualizarAlumnoSchema(Schema):
     nombre = fields.Str()

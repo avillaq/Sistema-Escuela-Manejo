@@ -280,7 +280,7 @@ export const Matriculas = () => {
       key: "actions",
       label: "ACCIONES",
       render: (matricula) => (
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-start">
           <Button
             isIconOnly
             size="sm"

@@ -172,7 +172,7 @@ export const TicketBase = ({
       key: "actions",
       label: "ACCIONES",
       render: (ticket) => (
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-start">
           <Button
             isIconOnly
             size="sm"

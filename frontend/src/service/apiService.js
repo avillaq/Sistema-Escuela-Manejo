@@ -5,15 +5,30 @@ import { API_CONFIG } from "@/config/api.config";
 const handleResponse = async (apiCall) => {
   try {
     const response = await apiCall();
-    console.log(response.data)
     return { success: true, data: response.data };
   } catch (error) {
     console.log(error)
     return {
       success: false,
-      error: error.response?.data?.mensaje || error.message,
-      status: error.response?.status,
+      error: getErrorMessage(error),
     };
+  }
+};
+// Función para obtener mensajes de error
+export const getErrorMessage = (error) => {
+  const status = error.response?.status;
+  
+  switch (status) {
+    case 401:
+      return "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+    case 403:
+      return "No tienes permisos para realizar esta acción.";
+    case 404:
+      return "El recurso solicitado no fue encontrado.";
+    case 500:
+      return "Error interno del servidor. Por favor, intenta más tarde.";
+    default:
+      return error.response?.data?.mensaje || error.message || "Ha ocurrido un error inesperado.";
   }
 };
 

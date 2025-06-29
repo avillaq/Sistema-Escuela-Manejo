@@ -131,7 +131,7 @@ export const Paquetes = () => {
       key: "actions",
       label: "ACCIONES",
       render: (p) => (
-        <div className="flex gap-2 justify-center w-[120px]">
+        <div className="flex gap-2 justify-start">
           <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
             <Icon icon="lucide:eye" width={16} height={16} />
           </Button>
@@ -142,9 +142,7 @@ export const Paquetes = () => {
             <Icon icon="lucide:trash" width={16} height={16} />
           </Button>
         </div>
-      ),
-      className: "text-center",
-      headerClassName: "text-center"
+      )
     }
   ];
 

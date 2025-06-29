@@ -206,7 +206,7 @@ export const Autos = () => {
       key: "actions",
       label: "ACCIONES",
       render: (auto) => (
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-start">
           <Button
             isIconOnly
             size="sm"

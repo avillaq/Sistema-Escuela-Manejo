@@ -13,7 +13,6 @@ const handleResponse = async (apiCall) => {
       success: false,
       error: error.response?.data?.mensaje || error.message,
       status: error.response?.status,
-      validationErrors: error.response?.data
     };
   }
 };
@@ -69,7 +68,7 @@ export const authService = {
     return handleResponse(() => api.post(API_CONFIG.endpoints.auth.login, payload));
   },
   logout: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.logout)),
-  getCurrentUser: () => handleResponse(() => api.get(API_CONFIG.endpoints.auth.me))
+  refresh: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.refresh))
 };
 
 // Servicio de paquetes

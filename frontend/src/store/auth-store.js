@@ -32,17 +32,27 @@ export const useAuthStore = create()(
             activo: data.user.activo
           }
         });
-        localStorage.setItem('token', data.access_token);
       },
+
+      updateToken: (newToken) => {
+        set({ token: newToken });
+      },
+
       logout: () => {
         set({
           isAuthenticated: false,
           id: null,
           rol: '',
           token: null,
-          user: null
+          user: {
+            nombre: '',
+            apellidos: '',
+            dni: '',
+            telefono: '',
+            email: '',
+            activo: false
+          }
         });
-        localStorage.removeItem('token');
       }
     }),
     {

@@ -78,12 +78,19 @@ export const authService = {
   login: (username, password) => {
     const payload = {
       nombre_usuario: username,
-      contraseña: password
+      contrasena: password
     };
     return handleResponse(() => api.post(API_CONFIG.endpoints.auth.login, payload));
   },
   logout: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.logout)),
-  refresh: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.refresh))
+  refresh: () => handleResponse(() => api.post(API_CONFIG.endpoints.auth.refresh)),
+  cambioContrasena: (actualContrasena, nuevaContrasena) => {
+    const payload = {
+      contrasena_actual: actualContrasena,
+      contrasena_nueva: nuevaContrasena
+    };
+    return handleResponse(() => api.post(API_CONFIG.endpoints.auth.cambio_contrasena, payload));
+  }
 };
 
 // Servicio de paquetes

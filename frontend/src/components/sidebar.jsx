@@ -66,7 +66,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             Configuración
           </div>
           <nav className="space-y-1 px-2">
-            <NavItem to="/settings" icon="lucide:settings" label={isOpen ? 'Settings' : ''} onClick={handleNavClick} />
+            <NavItem to="/configuraciones" icon="lucide:settings" label={isOpen ? 'Configuración' : ''} onClick={handleNavClick} />
           </nav>
         </>
       );
@@ -81,6 +81,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
             <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} onClick={handleNavClick} />
             <NavItem to="/mi-calendario" icon="lucide:calendar" label={isOpen ? 'Mi Calendario' : ''} onClick={handleNavClick} />
           </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Configuración
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/configuraciones" icon="lucide:settings" label={isOpen ? 'Configuración' : ''} onClick={handleNavClick} />
+          </nav>
         </>
       );
     }
@@ -93,6 +99,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
           <nav className="space-y-1 px-2">
             <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} onClick={handleNavClick} />
             <NavItem to="/mis-tickets" icon="lucide:ticket" label={isOpen ? 'Mis Tickets' : ''} onClick={handleNavClick} />
+          </nav>
+          <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
+            Configuración
+          </div>
+          <nav className="space-y-1 px-2">
+            <NavItem to="/configuraciones" icon="lucide:settings" label={isOpen ? 'Configuración' : ''} onClick={handleNavClick} />
           </nav>
         </>
       );

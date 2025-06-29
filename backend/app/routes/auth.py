@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
 import flask_praetorian
 from app.extensions import guard, blacklist
-from app.schemas.login import LoginSchema
+from app.schemas.login import LoginSchema, CambioContrasenaSchema
 from app.models import Alumno, Instructor, Administrador
 from werkzeug.exceptions import BadRequest
+from app.extensions import db
 
 auth_bp = Blueprint("auth", __name__)
 login_schema = LoginSchema()
+cambio_contrasena_schema = CambioContrasenaSchema()
 
 def get_user_data(usuario):
     user_models = {
@@ -40,7 +42,7 @@ def login():
     if errors:
         return jsonify(errors), 400
 
-    usuario = guard.authenticate(data["nombre_usuario"], data["contraseña"])
+    usuario = guard.authenticate(data["nombre_usuario"], data["contrasena"])
     token = guard.encode_jwt_token(usuario)
     
     user_data = get_user_data(usuario)
@@ -69,3 +71,32 @@ def logout():
     data = guard.extract_jwt_token(token)
     blacklist.add_token(token, data["exp"])
     return jsonify({"message": "Logout exitoso"}), 200
+
+@auth_bp.route("/cambio-contrasena", methods=["POST"])
+@flask_praetorian.auth_required
+def cambio_contrasena():
+    try:
+        data = request.get_json()
+        errors = cambio_contrasena_schema.validate(data)
+        if errors:
+            raise BadRequest("Datos de cambio de contraseña inválidos")
+
+        # Obtener el usuario actual
+        current_user = flask_praetorian.current_user()
+        
+        # Verificar la contraseña actual
+        if not guard._verify_password(data["contrasena_actual"], current_user.contraseña_hash):
+            raise BadRequest("Contraseña actual incorrecta")
+        
+        # Cambiar la contraseña
+        current_user.contraseña_hash = guard.hash_password(data["contrasena_nueva"])
+        db.session.commit()
+        
+        return jsonify({"mensaje": "Contraseña actualizada exitosamente"}), 200
+        
+    except BadRequest:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        raise BadRequest("Error interno del servidor")

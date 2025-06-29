@@ -1,9 +1,9 @@
-import { Card, CardBody, Tabs, Tab, Input, Button, Switch } from '@heroui/react';
+import { Card, CardBody, Tabs, Tab } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
-import { PageHeader } from '@/components';
+import { PageHeader, CambioContrasenaForm } from '@/components';
 
-export const Settings = () => {
+export const Configuraciones = () => {
   const [selectedTab, setSelectedTab] = useState("seguridad");
 
   return (
@@ -32,31 +32,10 @@ export const Settings = () => {
               }
             >
               <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Cambiar Contraseña</h3>
-                <div className="space-y-4">
-                  <Input
-                    label="Contraseña Actual"
-                    placeholder="Ingrese su contraseña actual"
-                    type="password"
-                  />
-                  <Input
-                    label="Nueva Contraseña"
-                    placeholder="Ingrese su nueva contraseña"
-                    type="password"
-                  />
-                  <Input
-                    label="Confirmar Nueva Contraseña"
-                    placeholder="Confirme su nueva contraseña"
-                    type="password"
-                  />
-                </div>
-                <div className="mt-6 flex justify-end gap-2">
-                  <Button variant="flat">Cancelar</Button>
-                  <Button color="primary">Guardar</Button>
-                </div>
+                <CambioContrasenaForm />
               </div>
             </Tab>
-            <Tab
+            {/* <Tab
               key="notificaciones"
               title={
                 <div className="flex items-center gap-2">
@@ -81,7 +60,7 @@ export const Settings = () => {
                   <Button color="primary">Guardar</Button>
                 </div>
               </div>
-            </Tab>
+            </Tab> */}
           </Tabs>
         </CardBody>
       </Card>

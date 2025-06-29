@@ -27,3 +27,4 @@ export { PageHeader } from './PageHeader';
 export { LoadingSpinner } from './LoadingSpinner';
 export { TemaSwitcher } from './TemaSwitcher';
 export { Tabla } from './Tabla';
+export { CambioContrasenaForm } from './CambioContrasenaForm';

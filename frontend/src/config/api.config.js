@@ -7,6 +7,7 @@ export const API_CONFIG = {
       login: '/auth/login',
       logout: '/auth/logout',
       refresh: '/auth/refresh',
+      cambio_contrasena: '/auth/cambio-contrasena',
     },
     // Usuarios
     alumnos: {

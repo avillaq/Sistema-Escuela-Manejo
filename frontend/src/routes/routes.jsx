@@ -20,7 +20,7 @@ import { Asistencias } from '@/pages/admin/Asistencias';
 import { Tickets } from '@/pages/admin/Tickets';
 import { Autos } from '@/pages/admin/Autos';
 import { Paquetes } from '@/pages/admin/Paquetes';
-import { Settings } from '@/pages/admin/Settings';
+import { Configuraciones } from '@/pages/Configuraciones';
 
 // Rutas para el alumno
 import { MiCalendario } from '@/pages/alumno/MiCalendario';
@@ -28,8 +28,8 @@ import { MiCalendario } from '@/pages/alumno/MiCalendario';
 // Rutas para el instructor
 import { MisTickets } from '@/pages/instructor/MisTickets';
 
-const ToDashboard = () => { 
-  return <Navigate to="/dashboard" replace />; 
+const ToDashboard = () => {
+  return <Navigate to="/dashboard" replace />;
 };
 
 // Rutas publicas
@@ -63,7 +63,7 @@ export const protectedRoutes = [
     path: '/instructores',
     element: <ProtectedRoute requiredRole="admin"><Instructores /></ProtectedRoute>,
 
-  }, 
+  },
   {
     path: '/administradores',
     element: <ProtectedRoute requiredRole="admin"><Administradores /></ProtectedRoute>,
@@ -109,12 +109,12 @@ export const protectedRoutes = [
     element: <ProtectedRoute requiredRole="admin"><Paquetes /></ProtectedRoute>,
   },
   {
-    path: '/settings',
-    element: <ProtectedRoute requiredRole="admin"><Settings /></ProtectedRoute>,
+    path: '/configuraciones',
+    element: <ProtectedRoute><Configuraciones /></ProtectedRoute>,
   },
   {
-  path: '/mi-calendario',
-  element: <ProtectedRoute requiredRole="alumno"><MiCalendario /></ProtectedRoute>,
+    path: '/mi-calendario',
+    element: <ProtectedRoute requiredRole="alumno"><MiCalendario /></ProtectedRoute>,
   },
   {
     path: '/mis-tickets',

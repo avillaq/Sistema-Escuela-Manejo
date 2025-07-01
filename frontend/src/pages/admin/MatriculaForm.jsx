@@ -21,7 +21,6 @@ import { PageHeader } from '@/components';
 
 export const MatriculaForm = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     alumno: null,

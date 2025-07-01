@@ -1,5 +1,4 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { API_CONFIG } from "@/config/api.config";
 
 export const api = axios.create({

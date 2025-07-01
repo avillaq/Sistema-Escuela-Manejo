@@ -24,6 +24,7 @@ import { Configuraciones } from '@/pages/Configuraciones';
 
 // Rutas para el alumno
 import { MiCalendario } from '@/pages/alumno/MiCalendario';
+import { MisAsistencias } from '@/pages/alumno/MisAsistencias';
 
 // Rutas para el instructor
 import { MisTickets } from '@/pages/instructor/MisTickets';
@@ -115,6 +116,10 @@ export const protectedRoutes = [
   {
     path: '/mi-calendario',
     element: <ProtectedRoute requiredRole="alumno"><MiCalendario /></ProtectedRoute>,
+  },
+  {
+    path: '/mis-asistencias',
+    element: <ProtectedRoute requiredRole="alumno"><MisAsistencias /></ProtectedRoute>,
   },
   {
     path: '/mis-tickets',

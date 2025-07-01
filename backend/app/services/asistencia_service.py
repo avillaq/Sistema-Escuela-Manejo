@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from app.models import Reserva, Asistencia, Ticket, Bloque
+from app.models import Reserva, Asistencia, Ticket, Bloque, Matricula, Alumno
 from app.extensions import db
 from sqlalchemy import func, and_
 from werkzeug.exceptions import BadRequest
@@ -8,7 +8,6 @@ def registrar_asistencia(data):
     reserva = Reserva.query.get_or_404(data["id_reserva"])
     matricula = reserva.matricula
     asistio = data.get("asistio", True)
-    alumno = matricula.alumno
     # Verificar si ya existe un registro de asistencia
     asistencia_existente = Asistencia.query.filter_by(id_reserva=reserva.id).first()
     if asistencia_existente:
@@ -27,10 +26,10 @@ def registrar_asistencia(data):
         raise BadRequest(f"No se puede registrar asistencia. El bloque inició a las {hora_inicio_bloque.strftime('%H:%M')} y la tolerancia es de 15 minutos.")
 
     hoy = datetime.today()
+    if matricula.fecha_limite < hoy:
+        raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
+    
     if asistio:
-        if matricula.fecha_limite < hoy:
-            raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
-
         # Verificar si el instructor ya tiene una clase programada en ese horario
         instructor_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(
             and_(
@@ -59,20 +58,20 @@ def registrar_asistencia(data):
         if auto_ocupado:
             raise BadRequest("El auto ya está asignado a otra clase en ese horario")
 
-        total_asistencias = matricula.horas_completadas
-        nuevo_numero_clase = total_asistencias + 1
+    total_asistencias = matricula.horas_completadas
+    nuevo_numero_clase = total_asistencias + 1
 
-        if matricula.tipo_contratacion == "paquete" and matricula.paquete:
-            total_clases = matricula.paquete.horas_total
-        elif matricula.tipo_contratacion == "por_hora":
-            total_clases = matricula.horas_contratadas
-        else:
-            total_clases = float("inf")
-        if nuevo_numero_clase > total_clases:
-            raise BadRequest(f"El alumno ya completó las {total_clases} horas contratadas")
+    if matricula.tipo_contratacion == "paquete" and matricula.paquete:
+        total_clases = matricula.paquete.horas_total
+    elif matricula.tipo_contratacion == "por_hora":
+        total_clases = matricula.horas_contratadas
+    else:
+        total_clases = float("inf")
+    if nuevo_numero_clase > total_clases:
+        raise BadRequest(f"El alumno ya completó las {total_clases} horas contratadas")
 
-        if nuevo_numero_clase >= 5 and matricula.estado_pago != "completo":
-            raise BadRequest("El alumno debe completar el pago antes de tomar la quinta clase")
+    if nuevo_numero_clase >= 5 and matricula.estado_pago != "completo":
+        raise BadRequest("El alumno debe completar el pago antes de tomar la quinta clase")
 
     asistencia = Asistencia(
         id_reserva=reserva.id,
@@ -83,7 +82,10 @@ def registrar_asistencia(data):
     db.session.flush() 
     
     ticket = None
+    print(f"asistio: {asistio}")
     if asistio:
+        print(f"n de clase: {nuevo_numero_clase}")
+        
         ticket = Ticket(
             id_asistencia=asistencia.id,
             numero_clase_alumno=nuevo_numero_clase,
@@ -92,17 +94,36 @@ def registrar_asistencia(data):
         )
         db.session.add(ticket)
 
-        # Actualizar horas completadas en la matricula
-        matricula.horas_completadas = nuevo_numero_clase
-            
-        if matricula.estado_clases != "completado":
-            # Cambiar a "en_progreso" si aún no lo está
-            if matricula.estado_clases == "pendiente":
-                matricula.estado_clases = "en_progreso"
-            
-            # Si esta es la última clase del paquete, marcar como completado
-            if nuevo_numero_clase >= total_clases:
-                matricula.estado_clases = "completado"
+    # Actualizar horas completadas en la matricula, ya sea que asistió o no
+    matricula.horas_completadas = nuevo_numero_clase
+        
+    if matricula.estado_clases != "completado":
+        # Cambiar a "en_progreso" si aún no lo está
+        if matricula.estado_clases == "pendiente":
+            matricula.estado_clases = "en_progreso"
+        
+        # Si esta es la última clase del paquete, marcar como completado
+        if nuevo_numero_clase >= total_clases:
+            matricula.estado_clases = "completado"
 
     db.session.commit()
     return asistencia, ticket
+
+def listar_asistencias(id_usuario=None):
+    # Obtener alumno actual
+    alumno = Alumno.query.filter_by(id_usuario=id_usuario).first()
+    
+    asistencias = db.session.query(
+        Asistencia.id,
+        Asistencia.asistio,
+        Bloque.fecha.label('fecha_clase'),
+        Bloque.hora_inicio,
+        Bloque.hora_fin,
+    ).select_from(Asistencia)\
+    .join(Reserva, Asistencia.id_reserva == Reserva.id)\
+    .join(Bloque, Reserva.id_bloque == Bloque.id)\
+    .join(Matricula, Reserva.id_matricula == Matricula.id)\
+    .filter(Matricula.id_alumno == alumno.id)\
+    .order_by(Bloque.fecha.desc(), Bloque.hora_inicio.desc()).all()
+
+    return asistencias

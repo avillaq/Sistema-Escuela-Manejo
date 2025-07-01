@@ -131,6 +131,7 @@ export const reservasService = {
 // Servicio de Asistencias
 export const asistenciasService = {
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.asistencias}/`, data)),
+  getMisAsistencias: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.asistencias}/`))
 };
 
 // Servicio de Tickets

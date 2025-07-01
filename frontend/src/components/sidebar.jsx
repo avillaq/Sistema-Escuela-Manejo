@@ -80,6 +80,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
           <nav className="space-y-1 px-2">
             <NavItem to="/dashboard" icon="lucide:home" label={isOpen ? 'Dashboard' : ''} onClick={handleNavClick} />
             <NavItem to="/mi-calendario" icon="lucide:calendar" label={isOpen ? 'Mi Calendario' : ''} onClick={handleNavClick} />
+            <NavItem to="/mis-asistencias" icon="lucide:list-checks" label={isOpen ? 'Mis Asistencias' : ''} onClick={handleNavClick} />
           </nav>
           <div className={`px-3 my-2 text-xs font-medium text-default-500 uppercase ${!isOpen && 'md:hidden'}`}>
             Configuración

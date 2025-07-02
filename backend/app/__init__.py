@@ -14,6 +14,7 @@ from .routes.bloques import bloques_bp
 from .routes.tickets import tickets_bp
 from .routes.reportes import reportes_bp
 from .routes.paquetes import paquetes_bp
+from .routes.admin_tareas import admin_tareas_bp
 from .error_handlers import register_error_handlers
 
 def create_app():
@@ -44,5 +45,6 @@ def create_app():
     app.register_blueprint(tickets_bp, url_prefix="/api/tickets")
     app.register_blueprint(reportes_bp, url_prefix="/api/reportes")
     app.register_blueprint(paquetes_bp, url_prefix="/api/paquetes")
+    app.register_blueprint(admin_tareas_bp, url_prefix="/api/admin-tareas")
 
     return app

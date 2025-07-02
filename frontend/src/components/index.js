@@ -1,6 +1,6 @@
 // Layout
-export { Header } from './Header';
 export { Sidebar } from './Sidebar';
+export { Header } from './Header';
 
 // Dashboard
 export { StatCard } from './dashboard/StatCard';

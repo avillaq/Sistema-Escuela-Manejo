@@ -23,7 +23,6 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 marshmallow==4.0.0
 mdurl==0.1.2
-mysqlclient==2.2.7
 ordered-set==4.1.0
 packaging==25.0
 passlib==1.7.4
@@ -32,6 +31,7 @@ psycopg2==2.9.10
 py-buzz==4.2.0
 Pygments==2.19.1
 PyJWT==2.10.1
+PyMySQL==1.1.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 rich==13.9.4

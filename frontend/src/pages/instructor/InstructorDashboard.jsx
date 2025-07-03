@@ -8,8 +8,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { ticketsService } from '@/service/apiService';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PageHeader } from '@/components/PageHeader';
-import { ActivityCard } from '@/components/dashboard/ActivityCard';
-import { ActivityItem } from '@/components/dashboard/ActivityItem';
+import { ActivityCard, ActivityItem } from '@/components/dashboard/ActivityCard';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { InfoCard } from '@/components/dashboard/InfoCard';
 

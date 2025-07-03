@@ -23,6 +23,7 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 marshmallow==4.0.0
 mdurl==0.1.2
+mysqlclient==2.2.7
 ordered-set==4.1.0
 packaging==25.0
 passlib==1.7.4

@@ -35,9 +35,10 @@ def poblar_db():
             
             print(f"Tipos de auto agregados: mecánico (ID: {tipo_mecanico.id}), automático (ID: {tipo_automatico.id})")
         
-        tipo_mecanico = TipoAuto.query.filter_by(tipo='mecánico').first()
-        tipo_automatico = TipoAuto.query.filter_by(tipo='automático').first()
-        
+        tipo_mecanico = TipoAuto.query.filter_by(tipo='Mecánico').first()
+        tipo_automatico = TipoAuto.query.filter_by(tipo='Automático').first()
+        print(f"Tipo mecánico: {tipo_mecanico}, Tipo automático: {tipo_automatico}")
+
         #paquetes
         if Paquete.query.count() > 0:
             print("Ya existen paquetes en la base de datos. Saltando...")

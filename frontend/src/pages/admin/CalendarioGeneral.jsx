@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import {
   addToast
 } from '@heroui/react';
-import { CalendarioBase, PageHeader, StatCard } from '@/components';
+import { CalendarioBase } from '@/components/calendario/CalendarioBase';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
 import { reservasService } from '@/service/apiService';
 
 export const CalendarioGeneral = () => {

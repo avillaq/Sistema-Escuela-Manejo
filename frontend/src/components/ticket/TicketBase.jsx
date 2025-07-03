@@ -9,7 +9,11 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, TicketViewModal, PageHeader, StatCard, LoadingSpinner } from '@/components';
+import { Tabla } from '@/components/Tabla';
+import { TicketViewModal } from '@/components/ticket/TicketViewModal';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ticketsService } from '@/service/apiService';
 
 export const TicketBase = ({

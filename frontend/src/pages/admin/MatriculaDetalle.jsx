@@ -10,15 +10,13 @@ import {
 import { Icon } from '@iconify/react';
 import { PagoModal } from '@/pages/admin/PagoModal';
 import { matriculasService } from '@/service/apiService';
-import { 
-  PageHeader, 
-  LoadingSpinner, 
-  InfoCard, 
-  MatriculaCard, 
-  FinancialCard,
-  ActivityCard,
-  ActivityItem
-} from '@/components';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
+import { ActivityCard } from '@/components/dashboard/ActivityCard';
+import { ActivityItem } from '@/components/dashboard/ActivityItem';
+import { MatriculaCard } from '@/components/dashboard/MatriculaCard';
+import { FinancialCard } from '@/components/dashboard/FinancialCard';
+import { InfoCard } from '@/components/dashboard/InfoCard';
 
 export const MatriculaDetalle = () => {
   const navigate = useNavigate();

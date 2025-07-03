@@ -1,7 +1,8 @@
 import { Card, CardBody, Tabs, Tab } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
-import { PageHeader, CambioContrasenaForm } from '@/components';
+import { PageHeader } from '@/components/PageHeader';
+import { CambioContrasenaForm } from '@/components/CambioContrasenaForm';
 
 export const Configuraciones = () => {
   const [selectedTab, setSelectedTab] = useState("seguridad");

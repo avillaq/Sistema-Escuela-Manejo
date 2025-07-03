@@ -6,14 +6,12 @@ import {
 import { Icon } from '@iconify/react';
 import { useAuthStore } from '@/store/auth-store';
 import { ticketsService } from '@/service/apiService';
-import {
-  LoadingSpinner,
-  PageHeader,
-  ActivityCard,
-  ActivityItem,
-  EmptyState,
-  InfoCard
-} from '@/components';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
+import { ActivityCard } from '@/components/dashboard/ActivityCard';
+import { ActivityItem } from '@/components/dashboard/ActivityItem';
+import { EmptyState } from '@/components/dashboard/EmptyState';
+import { InfoCard } from '@/components/dashboard/InfoCard';
 
 export const InstructorDashboard = () => {
   const { id, user } = useAuthStore();

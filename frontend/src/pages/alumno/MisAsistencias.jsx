@@ -5,7 +5,10 @@ import {
   CardHeader,
   Chip
 } from '@heroui/react';
-import { Tabla, PageHeader, LoadingSpinner, StatCard } from '@/components';
+import { Tabla } from '@/components/Tabla';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { asistenciasService } from '@/service/apiService';
 
 export const MisAsistencias = () => {

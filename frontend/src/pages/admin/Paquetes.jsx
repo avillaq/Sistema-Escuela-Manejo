@@ -8,7 +8,10 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader, StatCard, LoadingSpinner } from '@/components';
+import { Tabla } from '@/components/Tabla';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PaqueteFormModal } from './PaqueteFormModal';
 import { PaqueteViewModal } from './PaqueteViewModal';
 import { PaqueteDeleteModal } from './PaqueteDeleteModal';

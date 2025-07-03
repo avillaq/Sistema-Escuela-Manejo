@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router';
 import { Icon } from '@iconify/react';
 import { Divider } from '@heroui/react';
-import { TemaSwitcher } from '@/components';
+import { TemaSwitcher } from '@/components/TemaSwitcher';
 import { useAuthStore } from '@/store/auth-store';
 
 const NavItem = ({ to, icon, label, onClick }) => {

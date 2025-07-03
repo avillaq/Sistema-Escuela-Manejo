@@ -17,7 +17,7 @@ import { alumnosService } from '@/service/apiService';
 import { paquetesService } from '@/service/apiService';
 import { matriculasService } from '@/service/apiService';
 import { pagosService } from '@/service/apiService';
-import { PageHeader } from '@/components';
+import { PageHeader } from '@/components/PageHeader';
 
 export const MatriculaForm = () => {
   const navigate = useNavigate();

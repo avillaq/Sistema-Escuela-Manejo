@@ -8,7 +8,8 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioModal, LoadingSpinner } from '@/components';
+import { CalendarioModal } from '@/components/calendario/CalendarioModal';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { bloquesService, reservasService } from '@/service/apiService';
 
 // Constantes

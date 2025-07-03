@@ -12,7 +12,10 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { Tabla, PageHeader, StatCard, LoadingSpinner } from '@/components';
+import { Tabla } from '@/components/Tabla';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
 

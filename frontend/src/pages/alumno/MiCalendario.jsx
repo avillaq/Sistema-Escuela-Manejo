@@ -7,7 +7,9 @@ import {
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { CalendarioBase, PageHeader, LoadingSpinner } from '@/components';
+import { CalendarioBase } from '@/components/calendario/CalendarioBase';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { matriculasService } from '@/service/apiService';
 import { useAuthStore } from '@/store/auth-store';
 

@@ -12,7 +12,9 @@ import {
   AutocompleteItem
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { PageHeader,StatCard, LoadingSpinner } from '@/components';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { reservasService, asistenciasService, instructoresService, autosService } from '@/service/apiService';
 
 export const Asistencias = () => {

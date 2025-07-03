@@ -4,18 +4,16 @@ import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router';
 import { reportesService } from '@/service/apiService';
 import { useAuthStore } from '@/store/auth-store';
-import {
-  LoadingSpinner,
-  PageHeader,
-  StatCard,
-  SectionHeader,
-  ActivityCard,
-  ActivityItem,
-  EmptyState,
-  QuickActions,
-  AreaChartCard,
-  BarChartCard
-} from '@/components';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { SectionHeader } from '@/components/dashboard/SectionHeader';
+import { ActivityCard } from '@/components/dashboard/ActivityCard';
+import { ActivityItem } from '@/components/dashboard/ActivityItem';
+import { EmptyState } from '@/components/dashboard/EmptyState';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { AreaChartCard } from '@/components/dashboard/area-chart';
+import { BarChartCard } from '@/components/dashboard/bar-chart';
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();

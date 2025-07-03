@@ -1,4 +1,5 @@
-import { Sidebar, Header } from '@/components';
+import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/Header';
 import { useState, useEffect } from 'react';
 import { Outlet } from "react-router";
 

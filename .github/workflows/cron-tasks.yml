@@ -1,0 +1,26 @@
+name: Tareas Programadas
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Cada domingo 2AM
+  workflow_dispatch:
+
+jobs:
+  mantenimiento:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Generar Bloques
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"semanas": 2}' \
+          "${{ secrets.API_URL }}/api/admin-tareas/generar-bloques"
+    
+    - name: Limpiar Bloques
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          "${{ secrets.API_URL }}/api/admin-tareas/limpiar-bloques"

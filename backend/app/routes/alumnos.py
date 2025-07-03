@@ -4,8 +4,7 @@ from app.services.alumno_service import crear_alumno, listar_alumnos, actualizar
 import flask_praetorian
 from app.models.alumno import Alumno
 from app.models.matricula import Matricula
- 
-from app.email_util import enviar_correo 
+from app.services.email_service import email_service
 
 alumnos_bp = Blueprint('alumnos', __name__)
 
@@ -22,15 +21,7 @@ def registrar_alumno():
         return jsonify(errors), 400
     alumno = crear_alumno(data)  # primero se crea
     if alumno.email:
-        exito_envio = enviar_correo(
-            destinatario=alumno.email,
-            asunto="Registro exitoso en la escuela de conducción",
-            cuerpo=f"Hola {alumno.nombre}, tu registro fue exitoso. ¡Bienvenido!"
-        )
-        if not exito_envio:
-            return jsonify({
-                "mensaje": "Alumno registrado, pero no se pudo enviar el correo."
-            }), 201
+        email_service.enviar_bienvenida(alumno)
 
     return ver_schema.dump(alumno), 201
 

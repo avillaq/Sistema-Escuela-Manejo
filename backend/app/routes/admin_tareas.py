@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios, enviar_pagos_pendientes, enviar_recordatorio_reserva
+from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios
 
 admin_tareas_bp = Blueprint("admin_tareas", __name__)
 

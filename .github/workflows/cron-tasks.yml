@@ -2,58 +2,69 @@ name: Tareas Programadas
 
 on:
   schedule:
-    - cron: '0 7 * * 0'  # Cada domingo 2AM
+    - cron: '0 7 * * 0'   # Cada domingo 2AM
     - cron: '0 11 * * *'  # Cada día 6AM
-    - cron: '*/1 * * * *'
+    - cron: '*/1 * * * *' # Testing cada minuto
   workflow_dispatch:
 
 jobs:
   mantenimiento:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 2 * * 0' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 7 * * 0' || github.event_name == 'workflow_dispatch'
+    
     steps:
     - name: Generar Bloques
       run: |
+        echo "Generando bloques..."
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"semanas": 2}' \
           "${{ secrets.API_URL }}/api/admin-tareas/generar-bloques"
+        echo "Bloques generados ✅"
     
     - name: Limpiar Bloques
       run: |
+        echo "Limpiando bloques..."
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/limpiar-bloques"
+        echo "Bloques limpiados ✅"
 
   recordatorios-diarios:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 11 * * *' || github.event_name == 'workflow_dispatch'
 
     steps:
     - name: Enviar Recordatorios de Reservas
       run: |
+        echo "Enviando recordatorios de reservas..."
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
+        echo "Recordatorios enviados ✅"
         
     - name: Enviar Recordatorios de Pagos Pendientes
       run: |
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
+        echo "Enviando recordatorios de pagos..."
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
+        echo "Pagos recordados ✅"
+
   testing:
     runs-on: ubuntu-latest
     if: github.event.schedule == '*/1 * * * *'
     
     steps:
-    - name: Test Endpoints
+    - name: Test Envío de Emails
       run: |
+        echo "🧪 Testing emails cada minuto..."
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{"semanas": 1}' \
-          "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
+          "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
+        echo "Test completado ✅"

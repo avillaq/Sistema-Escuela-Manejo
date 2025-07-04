@@ -44,7 +44,6 @@ export const Administradores = () => {
         const result = await administradoresService.getAll();
         if (result.success) {
           setUserData(result.data);
-          console.log("Usuarios cargados:", result.data);
 
         } else {
           addToast({

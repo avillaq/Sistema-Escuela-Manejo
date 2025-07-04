@@ -25,7 +25,6 @@ export const MiCalendario = () => {
       const result = await matriculasService.getByAlumno(id);
 
       if (result.success) {
-        console.log("Matrícula activa:", result.data);
         setMatriculaActiva(result.data);
       } else {
         addToast({

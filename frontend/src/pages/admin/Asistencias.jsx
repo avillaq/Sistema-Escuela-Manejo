@@ -50,7 +50,6 @@ export const Asistencias = () => {
 
         if (reservasActualesResult.success) {
           setReservasActuales(reservasActualesResult.data);
-          console.log("Reservas actuales:", reservasActualesResult.data);
         } else {
           addToast({
             title: "Error al cargar reservas actuales",
@@ -62,8 +61,6 @@ export const Asistencias = () => {
 
         if (reservasResult.success) {
           setReservasHoy(reservasResult.data);
-          console.log("Reservas de hoy:", reservasResult.data);
-
         } else {
           addToast({
             title: "Error al cargar reservas",
@@ -248,8 +245,6 @@ export const Asistencias = () => {
         }
 
       } else {
-        console.log("Error al registrar asistencia:", result.validationErrors);
-
         addToast({
           title: "Error al registrar asistencia",
           description: result.error || "No se pudo registrar la asistencia.",

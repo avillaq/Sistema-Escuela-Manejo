@@ -76,10 +76,9 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
     } else if (!/^\d{9}$/.test(formData.telefono)) {
       newErrors.telefono = 'El teléfono debe tener 9 números';
     }
-    console.log("Datos a enviar:", formData);
-    //if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    //  newErrors.email = 'El email debe ser válido';
-    //} 
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'El email debe ser válido';
+    } 
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -100,8 +99,7 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
           }));
           onOpenChange(false);
         } else {
-          console.log(result.validationErrors);
-          alert(result.message || 'Error al actualizar el usuario');
+          alert(result.error || 'Error al actualizar el usuario');
         }
 
         const updatedUser = {
@@ -117,7 +115,6 @@ export const UserFormModal = ({ isOpen, onOpenChange, onAddUser, editMode = fals
           onAddUser(result.data);
           onOpenChange(false);
         } else {
-          
           addToast({
             title: "Error al crear el usuario",
             description: result.error,

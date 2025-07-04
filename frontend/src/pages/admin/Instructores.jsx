@@ -44,8 +44,6 @@ export const Instructores = () => {
         const result = await instructoresService.getAll();
         if (result.success) {
           setUserData(result.data);
-          console.log("Usuarios cargados:", result.data);
-
         } else {
           addToast({
             title: "Error al cargar usuarios",

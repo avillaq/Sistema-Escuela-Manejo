@@ -112,7 +112,6 @@ export const AdminDashboard = () => {
   }
 
   const stats = dashboardData?.estadisticas_generales || {};
-  console.log(stats)
 
   return (
     <div className="space-y-6">

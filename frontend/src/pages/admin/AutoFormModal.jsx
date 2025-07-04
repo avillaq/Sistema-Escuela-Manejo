@@ -101,7 +101,6 @@ export const AutoFormModal = ({ isOpen, onOpenChange, onAddAuto, editMode = fals
 
       let dataEnviar = { ...formData };
       delete dataEnviar.tipo_auto;
-      console.log ("Datos a enviar", dataEnviar)
       if (editMode && dataInicial) {
         // Actualizar auto existente
         delete dataEnviar.placa;
@@ -113,7 +112,6 @@ export const AutoFormModal = ({ isOpen, onOpenChange, onAddAuto, editMode = fals
           }));
           onOpenChange(false);
         } else {
-          console.log(result.validationErrors);
           alert(result.message || 'Error al actualizar el auto');
         }
         const updatedAuto = {
@@ -136,10 +134,6 @@ export const AutoFormModal = ({ isOpen, onOpenChange, onAddAuto, editMode = fals
           color: "danger",
           });
         }
-        /*{
-          console.log(result.validationErrors);
-          alert(result.validationErrors.placa || 'Error al añadir el auto');
-        }*/
       }
     }
     setIsLoading(false);

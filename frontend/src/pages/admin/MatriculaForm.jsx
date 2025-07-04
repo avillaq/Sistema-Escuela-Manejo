@@ -180,12 +180,9 @@ export const MatriculaForm = () => {
           }
         ),
       };
-      console.log('Datos de matrícula:', matriculaData);
-
 
       const matriculaResult = await matriculasService.create(matriculaData);
       if (matriculaResult.success) {
-        console.log('Matrícula creada:', matriculaResult.data);
         const pagoData = {
           id_matricula: matriculaResult.data.id,
           monto: parseFloat(formData.monto_pago)
@@ -193,7 +190,6 @@ export const MatriculaForm = () => {
 
         const pagoResult = await pagosService.create(pagoData);
         if (pagoResult.success) {
-          console.log('Pago registrado:', pagoResult.data);
         } else {
           addToast({
             title: "Error al registrar pago",
@@ -222,8 +218,6 @@ export const MatriculaForm = () => {
 
       navigate('/matriculas');
     } catch (error) {
-      console.log('Error al procesar matrícula:', error);
-
       addToast({
         title: "Error",
         description: "Ha ocurrido un error al procesar la matrícula.",

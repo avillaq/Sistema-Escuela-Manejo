@@ -41,8 +41,6 @@ export const Matriculas = () => {
         const result = await matriculasService.getAll();
         if (result.success) {
           setMatriculasData(result.data);
-          console.log("Matriculas cargadas:", result.data);
-
         } else {
           addToast({
             title: "Error al cargar  las matrículas",

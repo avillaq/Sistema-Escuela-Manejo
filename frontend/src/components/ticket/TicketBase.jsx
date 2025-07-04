@@ -37,7 +37,6 @@ export const TicketBase = ({
         const result = id_instructor ? await ticketsService.getByInstructor(id_instructor) : await ticketsService.getAll();
         if (result.success) {
           setTickets(result.data);
-          console.log("Tickets cargados:", result.data);
         } else {
           addToast({
             title: "Error al cargar tickets",

@@ -92,7 +92,7 @@ export const LoginPage = () => {
         } else {
           addToast({
             title: "Error de Acceso",
-            description: "Usuario o contraseña incorrectos.",
+            description: result.error || "Usuario o contraseña incorrectos.",
             severity: "danger",
             color: "danger",
           });

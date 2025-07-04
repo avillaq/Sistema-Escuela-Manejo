@@ -20,7 +20,14 @@ export const getErrorMessage = (error) => {
   
   switch (status) {
     case 401:
-      return "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+      const type = error.response?.data.error;
+      if (type === "AuthenticationError") {
+        return "Usuario o contraseña incorrectos."
+      } else if (type === "ExpiredAccessError" || type === "ExpiredRefreshError") {
+        return "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+      } else {
+        return "No autorizado. Por favor, inicia sesión nuevamente.";
+      }
     case 403:
       return "No tienes permisos para realizar esta acción.";
     case 404:

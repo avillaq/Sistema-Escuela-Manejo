@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 import flask_praetorian
 from app.schemas.bloque import BloqueSchema
 from app.services.bloque_service import obtener_bloques_semanal
+from app.extensions import cache
 
 bloques_bp = Blueprint("bloques", __name__)
 ver_schema = BloqueSchema()
@@ -14,5 +15,11 @@ def obtener_bloques():
     id_alumno = request.args.get("id_alumno", type=int, default=None)  # Solo necesario si es admin
     semana_offset = request.args.get("semana", type=int, default=0)  # -1, 0, 1
 
-    bloques = obtener_bloques_semanal(id_alumno=id_alumno, por_admin=es_admin, semana_offset=semana_offset)
+    # cache basado en parametros
+    cache_key = f"bloques_semanal_{id_alumno}_{semana_offset}_{es_admin}"
+    bloques = cache.get(cache_key)
+    if bloques is None:
+        bloques = obtener_bloques_semanal(id_alumno=id_alumno, por_admin=es_admin, semana_offset=semana_offset)
+        cache.set(cache_key, bloques, timeout=180)  # 3 minutos
+
     return jsonify(ver_schema.dump(bloques, many=True)), 200

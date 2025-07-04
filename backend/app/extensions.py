@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_limiter import Limiter
+from flask_caching import Cache
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from flask_praetorian import Praetorian
@@ -24,13 +25,20 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+# Configuracion de caching
+cache = Cache(config={
+    "CACHE_TYPE": "simple",
+    "CACHE_DEFAULT_TIMEOUT": 300,
+    "CACHE_THRESHOLD": 50,  # max 50 items en cache
+})
+
 # Configracion para los CORS
 cors = CORS(
     resources={
         r"/api/*": {
             "origins": [
-                os.getenv('DEVELOPMENT_HOST'),
-                os.getenv('PRODUCTION_HOST')
+                os.getenv("DEVELOPMENT_HOST"),
+                os.getenv("PRODUCTION_HOST")
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],

@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import db, migrate, limiter, cors, guard, blacklist, mail
+from .extensions import db, migrate, limiter, cache, cors, guard, blacklist, mail
 from .models.usuario import Usuario
 from .routes.alumnos import alumnos_bp
 from .routes.auto import autos_bp
@@ -25,6 +25,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
+    cache.init_app(app)
     cors.init_app(app)
     guard.init_app(app, Usuario, is_blacklisted=blacklist.is_blacklisted)
     mail.init_app(app) 

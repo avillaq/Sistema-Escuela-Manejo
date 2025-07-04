@@ -3,7 +3,8 @@ from app.schemas.paquete import CrearPaqueteSchema, PaqueteSchema, ActualizarPaq
 from app.services.paquete_service import crear_paquete, listar_paquetes, actualizar_paquete, eliminar_paquete
 import flask_praetorian
 from app.models.paquete import Paquete
- 
+from app.extensions import cache
+
 paquetes_bp = Blueprint('paquetes', __name__)
 
 crear_schema = CrearPaqueteSchema()
@@ -19,10 +20,12 @@ def registrar_paquete():
         return jsonify(errors), 400
 
     paquete = crear_paquete(data)
+    cache.delete("paquetes_list")
     return ver_schema.dump(paquete), 201
 
 @paquetes_bp.route("/", methods=["GET"])
 @flask_praetorian.roles_required("admin")
+@cache.cached(timeout=1800, key_prefix="paquetes_list")
 def obtener_paquetes():
     paquetes = listar_paquetes() #TODO: Falta paginación
     return jsonify(ver_schema.dump(paquetes, many=True)), 200
@@ -42,10 +45,12 @@ def editar_paquete(paquete_id):
         return jsonify(errors), 400
 
     paquete = actualizar_paquete(paquete_id, data)
+    cache.delete("paquetes_list")
     return ver_schema.dump(paquete), 200
 
 @paquetes_bp.route("/<int:paquete_id>", methods=["DELETE"])
 @flask_praetorian.roles_required("admin")
 def eliminar_paquete_route(paquete_id):
     eliminar_paquete(paquete_id)
+    cache.delete("paquetes_list")
     return jsonify({"mensaje": "Paquete eliminado"}), 200

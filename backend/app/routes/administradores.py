@@ -3,6 +3,7 @@ from app.schemas.administrador import CrearAdministradorSchema, AdministradorSch
 from app.services.administrador_service import crear_administrador, actualizar_administrador, eliminar_administrador
 import flask_praetorian
 from app.models.administrador import Administrador
+from app.extensions import cache
  
 administradores_bp = Blueprint('administradores', __name__)
 
@@ -19,10 +20,12 @@ def registrar_administrador():
         return jsonify(errors), 400
 
     administrador = crear_administrador(data)
+    cache.delete("administradores_list")
     return ver_schema.dump(administrador), 201
 
 @administradores_bp.route("/", methods=["GET"])
 @flask_praetorian.roles_required("admin")
+@cache.cached(timeout=1800, key_prefix="administradores_list")
 def listar_administradores():
     administradores = Administrador.query.all() #TODO: Falta paginación pero como son pocos no es necesario creo
     return jsonify(ver_schema.dump(administradores, many=True)), 200
@@ -42,10 +45,12 @@ def editar_administrador(administrador_id):
         return jsonify(errors), 400
 
     administrador = actualizar_administrador(administrador_id, data)
+    cache.delete("administradores_list")
     return ver_schema.dump(administrador), 200
 
 @administradores_bp.route("/<int:administrador_id>", methods=["DELETE"])
 @flask_praetorian.roles_required("admin")
 def eliminar_administrador_route(administrador_id):
     eliminar_administrador(administrador_id)
+    cache.delete("administradores_list")
     return jsonify({"mensaje": "Administrador eliminado"}), 200

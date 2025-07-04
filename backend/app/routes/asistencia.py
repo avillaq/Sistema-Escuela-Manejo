@@ -2,8 +2,6 @@ from flask import Blueprint, request, jsonify
 from app.schemas.asistencia import CrearAsistenciaSchema
 from app.services.asistencia_service import registrar_asistencia, listar_asistencias
 import flask_praetorian
-from app.models import Asistencia, Reserva, Bloque, Matricula, Ticket, Alumno
-from app import db
 
 asistencias_bp = Blueprint("asistencias", __name__)
 crear_schema = CrearAsistenciaSchema()

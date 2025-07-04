@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios
-
+from app.extensions import limiter
 admin_tareas_bp = Blueprint("admin_tareas", __name__)
 
 # Funcion auxiliar para verificar el token de cron
@@ -17,6 +17,7 @@ def verificar_token_cron():
     return False, "Token inválido"
 
 @admin_tareas_bp.route("/generar-bloques", methods=["POST"])
+@limiter.limit("10 per hour") 
 def generar_bloques_ruta():
     try:
         # Verificar que sea admin o usar token especial
@@ -36,6 +37,7 @@ def generar_bloques_ruta():
         return jsonify({"error": str(e)}), 500
 
 @admin_tareas_bp.route("/limpiar-bloques", methods=["POST"])
+@limiter.limit("10 per hour") 
 def limpiar_bloques_ruta():
     try:
         valido, mensaje = verificar_token_cron()
@@ -53,6 +55,7 @@ def limpiar_bloques_ruta():
         return jsonify({"error": str(e)}), 500
     
 @admin_tareas_bp.route("/enviar-pagos-pendientes", methods=["POST"])
+@limiter.limit("60 per hour")
 def enviar_pagos_pendientes_ruta():
     try:
         valido, mensaje = verificar_token_cron()
@@ -70,6 +73,7 @@ def enviar_pagos_pendientes_ruta():
         return jsonify({"error": str(e)}), 500
     
 @admin_tareas_bp.route("/enviar-recordatorio-reserva", methods=["POST"])
+@limiter.limit("60 per hour")
 def enviar_recordatorio_reserva_ruta():
     try:
         valido, mensaje = verificar_token_cron()

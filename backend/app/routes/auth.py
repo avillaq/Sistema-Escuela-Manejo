@@ -4,7 +4,7 @@ from app.extensions import guard, blacklist
 from app.schemas.login import LoginSchema, CambioContrasenaSchema
 from app.models import Alumno, Instructor, Administrador
 from werkzeug.exceptions import BadRequest
-from app.extensions import db
+from app.extensions import db, limiter
 
 auth_bp = Blueprint("auth", __name__)
 login_schema = LoginSchema()
@@ -36,6 +36,7 @@ def get_user_data(usuario):
     }
 
 @auth_bp.route("/login", methods=["POST"])
+@limiter.limit("5 per minute")
 def login():
     data = request.get_json()
     errors = login_schema.validate(data)
@@ -56,6 +57,7 @@ def login():
     return jsonify(response_data), 200
 
 @auth_bp.route("/refresh", methods=["POST"])
+@limiter.limit("5 per minute")
 def refresh():
     old_token = guard.read_token_from_header()
     new_token = guard.refresh_jwt_token(old_token)
@@ -65,6 +67,7 @@ def refresh():
     return jsonify(response_data), 200
 
 @auth_bp.route("/logout", methods=["POST"])
+@limiter.limit("5 per minute")
 @flask_praetorian.auth_required
 def logout():
     token = guard.read_token_from_header()
@@ -73,6 +76,7 @@ def logout():
     return jsonify({"message": "Logout exitoso"}), 200
 
 @auth_bp.route("/cambio-contrasena", methods=["POST"])
+@limiter.limit("3 per minute") 
 @flask_praetorian.auth_required
 def cambio_contrasena():
     try:

@@ -3,8 +3,7 @@ name: Tareas Programadas
 on:
   schedule:
     - cron: '0 7 * * 0'   # Cada domingo 2AM
-    - cron: '0 11 * * *'  # Cada día 6AM
-    - cron: '*/1 * * * *' # Testing cada minuto
+    - cron: '0 11 * * *'  # Cada dia 6AM
   workflow_dispatch:
 
 jobs:
@@ -13,10 +12,17 @@ jobs:
     if: github.event.schedule == '0 7 * * 0' || github.event_name == 'workflow_dispatch'
     
     steps:
+    - name: Despertar Servidor
+      run: |
+        echo "Despertando servidor..."
+        curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
+        sleep 5
+        echo "✅ Servidor listo"
+    
     - name: Generar Bloques
       run: |
         echo "Generando bloques..."
-        curl -X POST \
+        curl --max-time 60 --connect-timeout 15 -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"semanas": 2}' \
@@ -26,7 +32,7 @@ jobs:
     - name: Limpiar Bloques
       run: |
         echo "Limpiando bloques..."
-        curl -X POST \
+        curl --max-time 60 --connect-timeout 15 -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/limpiar-bloques"
@@ -37,10 +43,17 @@ jobs:
     if: github.event.schedule == '0 11 * * *' || github.event_name == 'workflow_dispatch'
 
     steps:
+    - name: Despertar Servidor
+      run: |
+        echo "Despertando servidor..."
+        curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
+        sleep 5
+        echo "✅ Servidor listo"
+
     - name: Enviar Recordatorios de Reservas
       run: |
         echo "Enviando recordatorios de reservas..."
-        curl -X POST \
+        curl --max-time 60 --connect-timeout 15 -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
@@ -49,22 +62,8 @@ jobs:
     - name: Enviar Recordatorios de Pagos Pendientes
       run: |
         echo "Enviando recordatorios de pagos..."
-        curl -X POST \
+        curl --max-time 60 --connect-timeout 15 -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
-        echo "Pagos recordados ✅"
-
-  testing:
-    runs-on: ubuntu-latest
-    if: github.event.schedule == '*/1 * * * *'
-    
-    steps:
-    - name: Test Envío de Emails
-      run: |
-        echo "🧪 Testing emails cada minuto..."
-        curl -X POST \
-          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
-        echo "Test completado ✅"
+        echo "Pagos recordados ✅"   

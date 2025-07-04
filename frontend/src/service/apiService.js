@@ -25,6 +25,8 @@ export const getErrorMessage = (error) => {
       return "No tienes permisos para realizar esta acción.";
     case 404:
       return "El recurso solicitado no fue encontrado.";
+    case 429:
+      return "Has superado el límite de solicitudes. Por favor, espera un momento antes de intentar de nuevo.";
     case 500:
       return "Error interno del servidor. Por favor, intenta más tarde.";
     default:

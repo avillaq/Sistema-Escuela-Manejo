@@ -2,13 +2,15 @@ name: Tareas Programadas
 
 on:
   schedule:
-    - cron: '0 2 * * 0'  # Cada domingo 2AM
+    - cron: '0 7 * * 0'  # Cada domingo 2AM
+    - cron: '0 11 * * *'  # Cada día 6AM
+    - cron: '*/1 * * * *'
   workflow_dispatch:
 
 jobs:
   mantenimiento:
     runs-on: ubuntu-latest
-    
+    if: github.event.schedule == '0 2 * * 0' || github.event_name == 'workflow_dispatch'
     steps:
     - name: Generar Bloques
       run: |
@@ -24,3 +26,34 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           "${{ secrets.API_URL }}/api/admin-tareas/limpiar-bloques"
+
+  recordatorios-diarios:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Enviar Recordatorios de Reservas
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
+        
+    - name: Enviar Recordatorios de Pagos Pendientes
+      run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
+  testing:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '*/1 * * * *'
+    
+    steps:
+    - name: Test Endpoints
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"semanas": 1}' \
+          "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"

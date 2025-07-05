@@ -1,7 +1,9 @@
 from app.models.usuario import Usuario
 from app.models.alumno import Alumno
 from app.extensions import db, guard
+from app.models.matricula import Matricula
 from werkzeug.exceptions import BadRequest
+from sqlalchemy import or_, desc
 
 def crear_alumno(data):
     dni = data["dni"]
@@ -30,8 +32,60 @@ def crear_alumno(data):
     db.session.commit()
     return alumno
 
-def listar_alumnos():
-    return Alumno.query.all()  # TODO: agregar filtros y paginación
+def listar_alumnos(
+    page=1, 
+    per_page=20, 
+    busqueda=None, 
+    estado=None,
+    tiene_matricula=None
+):
+    query = Alumno.query
+    # Filtro por busqueda
+    if busqueda:
+        busqueda_like = f"%{busqueda.lower()}%"
+        query = query.filter(
+            or_(
+                Alumno.nombre.ilike(busqueda_like),
+                Alumno.apellidos.ilike(busqueda_like),
+                Alumno.dni.ilike(busqueda_like),
+                Alumno.email.ilike(busqueda_like)
+            )
+        )
+    
+    # Filtro por estado
+    if estado is not None:
+        query = query.filter(Alumno.activo == estado)
+    
+    # Filtro por matrícula
+    if tiene_matricula == "si":
+        query = query.join(Matricula).filter(Matricula.id.isnot(None))
+    elif tiene_matricula == "no":
+        query = query.outerjoin(Matricula).filter(Matricula.id.is_(None))
+    
+    # Ordenación
+    query = query.order_by(desc(Alumno.id))
+    
+    # Paginación
+    return query.paginate(
+        page=page, 
+        per_page=per_page, 
+        error_out=False
+    )
+
+def obtener_estadisticas_alumnos():
+    total = Alumno.query.count()
+    activos = Alumno.query.filter(Alumno.activo == True).count()
+    inactivos = Alumno.query.filter(Alumno.activo == False).count()
+    con_matricula = Alumno.query.join(Matricula).count()
+    sin_matricula = total - con_matricula
+    
+    return {
+        "total": total,
+        "activos": activos,
+        "inactivos": inactivos,
+        "con_matricula": con_matricula,
+        "sin_matricula": sin_matricula
+    }
 
 def actualizar_alumno(alumno_id, data):
     alumno = Alumno.query.get_or_404(alumno_id)

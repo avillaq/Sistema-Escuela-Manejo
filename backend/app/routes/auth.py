@@ -65,7 +65,7 @@ def refresh():
     return jsonify(response_data), 200
 
 @auth_bp.route("/logout", methods=["POST"])
-@flask_praetorian.auth_required
+#@flask_praetorian.auth_required
 def logout():
     token = guard.read_token_from_header()
     data = guard.extract_jwt_token(token)
@@ -73,7 +73,7 @@ def logout():
     return jsonify({"message": "Logout exitoso"}), 200
 
 @auth_bp.route("/cambio-contrasena", methods=["POST"])
-@flask_praetorian.auth_required
+#@flask_praetorian.auth_required
 def cambio_contrasena():
     try:
         data = request.get_json()

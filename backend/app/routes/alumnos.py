@@ -6,6 +6,7 @@ from app.models.alumno import Alumno
 from app.models.matricula import Matricula
  
 from app.email_util import enviar_correo 
+from app.emails.mensajes_alumno import mensaje_bienvenida
 
 alumnos_bp = Blueprint('alumnos', __name__)
 
@@ -14,7 +15,7 @@ ver_schema = AlumnoSchema()
 actualizar_schema = ActualizarAlumnoSchema()
 
 @alumnos_bp.route("/", methods=["POST"])
-@flask_praetorian.roles_required("admin")
+#@flask_praetorian.roles_required("admin")
 def registrar_alumno():
     data = request.get_json()
     errors = crear_schema.validate(data)
@@ -22,10 +23,11 @@ def registrar_alumno():
         return jsonify(errors), 400
     alumno = crear_alumno(data)  # primero se crea
     if alumno.email:
+        asunto, cuerpo = mensaje_bienvenida(alumno.nombre)
         exito_envio = enviar_correo(
             destinatario=alumno.email,
-            asunto="Registro exitoso en la escuela de conducción",
-            cuerpo=f"Hola {alumno.nombre}, tu registro fue exitoso. ¡Bienvenido!"
+            asunto=asunto,
+            cuerpo=cuerpo
         )
         if not exito_envio:
             return jsonify({

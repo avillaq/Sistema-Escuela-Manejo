@@ -3,6 +3,10 @@ from app.schemas.matricula import CrearMatriculaSchema, MatriculaSchema, Matricu
 from app.services.matricula_service import crear_matricula, listar_matriculas, eliminar_matricula
 import flask_praetorian
 
+from app.emails.mensajes_matricula import mensaje_matricula_creada
+from app.email_util import enviar_correo
+from app.models.alumno import Alumno
+
 matriculas_bp = Blueprint("matriculas", __name__)
 crear_schema = CrearMatriculaSchema()
 ver_schema = MatriculaSchema()
@@ -17,6 +21,28 @@ def registrar_matricula():
         return jsonify(errors), 400
 
     matricula = crear_matricula(data)
+    # Obtener info del alumno
+    alumno = Alumno.query.get(data['id_alumno'])
+    # Preparar datos del correo
+    paquete_info = None
+    if data.get("tipo_contratacion") == "paquete" and matricula.id_paquete:
+        paquete_info = {
+            "nombre": matricula.paquete.nombre,
+            "horas_total": matricula.paquete.horas_total,
+            "costo_total": matricula.paquete.costo_total
+        }
+    asunto, cuerpo = mensaje_matricula_creada(
+        nombre=f"{alumno.nombre} {alumno.apellidos}",
+        tipo_contratacion=matricula.tipo_contratacion,
+        categoria=matricula.categoria,
+        horas=matricula.horas_contratadas,
+        tarifa=matricula.tarifa_por_hora,
+        paquete=paquete_info,
+        fecha_matricula=matricula.fecha_matricula,
+        costo_total=matricula.costo_total
+    )
+    if alumno.email:
+        enviar_correo(alumno.email, asunto, cuerpo)
     return ver_schema.dump(matricula), 201
 
 @matriculas_bp.route("/", methods=["GET"])

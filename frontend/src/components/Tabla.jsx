@@ -1,17 +1,59 @@
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@heroui/react';
 import { useState, useMemo } from 'react';
 
-export function Tabla({ title, columns, data, rowKey }) {
+export function Tabla({ 
+  title, 
+  columns, 
+  data, 
+  rowKey, 
+  showPagination = true, 
+  isloading = false, 
+  loadingContent = null,
+  customPagination = null
+}) {
   const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 20;
 
   const pages = Math.ceil(data.length / rowsPerPage);
   const items = useMemo(() => {
+    if (!showPagination || customPagination) {
+      return data;
+    }
+
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-    
     return data.slice(start, end);
-  }, [data, page]);
+  }, [data, page, showPagination, customPagination]);
+
+  const shouldShowPagination = customPagination 
+    ? customPagination.show 
+    : showPagination && pages > 1;
+
+  const paginationComponent = customPagination ? (
+    <div className="flex justify-center">
+      <Pagination
+        isCompact
+        showControls
+        showShadow
+        color="primary"
+        page={customPagination.page}
+        total={customPagination.total}
+        onChange={customPagination.onChange}
+      />
+    </div>
+  ) : (
+    <div className="flex justify-center">
+      <Pagination
+        isCompact
+        showControls
+        showShadow
+        color="primary"
+        page={page}
+        total={pages}
+        onChange={setPage}
+      />
+    </div>
+  );
 
   return (
     <div className="w-full">
@@ -21,21 +63,7 @@ export function Tabla({ title, columns, data, rowKey }) {
       
       <Table 
         aria-label={title}
-        bottomContent={
-          pages > 0 ? (
-            <div className="flex justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={setPage}
-              />
-            </div>
-          ) : null
-        }
+        bottomContent={shouldShowPagination ? paginationComponent : null}
         classNames={{
           wrapper: "min-h-[400px]",
         }}
@@ -53,6 +81,8 @@ export function Tabla({ title, columns, data, rowKey }) {
         <TableBody 
           emptyContent={"No se encontraron datos"} 
           items={items}
+          isLoading={isloading}
+          loadingContent={loadingContent || <div>Cargando...</div>}
         >
           {(item) => (
             <TableRow key={String(item[rowKey])}>

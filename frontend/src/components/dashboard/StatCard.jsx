@@ -11,6 +11,7 @@ export const StatCard = ({
 }) => {
   const colorClasses = {
     primary: "bg-primary-500/20 text-primary-500",
+    secondary: "bg-secondary-500/20 text-secondary-500",
     success: "bg-success-500/20 text-success-500",
     warning: "bg-warning-500/20 text-warning-500",
     danger: "bg-danger-500/20 text-danger-500",
@@ -21,6 +22,7 @@ export const StatCard = ({
 
   const textColorClasses = {
     primary: "text-primary-700",
+    secondary: "text-secondary-700",
     success: "text-success-700",
     warning: "text-warning-700",
     danger: "text-danger-700",
@@ -31,6 +33,7 @@ export const StatCard = ({
 
   const subtitleColorClasses = {
     primary: "text-primary-600",
+    secondary: "text-secondary-600",
     success: "text-success-600",
     warning: "text-warning-600",
     danger: "text-danger-600",

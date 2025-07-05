@@ -43,7 +43,19 @@ export const getErrorMessage = (error) => {
 
 // Servicio de alumnos
 export const alumnosService = {
-  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos.general}/`)),
+  getAll: (filtros = {}) => {
+    const params = new URLSearchParams();
+    
+    // filtros
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value);
+      }
+    });
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos.general}/?${params.toString()}`));
+  },
+  
+  getEstadisticas: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.alumnos.general}/estadisticas`)),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.alumnos.general}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.alumnos.general}/${id}`, data)),
   delete: (id) => handleResponse(() => api.delete(`${API_CONFIG.endpoints.alumnos.general}/${id}`)),

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.alumno import CrearAlumnoSchema, AlumnoSchema, ActualizarAlumnoSchema
-from app.services.alumno_service import crear_alumno, listar_alumnos, actualizar_alumno, eliminar_alumno
+from app.services.alumno_service import crear_alumno, listar_alumnos, obtener_estadisticas_alumnos, actualizar_alumno, eliminar_alumno
 import flask_praetorian
 from app.models.alumno import Alumno
 from app.models.matricula import Matricula
@@ -28,8 +28,46 @@ def registrar_alumno():
 @alumnos_bp.route("/", methods=["GET"])
 @flask_praetorian.roles_required("admin")
 def obtener_alumnos():
-    alumnos = listar_alumnos()
-    return jsonify(ver_schema.dump(alumnos, many=True)), 200
+    # Parametros de filtrado y paginación
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+    busqueda = request.args.get("busqueda", None)
+    estado = request.args.get("estado", None)
+    tiene_matricula = request.args.get("tiene_matricula", None)
+
+    if estado == "activo":
+        estado = True
+    elif estado == "inactivo":
+        estado = False
+    else:
+        estado = None
+
+    per_page = min(per_page, 100) # 100 maximo por pagina
+    resultado = listar_alumnos(
+        page=page,
+        per_page=per_page,
+        busqueda=busqueda,
+        estado=estado,
+        tiene_matricula=tiene_matricula,
+    )
+
+    return jsonify({
+        "alumnos": ver_schema.dump(resultado.items, many=True),
+        "pagination": {
+            "page": resultado.page,
+            "per_page": resultado.per_page,
+            "total": resultado.total,
+            "pages": resultado.pages,
+            "has_next": resultado.has_next,
+            "has_prev": resultado.has_prev
+        }
+    }), 200
+
+@alumnos_bp.route("/estadisticas", methods=["GET"])
+@flask_praetorian.roles_required("admin")
+def obtener_estadisticas_alumnos_route():
+    estadisticas = obtener_estadisticas_alumnos()
+    return jsonify(estadisticas), 200
 
 @alumnos_bp.route("/<int:alumno_id>", methods=["GET"])
 @flask_praetorian.roles_required("admin")

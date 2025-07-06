@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { authService } from "@/service/apiService";
+import logoEscuela from "../assets/logo.png";
 
 export const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -119,10 +120,13 @@ export const LoginPage = () => {
       >
         <Card className="w-full" shadow="sm">
           <CardHeader className="flex flex-col gap-1 items-center pt-8 pb-0">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-2">
-              <Icon icon="lucide:layout-dashboard" className="text-white" width={24} height={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-center">Escuela de Manejo Jesús Nazareno</h1>
+            <img
+                src={logoEscuela}
+                alt="Logo Escuela de Manejo Jesús Nazareno"
+                className="w-36 h-36 object-contain mb-2 rounded-xl"
+            />
+            <h1 className="text-2xl font-bold text-blue-900 text-center">JESUS NAZARENO</h1>
+            <h1 className="text-2xl font-bold text-red-600 text-center">Escuela De Manejo</h1>
             <p className="text-default-500 text-center">Accede con tu DNI y contraseña</p>
           </CardHeader>
 

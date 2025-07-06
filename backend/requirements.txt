@@ -1,8 +1,10 @@
 alembic==1.15.2
 blinker==1.9.0
 cachelib==0.13.0
+cffi==1.17.1
 click==8.2.0
 colorama==0.4.6
+cryptography==45.0.5
 Deprecated==1.2.18
 Flask==3.1.1
 flask-buzz==3.1.0
@@ -31,6 +33,7 @@ passlib==1.7.4
 pendulum==3.1.0
 psycopg2==2.9.10
 py-buzz==4.2.0
+pycparser==2.22
 Pygments==2.19.1
 PyJWT==2.10.1
 PyMySQL==1.1.1

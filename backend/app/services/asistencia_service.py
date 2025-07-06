@@ -82,10 +82,7 @@ def registrar_asistencia(data):
     db.session.flush() 
     
     ticket = None
-    print(f"asistio: {asistio}")
     if asistio:
-        print(f"n de clase: {nuevo_numero_clase}")
-        
         ticket = Ticket(
             id_asistencia=asistencia.id,
             numero_clase_alumno=nuevo_numero_clase,

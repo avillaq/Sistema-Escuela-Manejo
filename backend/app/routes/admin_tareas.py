@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
-from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios
-from app.extensions import limiter
+from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios, verificar_pagos_pendiente, verificar_clases_reservadas
+from app.services.email_service import email_service
+from app.extensions import limiter, db
+from datetime import datetime, timedelta, date
 admin_tareas_bp = Blueprint("admin_tareas", __name__)
 
 # Funcion auxiliar para verificar el token de cron
@@ -61,9 +63,10 @@ def enviar_pagos_pendientes_ruta():
         valido, mensaje = verificar_token_cron()
         if not valido:
             return jsonify({"error": mensaje}), 403
-            
-        # Aquí se llamaría a la función que envía los pagos pendientes
-        #enviar_pagos_pendientes()
+        
+        matriculas = verificar_pagos_pendiente()
+        for matricula in matriculas:
+            email_service.enviar_pago_pendiente(matricula)
         
         return jsonify({
             "mensaje": "Recordatorio de pagos pendientes enviados correctamente"
@@ -80,8 +83,9 @@ def enviar_recordatorio_reserva_ruta():
         if not valido:
             return jsonify({"error": mensaje}), 403
             
-        # Aquí se llamaría a la función que envía las recordatorio-reserva
-        #enviar_recordatorio_reserva()
+        reservas = verificar_clases_reservadas()
+        for reserva in reservas:
+            email_service.enviar_recordatorio_reserva(reserva)
         
         return jsonify({
             "mensaje": "Recordatorio enviadas correctamente"
@@ -89,3 +93,22 @@ def enviar_recordatorio_reserva_ruta():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@admin_tareas_bp.route("/despertar-bd", methods=["GET"])
+@limiter.limit("30 per hour")
+def despertar_bd_ruta():
+    try:
+        valido, mensaje = verificar_token_cron()
+        if not valido:
+            return jsonify({"error": mensaje}), 403
+        
+        result = db.session.execute(db.text("SELECT NOW() as current_time, 'BD_ACTIVA' as status")).fetchone()
+        
+        return jsonify({
+            "message": "Base de datos activa",
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            "message": "Error al despertar base de datos",
+        }), 500

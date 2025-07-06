@@ -4,8 +4,9 @@ from datetime import date, time, timedelta
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from app.models import Bloque
+from app.models import Bloque, Matricula
 from app.extensions import db
+from app.services import reserva_service
 
 def generar_bloques(semanas_futuro=2):
     hoy = date.today()
@@ -85,6 +86,19 @@ def limpiar_bloques_vacios():
     else:
         print("No hay bloques vacíos para eliminar")
     return cantidad
+
+def verificar_pagos_pendiente():
+    matriculas = Matricula.query.filter(
+        Matricula.horas_completadas == 3,
+        Matricula.estado_pago == "pendiente",
+        Matricula.saldo_pendiente > 0
+    ).all()
+
+    return matriculas
+
+def verificar_clases_reservadas():
+    reservas = reserva_service.listar_reservas_hoy()
+    return reservas
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "limpiar":

@@ -7,7 +7,7 @@ from app.models.alumno import Alumno
 from app.models.paquete import Paquete
 from app.models.pago import Pago
 from app.extensions import db
-from sqlalchemy import func
+from sqlalchemy import func, desc, or_
 from werkzeug.exceptions import BadRequest
 
 def crear_matricula(data):
@@ -73,7 +73,16 @@ def crear_matricula(data):
     db.session.commit()
     return matricula
 
-def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtros y paginación
+def listar_matriculas(
+    page=1,
+    per_page=20,
+    busqueda=None,
+    estado_clases=None,
+    estado_pago=None,
+    tipo_contratacion=None,
+    id_matricula=None,
+    id_alumno=None
+):
     if id_matricula or id_alumno:
         if id_matricula:
             # Validar que la matrícula exista
@@ -119,9 +128,42 @@ def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtro
         return matricula
 
     else:  
-        matriculas = db.session.query(Matricula).join(Alumno).outerjoin(Paquete).all()
+        query = db.session.query(Matricula).join(Alumno).outerjoin(Paquete)
+
+        # Filtro por busqueda
+        if busqueda:
+            busqueda_like = f"%{busqueda.lower()}%"
+            query = query.filter(
+                or_(
+                    Alumno.nombre.ilike(busqueda_like),
+                    Alumno.apellidos.ilike(busqueda_like),
+                    Alumno.dni.ilike(busqueda_like),
+                )
+            )
         
-        for matricula in matriculas:
+        # Filtro por estado de clases
+        if estado_clases:
+            query = query.filter(Matricula.estado_clases == estado_clases)
+        
+        # Filtro por estado de pago
+        if estado_pago:
+            query = query.filter(Matricula.estado_pago == estado_pago)
+        
+        # Filtro por tipo de contratacion
+        if tipo_contratacion:
+            query = query.filter(Matricula.tipo_contratacion == tipo_contratacion)
+        
+        # Ordenación
+        query = query.order_by(desc(Matricula.fecha_matricula), desc(Matricula.id))
+        
+        # Paginación
+        resultado = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        for matricula in resultado.items:
             # Calcular pagos realizados
             pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
             
@@ -129,7 +171,55 @@ def listar_matriculas(id_matricula=None, id_alumno=None): # TODO: agregar filtro
             matricula.pagos_realizados = float(pagos_realizados)
             matricula.saldo_pendiente = float(matricula.costo_total - pagos_realizados)
         
-        return matriculas
+        return resultado
+
+def obtener_estadisticas_matriculas():
+    try:
+        total_matriculas = db.session.query(func.count(Matricula.id)).scalar() or 0
+
+        # Estadisticas por estado de clases
+        en_progreso = db.session.query(func.count(Matricula.id)).filter(
+            Matricula.estado_clases == 'en_progreso'
+        ).scalar() or 0
+        
+        completadas = db.session.query(func.count(Matricula.id)).filter(
+            Matricula.estado_clases == 'completado'
+        ).scalar() or 0
+
+        # Estadisticas financieras basica
+        ingresos_totales = db.session.query(func.sum(Pago.monto)).scalar() or 0.0
+        
+        # Saldo total pendiente
+        saldo_pendiente_total = 0.0
+        matriculas_activas = db.session.query(Matricula).filter(
+            Matricula.estado_clases.in_(['pendiente', 'en_progreso'])
+        ).all()
+        
+        for matricula in matriculas_activas:
+            pagos_matricula = db.session.query(func.sum(Pago.monto)).filter(
+                Pago.id_matricula == matricula.id
+            ).scalar() or 0.0
+            saldo_pendiente_total += matricula.costo_total - pagos_matricula
+        
+        
+        return {
+            "total": total_matriculas,
+            "en_progreso": en_progreso,
+            "completadas": completadas,
+            "ingresos_totales": float(ingresos_totales),
+            "saldo_pendiente_total": float(saldo_pendiente_total),
+        }
+        
+    except Exception as e:
+        print(f"Error al obtener estadísticas de matrículas: {e}")
+        return {
+            "total": 0,
+            "en_progreso": 0,
+            "completadas": 0,
+            "ingresos_totales": 0.0,
+            "saldo_pendiente_total": 0.0,
+        }
+
 
 def eliminar_matricula(matricula_id):
     matricula = Matricula.query.get_or_404(matricula_id)

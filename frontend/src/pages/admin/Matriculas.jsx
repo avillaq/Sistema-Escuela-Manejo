@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Card,
@@ -8,13 +8,13 @@ import {
   useDisclosure,
   Select,
   SelectItem,
-  Input,
   addToast
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
 import { PageHeader } from '@/components/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { SearchBar } from '@/components/SearchBar';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MatriculaDeleteModal } from '@/pages/admin/MatriculaDeleteModal';
 import { matriculasService } from '@/service/apiService';
@@ -25,99 +25,175 @@ export const Matriculas = () => {
   // Modal para eliminar
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange } = useDisclosure();
 
-  // Estados para filtros
-  const [selectedEstadoClases, setSelectedEstadoClases] = useState("todos");
-  const [selectedEstadoPago, setSelectedEstadoPago] = useState("todos");
-  const [selectedTipoContratacion, setSelectedTipoContratacion] = useState("todos");
-  const [searchQuery, setSearchQuery] = useState("");
+  //Estados de filtros
+  const [filtrosAplicados, setFiltrosAplicados] = useState({
+    page: 1,
+    per_page: 20,
+    busqueda: "",
+    estado_clases: "todos",
+    estado_pago: "todos",
+    tipo_contratacion: "todos"
+  });
+
+  const [filtrosTemporales, setFiltrosTemporales] = useState({
+    busqueda: "",
+    estado_clases: "todos",
+    estado_pago: "todos",
+    tipo_contratacion: "todos",
+    per_page: 20
+  });
+
+  // Estados principales
   const [matriculasData, setMatriculasData] = useState([]);
   const [selectedMatricula, setSelectedMatricula] = useState(null);
+  const [estadisticas, setEstadisticas] = useState({});
+  const [pagination, setPagination] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [estadisticasLoaded, setEstadisticasLoaded] = useState(false);
 
+  const [isSearching, setIsSearching] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
 
-  useEffect(() => {
-    const fetchMatriculas = async () => {
-      try {
-        const result = await matriculasService.getAll();
-        if (result.success) {
-          setMatriculasData(result.data);
-        } else {
-          addToast({
-            title: "Error al cargar  las matrículas",
-            description: result.error || "No se pudieron cargar las matrículas.",
-            severity: "danger",
-            color: "danger",
-          });
-        }
-      } catch (error) {
+  const fetchMatriculas = useCallback(async (filtrosParaUsar) => {
+    setIsLoading(true);
+    try {
+      const filtrosLimpios = Object.fromEntries(
+        Object.entries(filtrosParaUsar).filter(([_, value]) =>
+          value !== null && value !== undefined && value !== '' && value !== 'todos'
+        )
+      );
+
+      const result = await matriculasService.getAll(filtrosLimpios);
+      if (result.success) {
+        setMatriculasData(result.data.matriculas);
+        setPagination(result.data.pagination);
+      } else {
         addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar las matriculas.",
+          title: "Error al cargar  las matrículas",
+          description: result.error || "No se pudieron cargar las matrículas.",
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: "Ha ocurrido un error al cargar las matriculas.",
+        severity: "danger",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsSearching(false);
+      setIsApplying(false);
     }
-    fetchMatriculas();
   }, []);
 
+  const fetchEstadisticas = useCallback(async () => {
+    if (estadisticasLoaded) return;
 
-  // Filtrar matriculas
-  const filteredMatriculas = useMemo(() => {
-    return matriculasData.filter(matricula => {
-      // Filtro por estado de clases
-      if (selectedEstadoClases !== "todos" && matricula.estado_clases !== selectedEstadoClases) {
-        return false;
+    try {
+      const result = await matriculasService.getEstadisticas();
+      if (result.success) {
+        console.log("Estadísticas de matrículas:", result.data);
+        setEstadisticas(result.data);
+        setEstadisticasLoaded(true);
+      } else {
+        addToast({
+          title: "Error al cargar estadísticas",
+          description: result.error || "No se pudieron cargar las estadísticas de matrículas.",
+          severity: "danger",
+          color: "danger",
+        });
       }
 
-      // Filtro por estado de pago
-      if (selectedEstadoPago !== "todos" && matricula.estado_pago !== selectedEstadoPago) {
-        return false;
-      }
+    } catch (error) {
+      console.error("Error al calcular estadísticas:", error);
+    }
+  }, [estadisticasLoaded]);
 
-      // Filtro por tipo de contratación
-      if (selectedTipoContratacion !== "todos" && matricula.tipo_contratacion !== selectedTipoContratacion) {
-        return false;
-      }
+  useEffect(() => {
+    fetchMatriculas(filtrosAplicados);
+    fetchEstadisticas();
+  }, []);
 
-      // Filtro por busqueda
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          matricula.alumno.nombre.toLowerCase().includes(query) ||
-          matricula.alumno.apellidos.toLowerCase().includes(query) ||
-          matricula.alumno.dni.toLowerCase().includes(query) ||
-          (matricula.paquete && matricula.paquete.nombre.toLowerCase().includes(query))
-        );
-      }
+  const aplicarFiltros = () => {
+    setIsApplying(true);
+    const nuevosFilterosAplicados = {
+      ...filtrosTemporales,
+      page: 1
+    };
 
-      return true;
-    });
-  }, [selectedEstadoClases, selectedEstadoPago, selectedTipoContratacion, searchQuery, matriculasData]);
+    setFiltrosAplicados(nuevosFilterosAplicados);
+    fetchMatriculas(nuevosFilterosAplicados);
+  };
 
-  // Estadisticas
-  const estadisticas = useMemo(() => {
-    const total = matriculasData.length;
-    const pendientes = matriculasData.filter(m => m.estado_clases === 'pendiente').length;
-    const enProgreso = matriculasData.filter(m => m.estado_clases === 'en_progreso').length;
-    const completadas = matriculasData.filter(m => m.estado_clases === 'completado').length;
-    const ingresosTotales = matriculasData.reduce((sum, m) => sum + m.pagos_realizados, 0);
-    const saldosPendientes = matriculasData.reduce((sum, m) => sum + m.saldo_pendiente, 0);
+  const buscar = () => {
+    setIsSearching(true);
+    const nuevosFilterosAplicados = {
+      ...filtrosTemporales,
+      page: 1
+    };
 
-    return { total, pendientes, enProgreso, completadas, ingresosTotales, saldosPendientes };
-  }, [matriculasData]);
+    setFiltrosAplicados(nuevosFilterosAplicados);
+    fetchMatriculas(nuevosFilterosAplicados);
+  };
+
+  const limpiarTodo = () => {
+    const filtrosLimpios = {
+      busqueda: "",
+      estado_clases: "todos",
+      estado_pago: "todos",
+      tipo_contratacion: "todos",
+      per_page: 20
+    };
+
+    const filtrosAplicadosLimpios = {
+      ...filtrosLimpios,
+      page: 1
+    };
+
+    setFiltrosTemporales(filtrosLimpios);
+    setFiltrosAplicados(filtrosAplicadosLimpios);
+    fetchMatriculas(filtrosAplicadosLimpios);
+  };
+
+  const handleInputChange = (key, value) => {
+    setFiltrosTemporales(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const cambiarPagina = (nuevaPagina) => {
+    const nuevosFiltros = { ...filtrosAplicados, page: nuevaPagina };
+    setFiltrosAplicados(nuevosFiltros);
+    fetchMatriculas(nuevosFiltros);
+  };
+
+  const hayCambiosPendientes =
+    filtrosTemporales.busqueda !== filtrosAplicados.busqueda ||
+    filtrosTemporales.estado_clases !== filtrosAplicados.estado_clases ||
+    filtrosTemporales.estado_pago !== filtrosAplicados.estado_pago ||
+    filtrosTemporales.tipo_contratacion !== filtrosAplicados.tipo_contratacion ||
+    filtrosTemporales.per_page !== filtrosAplicados.per_page;
+
+  const hayFiltrosActivos =
+    filtrosAplicados.busqueda !== "" ||
+    filtrosAplicados.estado_clases !== "todos" ||
+    filtrosAplicados.estado_pago !== "todos" ||
+    filtrosAplicados.tipo_contratacion !== "todos";
 
   // Handle eliminar matrícula
   const handleDeleteMatricula = async (matriculaId) => {
     if (matriculaId) {
       const result = await matriculasService.delete(matriculaId);
       if (result.success) {
-        const updatedMatriculas = matriculasData.filter(matricula => matricula.id !== matriculaId);
         const deletedMatricula = matriculasData.find(matricula => matricula.id === matriculaId);
 
-        setMatriculasData(updatedMatriculas);
+        fetchMatriculas(filtrosAplicados);
+        setEstadisticasLoaded(false);
+        fetchEstadisticas();
 
         addToast({
           title: "Matrícula eliminada",
@@ -298,7 +374,7 @@ export const Matriculas = () => {
           >
             <Icon icon="lucide:calendar" width={16} height={16} />
           </Button>
-          <Button
+          {/* <Button
             isIconOnly
             size="sm"
             variant="light"
@@ -306,7 +382,7 @@ export const Matriculas = () => {
             onPress={() => handleDeleteConfirm(matricula)}
           >
             <Icon icon="lucide:trash" width={16} height={16} />
-          </Button>
+          </Button> */}
         </div>
       )
     }
@@ -334,35 +410,35 @@ export const Matriculas = () => {
         <StatCard
           icon="lucide:graduation-cap"
           title="Total Matrículas"
-          value={isLoading ? "..." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:clock"
           title="En Progreso"
-          value={isLoading ? "..." : estadisticas.enProgreso}
+          value={estadisticas.enProgreso || 0}
           color="warning"
           size="large"
         />
         <StatCard
           icon="lucide:check-circle"
           title="Completadas"
-          value={isLoading ? "..." : estadisticas.completadas}
+          value={estadisticas.completadas || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:dollar-sign"
           title="Ingresos Totales"
-          value={isLoading ? "..." : `S/ ${estadisticas.ingresosTotales.toFixed(2)}`}
+          value={`S/ ${(estadisticas.ingresos_totales || 0).toFixed(2)}`}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:alert-triangle"
           title="Saldos Pendientes"
-          value= {isLoading ? "..." : `S/ ${estadisticas.saldosPendientes.toFixed(2)}`}
+          value={`S/ ${(estadisticas.saldo_pendiente_total || 0).toFixed(2)}`}
           color="danger"
           size="large"
         />
@@ -371,21 +447,21 @@ export const Matriculas = () => {
       {/* Tabla de matriculas */}
       <Card>
         <CardBody>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <Input
-              placeholder="Buscar matrícula..."
-              value={searchQuery}
-              onValueChange={setSearchQuery}
-              startContent={<Icon icon="lucide:search" className="text-default-400" />}
-              className="w-full md:w-1/4"
+          <div className="space-y-4 mb-6">
+            <SearchBar
+              value={filtrosTemporales.busqueda}
+              onChange={(value) => handleInputChange('busqueda', value)}
+              onSearch={buscar}
+              isSearching={isSearching}
+              placeholder="Buscar por nombre o DNI..."
             />
-            <div className="flex flex-col md:flex-row gap-4 md:gap-2 w-full md:w-3/4">
+            <div className="flex flex-col md:flex-row gap-4">
               <Select
                 label="Estado Clases"
                 placeholder="Todos"
-                selectedKeys={[selectedEstadoClases]}
-                className="w-full md:w-1/3"
-                onChange={(e) => setSelectedEstadoClases(e.target.value)}
+                selectedKeys={[filtrosTemporales.estado_clases]}
+                className="w-full md:w-1/5"
+                onChange={(e) => handleInputChange('estado_clases', e.target.value)}
               >
                 <SelectItem key="todos" value="todos">Todos</SelectItem>
                 <SelectItem key="pendiente" value="pendiente">Pendiente</SelectItem>
@@ -397,9 +473,9 @@ export const Matriculas = () => {
               <Select
                 label="Estado Pago"
                 placeholder="Todos"
-                selectedKeys={[selectedEstadoPago]}
-                className="w-full md:w-1/3"
-                onChange={(e) => setSelectedEstadoPago(e.target.value)}
+                selectedKeys={[filtrosTemporales.estado_pago]}
+                className="w-full md:w-1/5"
+                onChange={(e) => handleInputChange('estado_pago', e.target.value)}
               >
                 <SelectItem key="todos" value="todos">Todos</SelectItem>
                 <SelectItem key="pendiente" value="pendiente">Pendiente</SelectItem>
@@ -407,30 +483,100 @@ export const Matriculas = () => {
               </Select>
 
               <Select
-                label="Tipo"
+                label="Tipo Contratación"
                 placeholder="Todos"
-                selectedKeys={[selectedTipoContratacion]}
-                className="w-full md:w-1/3"
-                onChange={(e) => setSelectedTipoContratacion(e.target.value)}
+                selectedKeys={[filtrosTemporales.tipo_contratacion]}
+                className="w-full md:w-1/5"
+                onChange={(e) => handleInputChange('tipo_contratacion', e.target.value)}
               >
                 <SelectItem key="todos" value="todos">Todos</SelectItem>
                 <SelectItem key="paquete" value="paquete">Paquete</SelectItem>
                 <SelectItem key="por_hora" value="por_hora">Por Hora</SelectItem>
               </Select>
+              <Select
+                label="Registros por página"
+                placeholder="20"
+                selectedKeys={[filtrosTemporales.per_page.toString()]}
+                className="w-full md:w-1/5"
+                onChange={(e) => handleInputChange('per_page', parseInt(e.target.value))}
+              >
+                <SelectItem key="10" value="10">10</SelectItem>
+                <SelectItem key="20" value="20">20</SelectItem>
+                <SelectItem key="50" value="50">50</SelectItem>
+                <SelectItem key="100" value="100">100</SelectItem>
+              </Select>
+
+              {/* Botones de control */}
+              <div className="flex gap-2 w-full md:w-1/5">
+                <Button
+                  color="primary"
+                  variant="solid"
+                  onPress={aplicarFiltros}
+                  isLoading={isApplying}
+                  startContent={!isApplying && <Icon icon="lucide:filter" width={16} height={16} />}
+                  className="flex-1"
+                  isDisabled={!hayCambiosPendientes}
+                >
+                  {isApplying ? "Aplicando..." : "Aplicar"}
+                </Button>
+
+                <Button
+                  color="secondary"
+                  variant="flat"
+                  onPress={limpiarTodo}
+                  startContent={<Icon icon="lucide:x" width={16} height={16} />}
+                  className="flex-1"
+                  isDisabled={!hayFiltrosActivos}
+                >
+                  Limpiar
+                </Button>
+              </div>
+            </div>
+
+            {/* Indicadores de estado */}
+            <div className="flex flex-wrap gap-2 items-center">
+              {hayFiltrosActivos && (
+                <div className="flex items-center gap-2">
+                  {filtrosAplicados.busqueda && (
+                    <Chip size="sm" color="secondary" variant="flat">
+                      Búsqueda: "{filtrosAplicados.busqueda}"
+                    </Chip>
+                  )}
+                  {filtrosAplicados.estado_clases !== "todos" && (
+                    <Chip size="sm" color="secondary" variant="flat">
+                      Estado clases: {filtrosAplicados.estado_clases}
+                    </Chip>
+                  )}
+                  {filtrosAplicados.estado_pago !== "todos" && (
+                    <Chip size="sm" color="secondary" variant="flat">
+                      Estado pago: {filtrosAplicados.estado_pago}
+                    </Chip>
+                  )}
+                  {filtrosAplicados.tipo_contratacion !== "todos" && (
+                    <Chip size="sm" color="secondary" variant="flat">
+                      Tipo: {filtrosAplicados.tipo_contratacion === "por_hora" ? "Por hora" : "Paquete"}
+                    </Chip>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {isLoading ?
-            (<LoadingSpinner mensaje="Cargando matriculas..." />)
-            :
-            <Tabla
-              title="Lista de Matrículas"
-              columns={columns}
-              data={filteredMatriculas}
-              rowKey="id"
-            />
-          }
-
+          <Tabla
+            title="Lista de Matrículas"
+            columns={columns}
+            data={matriculasData}
+            rowKey="id"
+            showPagination={false}
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+            customPagination={{
+              page: pagination.page,
+              total: pagination.pages,
+              onChange: cambiarPagina,
+              show: pagination.pages > 1
+            }}
+          />
         </CardBody>
       </Card>
 

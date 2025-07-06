@@ -82,6 +82,19 @@ export const administradoresService = {
 // Servicio de matrículas
 export const matriculasService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`)),
+  getAll: (filtros = {}) => {
+    const params = new URLSearchParams();
+    
+    // Agregar filtros como parámetros
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value);
+      }
+    });
+    
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/?${params.toString()}`));
+  },
+  getEstadisticas: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/estadisticas`)),
   getById: (matriculaId) => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`, { params: { id_matricula: matriculaId } })),
   create: (data) => handleResponse(() => api.post(`${API_CONFIG.endpoints.matriculas}/`, data)),
   update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.matriculas}/${id}`, data)),

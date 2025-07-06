@@ -18,13 +18,15 @@ export const TicketViewModal = ({ isOpen, onOpenChange, ticket }) => {
   // Formatear fecha y hora
   const formatearFechaHora = (fechaString) => {
     if (!fechaString) return 'N/A';
-    const fecha = new Date(fechaString);
+    const fecha = new Date(fechaString + (fechaString.includes('GMT') ? '' : ' GMT'));
     return fecha.toLocaleString('es-PE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'GMT'
     });
   };
 

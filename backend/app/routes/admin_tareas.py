@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, current_app
 from app.services.admin_tareas_service import generar_bloques, limpiar_bloques_vacios, verificar_pagos_pendiente, verificar_clases_reservadas
 from app.services.email_service import email_service
 from app.extensions import limiter, db
-from datetime import datetime, timedelta, date
 admin_tareas_bp = Blueprint("admin_tareas", __name__)
 
 # Funcion auxiliar para verificar el token de cron

@@ -91,7 +91,6 @@ def verificar_pagos_pendiente():
     matriculas = Matricula.query.filter(
         Matricula.horas_completadas == 3,
         Matricula.estado_pago == "pendiente",
-        Matricula.saldo_pendiente > 0
     ).all()
 
     return matriculas

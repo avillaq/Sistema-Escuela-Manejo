@@ -170,7 +170,7 @@ export const Paquetes = () => {
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <Input
-              placeholder="Buscar paquete"
+              placeholder="Buscar paquetes"
               value={searchQuery}
               onValueChange={setSearchQuery}
               startContent={<Icon icon="lucide:search" className="text-default-400" />}

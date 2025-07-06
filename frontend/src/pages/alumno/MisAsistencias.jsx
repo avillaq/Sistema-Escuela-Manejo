@@ -2,8 +2,12 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
-  Chip
+  Chip,
+  Select,
+  SelectItem,
+  Input
 } from '@heroui/react';
+import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
 import { PageHeader } from '@/components/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -13,6 +17,9 @@ import { asistenciasService } from '@/service/apiService';
 export const MisAsistencias = () => {
   const [asistencias, setAsistencias] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  //Estados para filtros
+  const [selectedEstado, setSelectedEstado] = useState("todos");
 
   // Cargar asistencias
   useEffect(() => {
@@ -32,7 +39,20 @@ export const MisAsistencias = () => {
     fetchAsistencias();
   }, []);
 
-  // Calcular estadísticas
+  const filteredAsistencias = useMemo(() => {
+    return asistencias.filter(asistencia => {
+      // Filtro por estado
+      if (selectedEstado === "asistio" && !asistencia.asistio) {
+        return false;
+      }
+      if (selectedEstado === "falto" && asistencia.asistio) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [selectedEstado, asistencias]);
+
   const estadisticas = useMemo(() => {
     const total = asistencias.length;
     const asistencias_positivas = asistencias.filter(a => a.asistio).length;
@@ -138,10 +158,25 @@ export const MisAsistencias = () => {
 
       <Card>
         <CardBody>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex gap-2 w-full md:w-1/3">
+              <Select
+                label="Estado"
+                placeholder="Todos los estados"
+                selectedKeys={[selectedEstado]}
+                className="w-full"
+                onChange={(e) => setSelectedEstado(e.target.value)}
+              >
+                <SelectItem key="todos" value="todos">Todos los estados</SelectItem>
+                <SelectItem key="asistio" value="asistio">Asistió</SelectItem>
+                <SelectItem key="falto" value="falto">Falta</SelectItem>
+              </Select>
+            </div>
+          </div>
           <Tabla
             title="Mis Asistencias"
             columns={columns}
-            data={asistencias}
+            data={filteredAsistencias}
             rowKey="id"
             isloading={isLoading}
             loadingContent={<LoadingSpinner />}

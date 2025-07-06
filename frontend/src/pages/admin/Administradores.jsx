@@ -266,21 +266,21 @@ export const Administradores = () => {
         <StatCard
           icon="lucide:users"
           title="Total Administradores"
-          value={isLoading ? ".." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:user-check"
           title="Activos"
-          value={isLoading ? ".." : estadisticas.activos}
+          value={estadisticas.activos || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:user-x"
           title="Inactivos"
-          value={isLoading ? ".." : estadisticas.inactivos}
+          value={estadisticas.inactivos || 0}
           color="danger"
           size="large"
         />

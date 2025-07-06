@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { Divider } from '@heroui/react';
 import { TemaSwitcher } from '@/components/TemaSwitcher';
 import { useAuthStore } from '@/store/auth-store';
+import logo from '@/assets/logo.png';
 
 const NavItem = ({ to, icon, label, onClick }) => {
   return (
@@ -134,10 +135,19 @@ export const Sidebar = ({ isOpen, onClose }) => {
       >
         <div className="p-4 flex items-center justify-between">
           <div className={`flex items-center gap-2 ${!isOpen && 'md:hidden'}`}>
-            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-              <Icon icon="lucide:layout-dashboard" className="text-white" width={18} height={18} />
-            </div>
-            <h1 className={`font-semibold text-base ${!isOpen && 'md:hidden'}`}>Dashboard</h1>
+           <div className="flex items-center gap-2">
+                   <img src={logo} alt="Logo Escuela" className="w-[70px] h-[70px] object-contain rounded-md" />
+                   {isOpen && (
+                 <div>
+                  <h1 className="font-bold text-sm text-blue-900 leading-tight tracking-wide">
+                  Jesús Nazareno
+                  </h1>
+                  <h1 className="font-bold text-sm text-red-600 leading-tight tracking-wide">
+                  Escuela De Manejo
+                  </h1>
+                 </div>
+                )}
+           </div>
           </div>
           {!isOpen && (
             <div className="hidden md:flex items-center justify-center w-full">

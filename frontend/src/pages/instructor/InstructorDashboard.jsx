@@ -23,7 +23,7 @@ export const InstructorDashboard = () => {
       const ticketsResult = await ticketsService.getByInstructor(id);
 
       if (ticketsResult.success) {
-        setTickets(ticketsResult.data);
+        setTickets(ticketsResult.data.tickets);
       } else {
         addToast({
           title: "Error al cargar tickets",

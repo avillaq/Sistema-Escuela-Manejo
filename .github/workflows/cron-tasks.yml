@@ -9,7 +9,7 @@ on:
 jobs:
   mantenimiento:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 7 * * 0' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 7 * * 0'
     
     steps:
     - name: Despertar Servidor
@@ -18,6 +18,16 @@ jobs:
         curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
         sleep 5
         echo "✅ Servidor listo"
+
+    - name: Despertar Base de Datos
+      run: |
+        echo "Despertando Base de datos..."
+        curl --max-time 60 --connect-timeout 15 -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          "${{ secrets.API_URL }}/api/admin-tareas/despertar-bd"
+        sleep 5
+        echo "✅ Base de datos listo"
     
     - name: Generar Bloques
       run: |
@@ -49,6 +59,16 @@ jobs:
         curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
         sleep 5
         echo "✅ Servidor listo"
+
+    - name: Despertar Base de Datos
+      run: |
+        echo "Despertando Base de datos..."
+        curl --max-time 60 --connect-timeout 15 -X POST \
+          -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          "${{ secrets.API_URL }}/api/admin-tareas/despertar-bd"
+        sleep 5
+        echo "✅ Base de datos listo"
 
     - name: Enviar Recordatorios de Reservas
       run: |

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from app.models.bloque import Bloque
 from app.models.reserva import Reserva
 from app.models.asistencia import Asistencia

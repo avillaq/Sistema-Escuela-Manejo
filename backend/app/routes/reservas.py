@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.schemas.reserva import CrearReservasSchema, ReservaSchema, EliminarReservasSchema
 from app.services.reserva_service import crear_reservas, eliminar_reservas, listar_reservas, listar_reservas_hoy, listar_reservas_actuales
-from app.models.matricula import Matricula
 import flask_praetorian
 
 reservas_bp = Blueprint("reservas", __name__)

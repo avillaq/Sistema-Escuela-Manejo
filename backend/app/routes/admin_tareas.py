@@ -93,7 +93,7 @@ def enviar_recordatorio_reserva_ruta():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@admin_tareas_bp.route("/despertar-bd", methods=["GET"])
+@admin_tareas_bp.route("/despertar-bd", methods=["POST"])
 @limiter.limit("30 per hour")
 def despertar_bd_ruta():
     try:

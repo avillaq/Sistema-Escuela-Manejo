@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, date
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_
 from app.extensions import db
 from app.models import (
     Alumno, Matricula, Reserva, Pago, Bloque, Asistencia,

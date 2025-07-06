@@ -58,7 +58,9 @@ export const CalendarioBase = ({
     const fechaBase = new Date(fecha);
     fechaBase.setDate(fechaBase.getDate() + (offsetSemana * 7));
 
-    const diaLunes = fechaBase.getDate() - fechaBase.getDay() + 1;
+    const diaSemana = fechaBase.getDay();
+    const diasHastaLunes = diaSemana === 0 ? -6 : 1 - diaSemana;
+    const diaLunes = fechaBase.getDate() + diasHastaLunes;
     const primerDia = new Date(fechaBase.setDate(diaLunes));
 
     const fechasSemana = [];

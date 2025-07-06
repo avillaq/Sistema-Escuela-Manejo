@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { authService } from "@/service/apiService";
-import logoEscuela from "@/assets/logo.PNG";
+import logoEscuela from "@/assets/logo.webp";
 
 export const LoginPage = () => {
   const [formData, setFormData] = useState({

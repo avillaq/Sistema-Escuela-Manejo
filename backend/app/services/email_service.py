@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 import smtplib
 
 # 3 hilos
-email_executor = ThreadPoolExecutor(max_workers=3, thread_name_prefix="email-")
+email_executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="email-")
 
 class EmailService:
     def __init__(self):
@@ -140,7 +140,7 @@ class EmailService:
             - Tipo de contratación: {"Paquete" if matricula.tipo_contratacion == "paquete" else  "Por hora"}
             """
         if matricula.tipo_contratacion == "por_hora":
-            cuerpo += f"""- Horas contratadas: {matricula.horas}
+            cuerpo += f"""- Horas contratadas: {matricula.horas_contratadas}
                     - Tarifa por hora: S/. {matricula.tarifa_por_hora:.2f}
                     """
         elif matricula.tipo_contratacion == "paquete" and matricula.paquete:

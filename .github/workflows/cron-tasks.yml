@@ -9,7 +9,7 @@ on:
 jobs:
   mantenimiento:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 7 * * 0'
+    if: github.event.schedule == '0 7 * * 0' || github.event_name == 'workflow_dispatch'
     
     steps:
     - name: Despertar Servidor

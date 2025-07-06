@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react';
 import { Divider } from '@heroui/react';
 import { TemaSwitcher } from '@/components/TemaSwitcher';
 import { useAuthStore } from '@/store/auth-store';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo.PNG';
 
 const NavItem = ({ to, icon, label, onClick }) => {
   return (

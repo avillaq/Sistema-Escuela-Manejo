@@ -272,14 +272,14 @@ export const Administradores = () => {
         />
         <StatCard
           icon="lucide:user-check"
-          title="Administradores Activos"
+          title="Activos"
           value={isLoading ? ".." : estadisticas.activos}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:user-x"
-          title="Administradores Inactivos"
+          title="Inactivos"
           value={isLoading ? ".." : estadisticas.inactivos}
           color="danger"
           size="large"
@@ -311,17 +311,14 @@ export const Administradores = () => {
             </div>
           </div>
 
-          {isLoading ?
-            (<LoadingSpinner mensaje="Cargando usuarios..." />)
-            :
-            <Tabla
-              title="Lista de Administradores"
-              columns={columns}
-              data={filteredUsers}
-              rowKey="id"
-            />
-          }
-
+          <Tabla
+            title="Lista de Administradores"
+            columns={columns}
+            data={filteredUsers}
+            rowKey="id"
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+          />
         </CardBody>
       </Card>
 

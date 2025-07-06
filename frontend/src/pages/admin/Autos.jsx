@@ -261,21 +261,21 @@ export const Autos = () => {
         <StatCard
           icon="lucide:car"
           title={`Total ${tipo}s`}
-          value={isLoading ? "..." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:car-front"
-          title={`${tipo}s Activos`}
-          value={isLoading ? "..." : estadisticas.activos}
+          title={`Activos`}
+          value={estadisticas.activos || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:car-taxi-front"
-          title={`${tipo}s Inactivos`}
-          value={isLoading ? "..." : estadisticas.inactivos}
+          title={`Inactivos`}
+          value={estadisticas.inactivos || 0}
           color="danger"
           size="large"
         />
@@ -306,17 +306,14 @@ export const Autos = () => {
             </div>
           </div>
 
-          {isLoading ?
-            (<LoadingSpinner mensaje="Cargando autos..." />)
-            :
-            <Tabla
-              title="Lista de Autos"
-              columns={columns}
-              data={filteredAutos}
-              rowKey="id"
-            />
-          }
-
+          <Tabla
+            title="Lista de Autos"
+            columns={columns}
+            data={filteredAutos}
+            rowKey="id"
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+          />
         </CardBody>
       </Card>
 

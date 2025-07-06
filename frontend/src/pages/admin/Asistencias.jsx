@@ -289,7 +289,7 @@ export const Asistencias = () => {
         <StatCard
           icon="lucide:clock"
           title="Disponibles para Registro"
-          value={isLoading ? "..." : reservasActuales.filter(r => !r.asistencia?.id).length}
+          value={reservasActuales.filter(r => !r.asistencia?.id).length || 0}
           subtitle="Con tolerancia de 15 min"
           color="warning"
           size="large"
@@ -297,7 +297,7 @@ export const Asistencias = () => {
         <StatCard
           icon="lucide:check"
           title="Asistencias Hoy"
-          value={isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === true).length}
+          value={reservasHoy.filter(r => r.asistencia?.asistio === true).length || 0}
           subtitle="Clases completadas"
           color="success"
           size="large"
@@ -305,7 +305,7 @@ export const Asistencias = () => {
         <StatCard
           icon="lucide:user-x"
           title="Faltas Hoy"
-          value={isLoading ? "..." : reservasHoy.filter(r => r.asistencia?.asistio === false).length}
+          value={reservasHoy.filter(r => r.asistencia?.asistio === false).length || 0}
           subtitle="No asistieron"
           color="danger"
           size="large"

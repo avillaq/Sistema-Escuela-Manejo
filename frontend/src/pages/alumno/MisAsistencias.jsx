@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardBody,
-  CardHeader,
   Chip
 } from '@heroui/react';
 import { Tabla } from '@/components/Tabla';
@@ -117,43 +116,36 @@ export const MisAsistencias = () => {
         <StatCard
           icon="lucide:list-checks"
           title="Total Registros"
-          value={isLoading ? "..." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:check-circle"
           title="Total Asistencias"
-          value={isLoading ? "..." : estadisticas.asistencias_positivas}
+          value={estadisticas.asistencias_positivas || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:x-circle"
           title="Total Faltas"
-          value={isLoading ? "..." : estadisticas.faltas}
+          value={estadisticas.faltas || 0}
           color="danger"
           size="large"
         />
       </div>
 
       <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center w-full">
-            <h3 className="text-lg font-semibold">Historial de Asistencias</h3>
-          </div>
-        </CardHeader>
         <CardBody>
-          {isLoading ? (
-            <LoadingSpinner mensaje="Cargando tus asistencias..." />
-          ) : (
-            <Tabla
-              title="Mis Asistencias"
-              columns={columns}
-              data={asistencias}
-              rowKey="id"
-            />
-          )}
+          <Tabla
+            title="Mis Asistencias"
+            columns={columns}
+            data={asistencias}
+            rowKey="id"
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+          />
         </CardBody>
       </Card>
     </div>

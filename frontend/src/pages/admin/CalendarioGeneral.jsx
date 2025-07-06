@@ -61,21 +61,21 @@ export const CalendarioGeneral = () => {
         <StatCard
           icon="lucide:calendar-days"
           title="Reservas Hoy"
-          value={isLoadingEstadisticas ? "..." : estadisticasHoy.totalReservas}
+          value={estadisticasHoy.totalReservas || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:check-circle"
           title="Atendidas"
-          value={isLoadingEstadisticas ? "..." : estadisticasHoy.reservasAtendidas}
+          value={estadisticasHoy.reservasAtendidas || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:users"
           title="Alumnos Hoy"
-          value={isLoadingEstadisticas ? "..." : estadisticasHoy.alumnosHoy}
+          value={estadisticasHoy.alumnosHoy || 0}
           color="warning"
           size="large"
         />

@@ -160,7 +160,7 @@ export const Paquetes = () => {
         <StatCard
           icon="lucide:box"
           title="Total Paquetes"
-          value={isLoading ? "..." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
@@ -178,17 +178,15 @@ export const Paquetes = () => {
             />
           </div>
 
+          <Tabla
+            title="Lista de Paquetes"
+            columns={columns}
+            data={filteredPaquetes}
+            rowKey="id"
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+          />
 
-          {isLoading ?
-            (<LoadingSpinner mensaje="Cargando paquetes..." />)
-            :
-            <Tabla
-              title="Lista de Paquetes"
-              columns={columns}
-              data={filteredPaquetes}
-              rowKey="id"
-            />
-          }
         </CardBody>
       </Card>
 

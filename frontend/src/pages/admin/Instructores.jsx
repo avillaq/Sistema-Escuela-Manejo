@@ -266,21 +266,21 @@ export const Instructores = () => {
         <StatCard
           icon="lucide:users"
           title="Total Instructores"
-          value={isLoading ? "..." : estadisticas.total}
+          value={estadisticas.total || 0}
           color="primary"
           size="large"
         />
         <StatCard
           icon="lucide:user-check"
-          title="Instructores Activos"
-          value={isLoading ? "..." : estadisticas.activos}
+          title="Activos"
+          value={estadisticas.activos || 0}
           color="success"
           size="large"
         />
         <StatCard
           icon="lucide:user-x"
-          title="Instructores Inactivos"
-          value={isLoading ? "..." : estadisticas.inactivos}
+          title="Inactivos"
+          value={estadisticas.inactivos || 0}
           color="danger"
           size="large"
         />
@@ -311,17 +311,15 @@ export const Instructores = () => {
             </div>
           </div>
 
+          <Tabla
+            title="Lista de Instructores"
+            columns={columns}
+            data={filteredUsers}
+            rowKey="id"
+            isloading={isLoading}
+            loadingContent={<LoadingSpinner />}
+          />
 
-          {isLoading ?
-            (<LoadingSpinner mensaje="Cargando usuarios..." />)
-            :
-            <Tabla
-              title="Lista de Instructores"
-              columns={columns}
-              data={filteredUsers}
-              rowKey="id"
-            />
-          }
         </CardBody>
       </Card>
 

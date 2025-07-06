@@ -170,11 +170,34 @@ export const asistenciasService = {
 
 // Servicio de Tickets
 export const ticketsService = {
-  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`)),
-  getByInstructor: (instructorId) => {
-    const params = { id_instructor: instructorId };
-    return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/`, { params }));
+  getAll: (filtros = {}) => {
+    const params = new URLSearchParams();
+    
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value);
+      }
+    });
+    
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/?${params.toString()}`));
   },
+  getByInstructor: (instructorId, filtros = {}) => {
+    const params = new URLSearchParams();
+    params.append('id_instructor', instructorId);
+    
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value);
+      }
+    });
+    
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/?${params.toString()}`));
+  },
+  getEstadisticas: (instructorId = null) => { 
+    const params = {};
+    if (instructorId) params.id_instructor = instructorId;
+    return handleResponse(() => api.get(`${API_CONFIG.endpoints.tickets}/estadisticas`, { params }));
+  }
 };
 
 // Servicio de Reportes

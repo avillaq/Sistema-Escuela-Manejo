@@ -1,9 +1,16 @@
 from app.models import Ticket, Asistencia, Reserva, Matricula, Alumno, Instructor
 from sqlalchemy.orm import joinedload
-from sqlalchemy import func
-from datetime import datetime
+from sqlalchemy import func, or_, desc
+from datetime import datetime, timedelta
 
-def listar_tickets_admin(filtros):
+def listar_tickets_admin(
+    page=1,
+    per_page=20,
+    busqueda=None,
+    fecha_inicio=None,
+    fecha_fin=None,
+    id_instructor=None
+):
     query = Ticket.query\
         .join(Asistencia).join(Reserva).join(Matricula).join(Alumno)\
         .join(Instructor, Ticket.id_instructor == Instructor.id)\
@@ -11,33 +18,121 @@ def listar_tickets_admin(filtros):
             joinedload(Ticket.asistencia).joinedload(Asistencia.reserva).joinedload(Reserva.matricula).joinedload(Matricula.alumno),
             joinedload(Ticket.instructor)
         )
-    # TODO: Revisar si estos filtros son correctos para la consulta de tickets de administrador
-    if "dni_alumno" in filtros:
-        query = query.filter(Alumno.dni == filtros["dni_alumno"])
-    if "instructor_id" in filtros:
-        query = query.filter(Ticket.id_instructor == filtros["instructor_id"]) # Este filtro puede cambiar
-    if "fecha" in filtros:
-        fecha = datetime.strptime(filtros["fecha"], "%Y-%m-%d").date()
-        query = query.filter(func.date(Asistencia.fecha_asistencia) == fecha)
+    if busqueda:
+        busqueda_like = f"%{busqueda.lower()}%"
+        query = query.filter(
+            or_(
+                Alumno.nombre.ilike(busqueda_like),
+                Alumno.apellidos.ilike(busqueda_like),
+                Alumno.dni.ilike(busqueda_like),
+                Instructor.nombre.ilike(busqueda_like),
+                Instructor.apellidos.ilike(busqueda_like),
+                Ticket.id.ilike(busqueda_like)
+            )
+        )
+    # Filtro por instructor
+    if id_instructor:
+        query = query.filter(Ticket.id_instructor == id_instructor)
 
-    # Podria ser mejor usar un filtro por nombre de instructor
-    if "nombre_instructor" in filtros:
-        query = query.filter(Instructor.nombre.ilike(f"%{filtros['nombre_instructor']}%"))
+    # Filtro por fecha
+    if fecha_inicio:
+        query = query.filter(Asistencia.fecha_asistencia >= fecha_inicio)
+    
+    if fecha_fin:
+        query = query.filter(Asistencia.fecha_asistencia <= fecha_fin)
 
-    return query.order_by(Asistencia.fecha_asistencia.desc()).all()
+    # Ordenación
+    query = query.order_by(desc(Asistencia.fecha_asistencia), desc(Ticket.id))
+
+    # Paginación
+    resultado = query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+    
+    return resultado
 
 
-def listar_tickets_instructor(instructor_id, filtros):
+def listar_tickets_instructor(
+    instructor_id,
+    page=1,
+    per_page=20,
+    busqueda=None,
+    fecha_inicio=None,
+    fecha_fin=None
+):
     query = Ticket.query\
         .filter(Ticket.id_instructor == instructor_id)\
         .join(Asistencia).join(Reserva).join(Matricula).join(Alumno)\
         .options(
             joinedload(Ticket.asistencia).joinedload(Asistencia.reserva).joinedload(Reserva.matricula).joinedload(Matricula.alumno)
         )
-    # TODO: Revisar si estos filtros son correctos para la consulta de tickets del instructor
-    if "fecha" in filtros:
-        query = query.filter(func.date(Asistencia.fecha_asistencia) == filtros["fecha"])
-    if "dni_alumno" in filtros:
-        query = query.filter(Alumno.dni == filtros["dni_alumno"])
+    
+    # Filtro por búsqueda
+    if busqueda:
+        busqueda_like = f"%{busqueda.lower()}%"
+        query = query.filter(
+            or_(
+                Alumno.nombre.ilike(busqueda_like),
+                Alumno.apellidos.ilike(busqueda_like),
+                Alumno.dni.ilike(busqueda_like),
+                Ticket.id.ilike(busqueda_like)
+            )
+        )
 
-    return query.order_by(Asistencia.fecha_asistencia.desc()).all()
+    # Filtro por fecha
+    if fecha_inicio:
+        query = query.filter(Asistencia.fecha_asistencia >= fecha_inicio)
+    
+    if fecha_fin:
+        query = query.filter(Asistencia.fecha_asistencia <= fecha_fin)
+    
+    # Ordenación
+    query = query.order_by(desc(Asistencia.fecha_asistencia), desc(Ticket.id))
+    
+    # Paginación
+    resultado = query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    return resultado
+
+def obtener_estadisticas_tickets(id_instructor=None):
+    try:
+        query = Ticket.query.join(Asistencia)
+        
+        # Filtrar por instructor si se especifica
+        if id_instructor:
+            query = query.filter(Ticket.id_instructor == id_instructor)
+        
+        # Total de tickets
+        total = query.count()
+        
+        # Tickets de hoy
+        hoy = datetime.now().date()
+        tickets_hoy = query.filter(
+            func.date(Asistencia.fecha_asistencia) == hoy
+        ).count()
+        
+        # Tickets de la última semana
+        hace_semana = datetime.now() - timedelta(days=7)
+        tickets_semana = query.filter(
+            Asistencia.fecha_asistencia >= hace_semana
+        ).count()
+        
+        return {
+            "total": total,
+            "hoy": tickets_hoy,
+            "semana": tickets_semana,
+        }
+        
+    except Exception as e:
+        print(f"Error al obtener estadísticas de tickets: {e}")
+        return {
+            "total": 0,
+            "hoy": 0,
+            "semana": 0,
+        }

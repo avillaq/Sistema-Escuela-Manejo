@@ -18,8 +18,8 @@ def marcar_asistencia():
 
     asistencia, ticket = registrar_asistencia(data)
 
-    if asistencia and asistencia.id_matricula:
-        matricula = Matricula.query.get(asistencia.id_matricula)
+    if asistencia and asistencia.reserva.id_matricula:
+        matricula = Matricula.query.get(asistencia.reserva.id_matricula)
         if matricula.estado_clases == "completado":
             email_service.enviar_final_clases(matricula)
 

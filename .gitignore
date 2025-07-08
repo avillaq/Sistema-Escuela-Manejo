@@ -46,3 +46,7 @@ yarn-error.log*
 *.swo
 .DS_Store
 Thumbs.db
+
+# JMeter
+stress_test/results/
+stress_test/reports/

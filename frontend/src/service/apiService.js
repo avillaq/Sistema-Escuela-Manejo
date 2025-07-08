@@ -81,7 +81,6 @@ export const administradoresService = {
 
 // Servicio de matrículas
 export const matriculasService = {
-  getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.matriculas}/`)),
   getAll: (filtros = {}) => {
     const params = new URLSearchParams();
     

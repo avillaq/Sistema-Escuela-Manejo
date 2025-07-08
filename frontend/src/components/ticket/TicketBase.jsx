@@ -120,7 +120,7 @@ export const TicketBase = ({
         color: "danger",
       });
     }
-  }, [estadisticasLoaded]);
+  }, [estadisticasLoaded, id_instructor]);
 
   // Cargar tickets
   useEffect(() => {

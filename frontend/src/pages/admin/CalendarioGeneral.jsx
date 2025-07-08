@@ -13,7 +13,6 @@ export const CalendarioGeneral = () => {
     reservasAtendidas: 0,
     alumnosHoy: 0
   });
-  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true);
 
   // Cargar estadísticas del día
   useEffect(() => {
@@ -40,8 +39,6 @@ export const CalendarioGeneral = () => {
           severity: "danger",
           color: "danger",
         });
-      } finally {
-        setIsLoadingEstadisticas(false);
       }
     };
 

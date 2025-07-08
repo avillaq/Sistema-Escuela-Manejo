@@ -207,7 +207,7 @@ export const Alumnos = () => {
 
     addToast({
       title: `${tipo} añadido`,
-      description: `${user.nombre} ${user.apellidos} ha sido añadido correctamente.`,
+      description: `${newUser.nombre} ${newUser.apellidos} ha sido añadido correctamente.`,
       severity: "success",
       color: "success",
     });

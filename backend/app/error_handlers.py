@@ -4,7 +4,6 @@ from werkzeug.exceptions import BadRequest, NotFound
 def register_error_handlers(app):
     @app.errorhandler(BadRequest)
     def handle_bad_request(e):
-        print(e)
         response = e.get_response()
         response.data = jsonify({
             "success": False,

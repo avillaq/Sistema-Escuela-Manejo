@@ -5,14 +5,14 @@ from app.models import (
     Alumno, Matricula, Reserva, Pago, Bloque, Asistencia,
     Instructor, Auto
 )
+from app.datetime_utils import now_peru, today_peru, combine_peru
 
 def obtener_reporte_admin():
-    hoy = date.today()
-    ahora = datetime.now()
+    hoy = today_peru()
+    ahora = now_peru()
     
     # Fechas para análisis
     inicio_mes = date(hoy.year, hoy.month, 1)
-    inicio_semana = hoy - timedelta(days=hoy.weekday())
     ultimos_meses = 30 * 6
     fecha_limite_meses = hoy - timedelta(days=ultimos_meses)
     
@@ -116,7 +116,7 @@ def obtener_reporte_admin():
         
         if fecha == hoy:
             # Aplicar filtro de tolerancia solo para hoy
-            hora_clase = datetime.combine(hoy, h_inicio)
+            hora_clase = combine_peru(hoy, h_inicio)
             if hora_clase >= ahora_con_tolerancia:
                 if asistio is True:
                     item["estado"] = "completada"

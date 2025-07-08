@@ -1,6 +1,7 @@
-from datetime import date, timedelta, datetime
+from datetime import timedelta, datetime
 from app.models import Bloque, Matricula
 from werkzeug.exceptions import BadRequest
+from app.datetime_utils import today_peru
 
 def obtener_bloques_semanal(id_alumno=None, por_admin=False, semana_offset=0):
     # semana_offset: -1 (anterior), 0 (actual), 1 (siguiente)
@@ -9,7 +10,7 @@ def obtener_bloques_semanal(id_alumno=None, por_admin=False, semana_offset=0):
     if not por_admin and semana_offset not in [-1, 0, 1]:
         raise BadRequest("Los alumnos solo pueden ver la semana actual o las adyacentes (anterior o siguiente).")
 
-    hoy = date.today()
+    hoy = today_peru()
     
     # Calcular el lunes de la semana objetivo
     dias_desde_lunes = hoy.weekday()  # 0 = lunes, 6 = domingo

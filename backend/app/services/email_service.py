@@ -32,7 +32,6 @@ class EmailService:
               # Usar contexto de aplicación para threads
               with current_app.app_context():
                   mail.send(msg)
-                  print(f"Email enviado exitosamente a: {destinatario}")
                   return True
                   
           except smtplib.SMTPAuthenticationError as e:

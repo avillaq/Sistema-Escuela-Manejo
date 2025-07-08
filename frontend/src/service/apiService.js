@@ -7,7 +7,6 @@ const handleResponse = async (apiCall) => {
     const response = await apiCall();
     return { success: true, data: response.data };
   } catch (error) {
-    console.log(error)
     return {
       success: false,
       error: getErrorMessage(error),

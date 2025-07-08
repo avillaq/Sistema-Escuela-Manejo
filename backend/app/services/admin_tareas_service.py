@@ -1,6 +1,7 @@
 import os
 import sys
-from datetime import date, time, timedelta
+from datetime import time, timedelta
+from app.datetime_utils import today_peru
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
@@ -9,7 +10,7 @@ from app.extensions import db
 from app.services import reserva_service
 
 def generar_bloques(semanas_futuro=2):
-    hoy = date.today()
+    hoy = today_peru()
     fecha_final = hoy + timedelta(days=7 * semanas_futuro)
     
     # Definir horarios
@@ -67,7 +68,7 @@ def generar_bloques(semanas_futuro=2):
     return bloques_creados
 
 def limpiar_bloques_vacios():
-    ayer = date.today() - timedelta(days=1)
+    ayer = today_peru() - timedelta(days=1)
     
     # Encontrar bloques pasados sin reservas
     bloques_para_eliminar = Bloque.query.filter(

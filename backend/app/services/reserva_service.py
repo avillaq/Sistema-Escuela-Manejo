@@ -1,9 +1,10 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from app.models import Bloque, Reserva, Matricula, Asistencia
 from app.extensions import db
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
+from app.datetime_utils import now_peru, today_peru
 
 def crear_reservas(data, por_admin=False):
     matricula = Matricula.query.get_or_404(data["id_matricula"])
@@ -11,7 +12,7 @@ def crear_reservas(data, por_admin=False):
     if matricula.id_alumno != id_alumno and not por_admin:
         raise BadRequest("No puedes crear reservas que no te pertenecen")
     
-    hoy = date.today()
+    hoy = today_peru()
 
     fecha_limite = matricula.fecha_limite
     if isinstance(fecha_limite, datetime):
@@ -30,7 +31,7 @@ def crear_reservas(data, por_admin=False):
     nuevas_horas = len(data["reservas"])
 
     # Calcular reservas pendientes (futuras sin asistencia)
-    ahora = datetime.now()
+    ahora = now_peru()
     reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
         Reserva.id_matricula == matricula.id,
         db.or_(
@@ -90,7 +91,7 @@ def eliminar_reservas(data, por_admin=False):
         raise BadRequest("Reservas no encontradas")
 
     if not por_admin and matricula.ultima_modificacion_reserva:
-        delta = datetime.now() - matricula.ultima_modificacion_reserva
+        delta = now_peru() - matricula.ultima_modificacion_reserva
         if delta.total_seconds() < 86400:
             tiempo_restante = 86400 - delta.total_seconds()
             horas_restantes = int(tiempo_restante // 3600)
@@ -104,7 +105,7 @@ def eliminar_reservas(data, por_admin=False):
 
     # Solo actualizar timestamp si no es admin
     if not por_admin:
-        matricula.ultima_modificacion_reserva = datetime.now()
+        matricula.ultima_modificacion_reserva = now_peru()
     db.session.commit()
     return reservas
 
@@ -117,7 +118,7 @@ def listar_reservas(id_alumno=None, por_admin=False, semana_offset=None):
 
     # Filtro por semana si se especifica
     if semana_offset is not None:
-        hoy = date.today()
+        hoy = today_peru()
         dias_desde_lunes = hoy.weekday()
         lunes_semana_actual = hoy - timedelta(days=dias_desde_lunes)
         lunes_semana_objetivo = lunes_semana_actual + timedelta(weeks=semana_offset)
@@ -141,7 +142,7 @@ def listar_reservas(id_alumno=None, por_admin=False, semana_offset=None):
     return reservas
 
 def listar_reservas_hoy():
-    hoy = date.today()
+    hoy = today_peru()
     reservas = Reserva.query.join(Bloque).outerjoin(Asistencia).filter(
         Bloque.fecha == hoy
     ).options(
@@ -153,7 +154,7 @@ def listar_reservas_hoy():
 
 def listar_reservas_actuales():
     tolerancia = 15 # minutos de tolerancia
-    ahora = datetime.now()
+    ahora = now_peru()
     hoy = ahora.date()
     hora_con_tolerancia = ahora - timedelta(minutes=tolerancia)
     

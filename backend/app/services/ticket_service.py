@@ -1,7 +1,8 @@
 from app.models import Ticket, Asistencia, Reserva, Matricula, Alumno, Instructor
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, or_, desc
-from datetime import datetime, timedelta
+from datetime import timedelta
+from app.datetime_utils import now_peru
 
 def listar_tickets_admin(
     page=1,
@@ -112,13 +113,13 @@ def obtener_estadisticas_tickets(id_instructor=None):
         total = query.count()
         
         # Tickets de hoy
-        hoy = datetime.now().date()
+        hoy = now_peru().date()
         tickets_hoy = query.filter(
             func.date(Asistencia.fecha_asistencia) == hoy
         ).count()
         
         # Tickets de la última semana
-        hace_semana = datetime.now() - timedelta(days=7)
+        hace_semana = now_peru() - timedelta(days=7)
         tickets_semana = query.filter(
             Asistencia.fecha_asistencia >= hace_semana
         ).count()
@@ -130,7 +131,6 @@ def obtener_estadisticas_tickets(id_instructor=None):
         }
         
     except Exception as e:
-        print(f"Error al obtener estadísticas de tickets: {e}")
         return {
             "total": 0,
             "hoy": 0,

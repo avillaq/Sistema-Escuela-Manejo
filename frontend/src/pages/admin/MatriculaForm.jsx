@@ -189,8 +189,7 @@ export const MatriculaForm = () => {
         }
 
         const pagoResult = await pagosService.create(pagoData);
-        if (pagoResult.success) {
-        } else {
+        if (!pagoResult.success) {
           addToast({
             title: "Error al registrar pago",
             description: pagoResult.error || "No se pudo registrar el pago.",

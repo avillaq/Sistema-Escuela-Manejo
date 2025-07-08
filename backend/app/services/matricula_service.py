@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from app.models.bloque import Bloque
 from app.models.reserva import Reserva
 from app.models.asistencia import Asistencia
@@ -9,6 +9,7 @@ from app.models.pago import Pago
 from app.extensions import db
 from sqlalchemy import func, desc, or_
 from werkzeug.exceptions import BadRequest
+from app.datetime_utils import now_peru
 
 def crear_matricula(data):
     alumno = Alumno.query.get_or_404(data["id_alumno"])
@@ -24,7 +25,7 @@ def crear_matricula(data):
     tipo_contratacion = data["tipo_contratacion"]
     categoria = data["categoria"]
 
-    fecha_matricula = datetime.now()
+    fecha_matricula = now_peru()
     fecha_limite = fecha_matricula + timedelta(days=30)
 
     if tipo_contratacion == "paquete":
@@ -97,7 +98,7 @@ def listar_matriculas(
         pagos_realizados = db.session.query(func.sum(Pago.monto)).filter_by(id_matricula=matricula.id).scalar() or 0.0
 
         # Calcular reservas pendientes (futuras sin asistencia)
-        ahora = datetime.now()
+        ahora = now_peru()
         reservas_pendientes = db.session.query(func.count(Reserva.id)).join(Bloque).filter(
             Reserva.id_matricula == matricula.id,
             db.or_(
@@ -211,7 +212,6 @@ def obtener_estadisticas_matriculas():
         }
         
     except Exception as e:
-        print(f"Error al obtener estadísticas de matrículas: {e}")
         return {
             "total": 0,
             "en_progreso": 0,

@@ -3,6 +3,7 @@ from app.models import Reserva, Asistencia, Ticket, Bloque, Matricula, Alumno
 from app.extensions import db
 from sqlalchemy import func, and_
 from werkzeug.exceptions import BadRequest
+from app.datetime_utils import now_peru, today_peru, combine_peru
 
 def registrar_asistencia(data):
     reserva = Reserva.query.get_or_404(data["id_reserva"])
@@ -14,18 +15,18 @@ def registrar_asistencia(data):
         raise BadRequest("Ya existe un registro de asistencia para esta reserva")
 
     # Verificar tolerancia de tiempo para registro de asistencia
-    ahora = datetime.now()
+    ahora = now_peru()
     fecha_bloque = reserva.bloque.fecha
     hora_inicio_bloque = reserva.bloque.hora_inicio
     tolerancia = 15 # minutos de tolerancia
     
-    inicio_bloque = datetime.combine(fecha_bloque, hora_inicio_bloque)
+    inicio_bloque = combine_peru(fecha_bloque, hora_inicio_bloque)
     limite_registro = inicio_bloque + timedelta(minutes=tolerancia)
     # Solo validar si no es del día actual o si ya pasó la tolerancia
     if fecha_bloque != ahora.date() or (fecha_bloque == ahora.date() and ahora > limite_registro):
         raise BadRequest(f"No se puede registrar asistencia. El bloque inició a las {hora_inicio_bloque.strftime('%H:%M')} y la tolerancia es de 15 minutos.")
 
-    hoy = datetime.today()
+    hoy = today_peru()
     if matricula.fecha_limite < hoy:
         raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
     
@@ -76,7 +77,7 @@ def registrar_asistencia(data):
     asistencia = Asistencia(
         id_reserva=reserva.id,
         asistio=asistio,
-        fecha_asistencia=datetime.now()
+        fecha_asistencia=now_peru()
     )
     db.session.add(asistencia)
     db.session.flush() 

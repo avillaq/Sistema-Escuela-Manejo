@@ -5,10 +5,10 @@ from flask_caching import Cache
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from flask_praetorian import Praetorian
-from datetime import datetime
 from dotenv import load_dotenv
 import os
 from flask_mail import Mail
+from app.datetime_utils import now_peru
 
 load_dotenv()
 
@@ -59,7 +59,7 @@ class TokenBlacklist:
     
     def is_blacklisted(self, jti):
         if jti in self._blacklist:
-            if datetime.now().timestamp() > self._blacklist[jti]:
+            if now_peru().timestamp() > self._blacklist[jti]:
                 del self._blacklist[jti]
                 return False
             return True

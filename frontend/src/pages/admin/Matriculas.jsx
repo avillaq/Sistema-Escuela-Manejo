@@ -95,7 +95,6 @@ export const Matriculas = () => {
     try {
       const result = await matriculasService.getEstadisticas();
       if (result.success) {
-        console.log("Estadísticas de matrículas:", result.data);
         setEstadisticas(result.data);
         setEstadisticasLoaded(true);
       } else {

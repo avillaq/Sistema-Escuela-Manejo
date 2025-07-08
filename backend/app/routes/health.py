@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from app.extensions import db
-from datetime import datetime
+from app.datetime_utils import now_peru
 
 health_bp = Blueprint("health", __name__)
 
@@ -9,7 +9,7 @@ def health_check():
     return jsonify({
         "status": "ok",
         "message": "API funcionando correctamente",
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": now_peru().isoformat(),
     }), 200
 
 @health_bp.route("/db", methods=["GET"])
@@ -21,7 +21,7 @@ def database_health():
         return jsonify({
             "status": "ok",
             "message": "Base de datos conectada",
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": now_peru().isoformat(),
             "ping": result.ping if result else None
         }), 200
         
@@ -30,5 +30,5 @@ def database_health():
             "status": "error",
             "message": "Error de conexión a base de datos",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": now_peru().isoformat()
         }), 500

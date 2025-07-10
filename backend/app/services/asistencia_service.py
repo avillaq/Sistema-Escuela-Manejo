@@ -26,7 +26,7 @@ def registrar_asistencia(data):
     if fecha_bloque != ahora.date() or (fecha_bloque == ahora.date() and ahora > limite_registro):
         raise BadRequest(f"No se puede registrar asistencia. El bloque inició a las {hora_inicio_bloque.strftime('%H:%M')} y la tolerancia es de 15 minutos.")
 
-    hoy = today_peru()
+    hoy = now_peru()
     if matricula.fecha_limite < hoy:
         raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
     

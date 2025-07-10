@@ -23,7 +23,7 @@ def obtener_reporte_admin():
         func.count(func.distinct(Matricula.id_alumno))
     ).filter(
         and_(
-            Matricula.fecha_limite >= hoy,
+            Matricula.fecha_limite >= ahora,
             Matricula.estado_clases.in_(['pendiente', 'en_progreso'])
         )
     ).scalar() or 0
@@ -38,7 +38,7 @@ def obtener_reporte_admin():
         func.count(Matricula.id)
     ).filter(
         and_(
-            Matricula.fecha_limite >= hoy,
+            Matricula.fecha_limite >= ahora,
             Matricula.estado_clases.in_(['pendiente', 'en_progreso'])
         )
     ).scalar() or 0
@@ -163,7 +163,7 @@ def obtener_reporte_admin():
      .filter(
          and_(
              Matricula.estado_pago == 'pendiente',
-             Matricula.fecha_limite >= hoy
+             Matricula.fecha_limite >= ahora,
          )
      ).group_by(
          Matricula.id, Matricula.costo_total, Matricula.categoria,

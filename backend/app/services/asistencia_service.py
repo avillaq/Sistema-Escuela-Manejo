@@ -26,8 +26,7 @@ def registrar_asistencia(data):
     if fecha_bloque != ahora.date() or (fecha_bloque == ahora.date() and ahora > limite_registro):
         raise BadRequest(f"No se puede registrar asistencia. El bloque inició a las {hora_inicio_bloque.strftime('%H:%M')} y la tolerancia es de 15 minutos.")
 
-    hoy = now_peru()
-    if matricula.fecha_limite < hoy:
+    if matricula.fecha_limite.date() < ahora.date():
         raise BadRequest(f"La matrícula venció el {matricula.fecha_limite.strftime('%d/%m/%Y')}")
     
     if asistio:
@@ -35,7 +34,7 @@ def registrar_asistencia(data):
         instructor_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(
             and_(
                 Ticket.id_instructor == data["id_instructor"],
-                func.date(Asistencia.fecha_asistencia) == hoy.date(),
+                func.date(Asistencia.fecha_asistencia) == ahora.date(),
                 Bloque.fecha == reserva.bloque.fecha,
                 # Verificar si el horario se solapa
                 Bloque.hora_inicio < reserva.bloque.hora_fin,
@@ -49,7 +48,7 @@ def registrar_asistencia(data):
         auto_ocupado = db.session.query(Ticket).join(Asistencia).join(Reserva).join(Bloque).filter(
             and_(
                 Ticket.id_auto == data["id_auto"],
-                func.date(Asistencia.fecha_asistencia) == hoy.date(),
+                func.date(Asistencia.fecha_asistencia) == ahora.date(),
                 Bloque.fecha == reserva.bloque.fecha,
                 # Verificar si el horario se solapa
                 Bloque.hora_inicio < reserva.bloque.hora_fin,

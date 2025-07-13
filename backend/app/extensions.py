@@ -21,7 +21,7 @@ migrate = Migrate()
 # Limitar el numero de peticiones a la API
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["100000 per day", "100000 per hour"],
+    default_limits=["1000 per day", "300 per hour"],
     storage_uri="memory://",
 )
 

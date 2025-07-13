@@ -36,7 +36,7 @@ def get_user_data(usuario):
     }
 
 @auth_bp.route("/login", methods=["POST"])
-#@limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def login():
     data = request.get_json()
     errors = login_schema.validate(data)

@@ -50,3 +50,4 @@ Thumbs.db
 # JMeter
 stress_test/results/
 stress_test/reports/
+stress_test/*

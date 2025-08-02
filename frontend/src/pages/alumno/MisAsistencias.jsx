@@ -5,9 +5,7 @@ import {
   Chip,
   Select,
   SelectItem,
-  Input
 } from '@heroui/react';
-import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
 import { PageHeader } from '@/components/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';

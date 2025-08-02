@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
 from sqlalchemy import func, and_
 from app.extensions import db
 from app.models import (
@@ -208,7 +208,7 @@ def obtener_reporte_admin():
                     "matricula_id": id_mat,
                     "alumno": f"{n} {a}",
                     "vence": f.strftime('%d/%m/%Y'),
-                    "dias_restantes": (f - hoy).days
+                    "dias_restantes": (f.date() - hoy).days
                 } for n, a, f, id_mat in matriculas_vencer
             ],
             "pagos_pendientes": pagos_pendientes[:5]

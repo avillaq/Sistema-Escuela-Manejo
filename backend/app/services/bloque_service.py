@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from app.models import Bloque, Matricula
 from werkzeug.exceptions import BadRequest
-from app.datetime_utils import today_peru, now_peru
+from app.datetime_utils import now_peru
 
 def obtener_bloques_semanal(id_alumno=None, por_admin=False, semana_offset=0):
     # semana_offset: -1 (anterior), 0 (actual), 1 (siguiente)

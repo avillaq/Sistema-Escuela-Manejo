@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from app.models import Reserva, Asistencia, Ticket, Bloque, Matricula, Alumno
 from app.extensions import db
 from sqlalchemy import func, and_
 from werkzeug.exceptions import BadRequest
-from app.datetime_utils import now_peru, today_peru, combine_peru
+from app.datetime_utils import now_peru, combine_peru
 
 def registrar_asistencia(data):
     reserva = Reserva.query.get_or_404(data["id_reserva"])

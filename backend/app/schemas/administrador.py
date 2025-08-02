@@ -67,7 +67,7 @@ class CrearAdministradorSchema(Schema):
         formatted_errors = {}
         for field, messages in error.messages.items():
             formatted_errors[field] = messages[0] if isinstance(messages, list) else messages
-        raise BadRequest(formatted_errors[field])
+            raise BadRequest(formatted_errors[field])
         
 class ActualizarAdministradorSchema(Schema):
     nombre = fields.Str()

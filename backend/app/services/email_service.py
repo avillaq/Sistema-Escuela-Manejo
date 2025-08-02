@@ -143,8 +143,8 @@ class EmailService:
                     - Tarifa por hora: S/. {matricula.tarifa_por_hora:.2f}
                     """
         elif matricula.tipo_contratacion == "paquete" and matricula.paquete:
-            cuerpo += f"""- Paquete: {matricula.paquete['nombre']} ({matricula.paquete['horas_total']} horas)
-                    - Costo del paquete: S/. {matricula.paquete['costo_total']:.2f}
+            cuerpo += f"""- Paquete: {matricula.paquete.nombre} ({matricula.paquete.horas_total} horas)
+                    - Costo del paquete: S/. {matricula.paquete.costo_total:.2f}
                     """
 
         cuerpo += f"""

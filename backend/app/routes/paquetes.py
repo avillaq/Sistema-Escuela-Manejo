@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.schemas.paquete import CrearPaqueteSchema, PaqueteSchema, ActualizarPaqueteSchema
-from app.services.paquete_service import crear_paquete, listar_paquetes, actualizar_paquete, eliminar_paquete
+from app.services.paquete_service import crear_paquete, listar_paquetes, actualizar_paquete
 import flask_praetorian
 from app.models.paquete import Paquete
 from app.extensions import cache
@@ -27,7 +27,7 @@ def registrar_paquete():
 @flask_praetorian.roles_required("admin")
 @cache.cached(timeout=1800, key_prefix="paquetes_list")
 def obtener_paquetes():
-    paquetes = listar_paquetes() #TODO: Falta paginación
+    paquetes = listar_paquetes()
     return jsonify(ver_schema.dump(paquetes, many=True)), 200
 
 @paquetes_bp.route("/<int:paquete_id>", methods=["GET"])

@@ -128,6 +128,7 @@ export const authService = {
 // Servicio de paquetes
 export const paquetesService = {
   getAll: () => handleResponse(() => api.get(`${API_CONFIG.endpoints.paquetes}/`)),
+  update: (id, data) => handleResponse(() => api.put(`${API_CONFIG.endpoints.paquetes}/${id}`, data)),
 };
 
 // Servicio de Autos

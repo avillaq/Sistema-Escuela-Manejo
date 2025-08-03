@@ -693,7 +693,7 @@ export const CalendarioBase = ({
       {/* Calendario */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between flex-col sm:flex-row w-full">
             <h3 className="text-lg font-semibold">Horario Semanal</h3>
 
             <div className="flex items-center gap-2">

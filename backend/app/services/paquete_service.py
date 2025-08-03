@@ -26,7 +26,7 @@ def crear_paquete(data):
     return paquete
 
 def listar_paquetes():
-    return Paquete.query.all()  # TODO: agregar filtros y paginación
+    return Paquete.query.all()
 
 def actualizar_paquete(paquete_id, data):
     paquete = Paquete.query.get_or_404(paquete_id)
@@ -43,9 +43,3 @@ def actualizar_paquete(paquete_id, data):
     
     db.session.commit()
     return paquete
-
-def eliminar_paquete(paquete_id):
-    paquete = Paquete.query.get_or_404(paquete_id)
-    # TODO: Verificar si el paquete esta asociado a alguna matrícula
-    db.session.delete(paquete)
-    db.session.commit()

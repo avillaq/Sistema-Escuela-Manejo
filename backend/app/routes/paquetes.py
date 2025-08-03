@@ -47,10 +47,3 @@ def editar_paquete(paquete_id):
     paquete = actualizar_paquete(paquete_id, data)
     cache.delete("paquetes_list")
     return ver_schema.dump(paquete), 200
-
-@paquetes_bp.route("/<int:paquete_id>", methods=["DELETE"])
-@flask_praetorian.roles_required("admin")
-def eliminar_paquete_route(paquete_id):
-    eliminar_paquete(paquete_id)
-    cache.delete("paquetes_list")
-    return jsonify({"mensaje": "Paquete eliminado"}), 200

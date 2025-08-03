@@ -112,7 +112,12 @@ export const AutoFormModal = ({ isOpen, onOpenChange, onAddAuto, editMode = fals
           }));
           onOpenChange(false);
         } else {
-          alert(result.message || 'Error al actualizar el auto');
+          addToast({
+            title: "Error al actualizar auto",
+            description: result.error,
+            severity: "danger",
+            color: "danger",
+          });
         }
         const updatedAuto = {
           ...dataInicial,

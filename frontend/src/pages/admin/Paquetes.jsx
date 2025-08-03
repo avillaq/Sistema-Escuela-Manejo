@@ -200,7 +200,7 @@ export const Paquetes = () => {
       {/* <PaqueteFormModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        onAdd={handleAdd}
+        onAddPaquete={handleAdd}
         service={paquetesService}
         tipo={tipo}
       /> */}
@@ -218,7 +218,7 @@ export const Paquetes = () => {
         <PaqueteFormModal
           isOpen={isEditOpen}
           onOpenChange={onEditOpenChange}
-          onAdd={handleUpdate}
+          onAddPaquete={handleUpdate}
           editMode={true}
           dataInicial={selectedPaquete}
           service={paquetesService}

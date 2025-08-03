@@ -8,7 +8,8 @@ import {
   Button,
   Input,
   Select,
-  SelectItem
+  SelectItem,
+  addToast
 } from '@heroui/react';
 
 
@@ -99,15 +100,18 @@ export const PaqueteFormModal = ({
     let result;
     if (editMode && dataInicial) {
       result = await service.update(dataInicial.id, dataEnviar);
-    } else
-
       if (result.success) {
         onAddPaquete(result.data || dataEnviar);
         onOpenChange(false);
       } else {
-        alert(result.message || 'Ocurrió un error');
+        addToast({
+          title: "Error al actualizar paquete",
+          description: result.error,
+          severity: "danger",
+          color: "danger",
+        });
       }
-
+    }
     setIsLoading(false);
   };
 

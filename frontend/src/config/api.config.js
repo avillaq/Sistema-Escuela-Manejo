@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseUrl: import.meta.env.VITE_API_URL_PRODUCTION || import.meta.env.VITE_API_URL_DEVELOPMENT,
   timeout: 10000,
   endpoints: {
     // Auth

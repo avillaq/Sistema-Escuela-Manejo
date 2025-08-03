@@ -8,7 +8,8 @@ import {
   SelectItem,
   addToast,
   DatePicker,
-  Chip
+  Chip,
+  Tooltip
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
@@ -293,14 +294,16 @@ export const TicketBase = ({
       label: "ACCIONES",
       render: (ticket) => (
         <div className="flex gap-2 justify-start">
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onPress={() => handleViewTicket(ticket)}
-          >
-            <Icon icon="lucide:eye" width={16} height={16} />
-          </Button>
+          <Tooltip content="Ver">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => handleViewTicket(ticket)}
+            >
+              <Icon icon="lucide:eye" width={16} height={16} />
+            </Button>
+          </Tooltip>
         </div>
       )
     }

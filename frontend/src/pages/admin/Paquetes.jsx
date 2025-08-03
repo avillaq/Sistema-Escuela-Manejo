@@ -5,7 +5,8 @@ import {
   Button,
   useDisclosure,
   Input,
-  addToast
+  addToast,
+  Tooltip
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
@@ -135,15 +136,21 @@ export const Paquetes = () => {
       label: "ACCIONES",
       render: (p) => (
         <div className="flex gap-2 justify-start">
-          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
-            <Icon icon="lucide:eye" width={16} height={16} />
-          </Button>
-          <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
-            <Icon icon="lucide:edit" width={16} height={16} />
-          </Button>
-          <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
-            <Icon icon="lucide:trash" width={16} height={16} />
-          </Button>
+          <Tooltip content="Ver">
+            <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onViewOpen(); }}>
+              <Icon icon="lucide:eye" width={16} height={16} />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Editar">
+            <Button isIconOnly size="sm" variant="light" onPress={() => { setSelectedPaquete(p); onEditOpen(); }}>
+              <Icon icon="lucide:edit" width={16} height={16} />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Eliminar">
+            <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
+              <Icon icon="lucide:trash" width={16} height={16} />
+            </Button>
+          </Tooltip>
         </div>
       )
     }

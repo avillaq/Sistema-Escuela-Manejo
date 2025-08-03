@@ -8,7 +8,8 @@ import {
   useDisclosure,
   Select,
   SelectItem,
-  addToast
+  addToast,
+  Tooltip
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Tabla } from '@/components/Tabla';
@@ -357,22 +358,26 @@ export const Matriculas = () => {
       label: "ACCIONES",
       render: (matricula) => (
         <div className="flex gap-2 justify-start">
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onPress={() => navigate(`/matriculas/${matricula.id}`)}
-          >
-            <Icon icon="lucide:eye" width={16} height={16} />
-          </Button>
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onPress={() => navigate(`/matriculas/${matricula.id}/reservas`)}
-          >
-            <Icon icon="lucide:calendar" width={16} height={16} />
-          </Button>
+          <Tooltip content="Ver Detalles">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => navigate(`/matriculas/${matricula.id}`)}
+            >
+              <Icon icon="lucide:eye" width={16} height={16} />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Ver Reservas">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => navigate(`/matriculas/${matricula.id}/reservas`)}
+            >
+              <Icon icon="lucide:calendar" width={16} height={16} />
+            </Button>
+          </Tooltip>
           {/* <Button
             isIconOnly
             size="sm"

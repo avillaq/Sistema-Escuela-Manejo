@@ -585,14 +585,14 @@ export const Matriculas = () => {
       </Card>
 
       {/* Modal eliminar matricula */}
-      {selectedMatricula && (
+      {/* {selectedMatricula && (
         <MatriculaDeleteModal
           isOpen={isDeleteOpen}
           onOpenChange={onDeleteOpenChange}
           matricula={selectedMatricula}
           onConfirmDelete={handleDeleteMatricula}
         />
-      )}
+      )} */}
     </div>
   );
 };

@@ -70,8 +70,8 @@ def obtener_estadisticas_matriculas_route():
     estadisticas = obtener_estadisticas_matriculas()
     return jsonify(estadisticas), 200
 
-@matriculas_bp.route("/<int:id>", methods=["DELETE"])
+""" @matriculas_bp.route("/<int:id>", methods=["DELETE"])
 @flask_praetorian.roles_required("admin")
 def eliminar_matricula_route(id):
     eliminar_matricula(id)
-    return jsonify({"mensaje": "Matrícula eliminada"}), 200
+    return jsonify({"mensaje": "Matrícula eliminada"}), 200 """

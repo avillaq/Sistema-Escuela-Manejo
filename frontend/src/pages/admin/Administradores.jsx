@@ -258,7 +258,9 @@ export const Administradores = () => {
           startContent={<Icon icon="lucide:plus" width={16} height={16} />}
           onPress={onOpen}
         >
-          {`Añadir ${tipo}`}
+          <span className="text-xs md:text-sm">
+            {`Añadir ${tipo}`}
+          </span>
         </Button>
       </div>
 

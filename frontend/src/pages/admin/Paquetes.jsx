@@ -30,7 +30,7 @@ export const Paquetes = () => {
   const [selectedPaquete, setSelectedPaquete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => { // TODO: añadir loading
+  useEffect(() => {
     const fetchPaquetes = async () => {
       try {
         const result = await paquetesService.getAll();
@@ -44,14 +44,14 @@ export const Paquetes = () => {
             color: "danger",
           });
         }
-      } /*catch (error) {
+      } catch (error) {
         addToast({
-          title: "Error",
-          description: "Ha ocurrido un error al cargar los paquetes.",
+          title: "Error al cargar paquetes",
+          description: "No se pudieron cargar los paquetes.",
           severity: "danger",
           color: "danger",
         });
-      } */finally {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -146,11 +146,11 @@ export const Paquetes = () => {
               <Icon icon="lucide:edit" width={16} height={16} />
             </Button>
           </Tooltip>
-          <Tooltip content="Eliminar">
+          {/* <Tooltip content="Eliminar">
             <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => { setSelectedPaquete(p); onDeleteOpen(); }}>
               <Icon icon="lucide:trash" width={16} height={16} />
             </Button>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       )
     }
@@ -197,13 +197,13 @@ export const Paquetes = () => {
         </CardBody>
       </Card>
 
-      <PaqueteFormModal
+      {/* <PaqueteFormModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         onAdd={handleAdd}
         service={paquetesService}
         tipo={tipo}
-      />
+      /> */}
 
       {selectedPaquete && (
         <PaqueteViewModal
@@ -226,7 +226,7 @@ export const Paquetes = () => {
         />
       )}
 
-      {selectedPaquete && (
+      {/* {selectedPaquete && (
         <PaqueteDeleteModal
           isOpen={isDeleteOpen}
           onOpenChange={onDeleteOpenChange}
@@ -235,7 +235,7 @@ export const Paquetes = () => {
           service={paquetesService}
           tipo={tipo}
         />
-      )}
+      )} */}
     </div>
   );
 };

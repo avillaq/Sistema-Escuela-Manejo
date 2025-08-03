@@ -64,10 +64,10 @@ export const PaqueteFormModal = ({
 
   const validarForm = () => {
     const newErrors = {};
-    const opcionesValidas = ['basico', 'intermedio', 'avanzado', 'por_hora'];
+    const opcionesValidas = ['Básico', 'Intermedio', 'Avanzado'];
 
     if (!formData.nombre || !opcionesValidas.includes(formData.nombre)) {
-      newErrors.nombre = 'Nombre debe ser: basico, intermedio, avanzado o por_hora';
+      newErrors.nombre = 'Nombre debe ser: Básico, Intermedio o Avanzado';
     }
     if (!formData.id_tipo_auto) {
       newErrors.id_tipo_auto = 'Debe seleccionar un tipo de auto';
@@ -138,9 +138,10 @@ export const PaqueteFormModal = ({
                 isRequired
                 isInvalid={!!errors.nombre}
                 errorMessage={errors.nombre}
+                isDisabled={editMode}
               >
-                {['basico', 'intermedio', 'avanzado'].map((tipo) => (
-                  <SelectItem key={tipo}>
+                {['Básico', 'Intermedio', 'Avanzado'].map((tipo) => (
+                  <SelectItem key={tipo} textValue={tipo}>
                     {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
                   </SelectItem>
                 ))}
@@ -153,6 +154,7 @@ export const PaqueteFormModal = ({
                 isRequired
                 isInvalid={!!errors.id_tipo_auto}
                 errorMessage={errors.id_tipo_auto}
+                isDisabled={editMode}
               >
                 {DataTipoAuto.map((auto) => (
                   <SelectItem key={auto.id} textValue={auto.tipo}>

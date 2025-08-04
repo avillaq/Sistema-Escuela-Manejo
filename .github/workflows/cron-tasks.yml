@@ -31,13 +31,12 @@ jobs:
           "${{ secrets.API_URL }}/admin-tareas/despertar-bd")
         
         http_code="${response: -3}"
-        response_body="${response%???}"
         
         if [ "$http_code" = "200" ]; then
           echo "✓ Base de datos conectada"
         else
           echo "✗ Error conectando a BD (código: $http_code)"
-          echo "Respuesta: $response_body"
+          echo "Respuesta: ${response}"
           exit 1
         fi
     
@@ -51,8 +50,7 @@ jobs:
           "${{ secrets.API_URL }}/admin-tareas/generar-bloques")
         
         if echo "$response" | grep -q '"status":"ok"'; then
-          bloques=$(echo "$response" | grep -o '"bloques_creados":[0-9]*' | cut -d':' -f2)
-          echo "✓ Bloques generados: $bloques"
+          echo "✓ Bloques generados"
         else
           echo "✗ Error generando bloques"
           echo "Respuesta: $response"
@@ -68,8 +66,7 @@ jobs:
           "${{ secrets.API_URL }}/admin-tareas/limpiar-bloques")
         
         if echo "$response" | grep -q '"status":"ok"'; then
-          eliminados=$(echo "$response" | grep -o '"bloques_eliminados":[0-9]*' | cut -d':' -f2)
-          echo "✓ Bloques eliminados: $eliminados"
+          echo "✓ Bloques eliminados"
         else
           echo "✗ Error limpiando bloques"
           echo "Respuesta: $response"
@@ -115,8 +112,7 @@ jobs:
           "${{ secrets.API_URL }}/admin-tareas/enviar-recordatorio-reserva")
         
         if echo "$response" | grep -q '"status":"ok"'; then
-          emails=$(echo "$response" | grep -o '"emails_enviados":[0-9]*' | cut -d':' -f2)
-          echo "✓ Recordatorios enviados: $emails"
+          echo "✓ Recordatorios enviados"
         else
           echo "✗ Error enviando recordatorios de reservas"
           echo "Respuesta: $response"
@@ -131,8 +127,7 @@ jobs:
           "${{ secrets.API_URL }}/admin-tareas/enviar-pagos-pendientes")
         
         if echo "$response" | grep -q '"status":"ok"'; then
-          emails=$(echo "$response" | grep -o '"emails_enviados":[0-9]*' | cut -d':' -f2)
-          echo "✓ Recordatorios de pago enviados: $emails"
+          echo "✓ Recordatorios de pago enviados"
         else
           echo "✗ Error enviando recordatorios de pagos"
           echo "Respuesta: $response"

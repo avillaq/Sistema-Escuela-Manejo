@@ -15,38 +15,66 @@ jobs:
     - name: Despertar Servidor
       run: |
         echo "Despertando servidor..."
-        curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
-        sleep 5
-        echo "✅ Servidor listo"
+        if curl --max-time 60 --connect-timeout 30 -L -f "${{ secrets.API_URL }}"; then
+          echo "✓ Servidor respondiendo correctamente"
+        else
+          echo "⚠ Servidor iniciando, esperando..."
+          sleep 10
+        fi
 
     - name: Despertar Base de Datos
       run: |
-        echo "Despertando Base de datos..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Verificando conexión a base de datos..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -w "%{http_code}" -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/despertar-bd"
-        sleep 5
-        echo "✅ Base de datos listo"
+          "${{ secrets.API_URL }}/admin-tareas/despertar-bd")
+        
+        http_code="${response: -3}"
+        response_body="${response%???}"
+        
+        if [ "$http_code" = "200" ]; then
+          echo "✓ Base de datos conectada"
+        else
+          echo "✗ Error conectando a BD (código: $http_code)"
+          echo "Respuesta: $response_body"
+          exit 1
+        fi
     
     - name: Generar Bloques
       run: |
-        echo "Generando bloques..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Generando bloques para próximas 2 semanas..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"semanas": 2}' \
-          "${{ secrets.API_URL }}/api/admin-tareas/generar-bloques"
-        echo "Bloques generados ✅"
+          "${{ secrets.API_URL }}/admin-tareas/generar-bloques")
+        
+        if echo "$response" | grep -q '"status":"ok"'; then
+          bloques=$(echo "$response" | grep -o '"bloques_creados":[0-9]*' | cut -d':' -f2)
+          echo "✓ Bloques generados: $bloques"
+        else
+          echo "✗ Error generando bloques"
+          echo "Respuesta: $response"
+          exit 1
+        fi
     
     - name: Limpiar Bloques
       run: |
-        echo "Limpiando bloques..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Limpiando bloques obsoletos..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/limpiar-bloques"
-        echo "Bloques limpiados ✅"
+          "${{ secrets.API_URL }}/admin-tareas/limpiar-bloques")
+        
+        if echo "$response" | grep -q '"status":"ok"'; then
+          eliminados=$(echo "$response" | grep -o '"bloques_eliminados":[0-9]*' | cut -d':' -f2)
+          echo "✓ Bloques eliminados: $eliminados"
+        else
+          echo "✗ Error limpiando bloques"
+          echo "Respuesta: $response"
+          exit 1
+        fi
 
   recordatorios-diarios:
     runs-on: ubuntu-latest
@@ -55,35 +83,57 @@ jobs:
     steps:
     - name: Despertar Servidor
       run: |
-        echo "Despertando servidor..."
-        curl --max-time 60 --connect-timeout 30 -f "${{ secrets.API_URL }}/api" || echo "Servidor despertando..."
-        sleep 5
-        echo "✅ Servidor listo"
+        echo "Verificando disponibilidad del servidor..."
+        if curl --max-time 60 --connect-timeout 30 -L -f "${{ secrets.API_URL }}"; then
+          echo "✓ Servidor disponible"
+        else
+          echo "⚠ Servidor iniciando, reintentando..."
+          sleep 10
+        fi
 
     - name: Despertar Base de Datos
       run: |
-        echo "Despertando Base de datos..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Activando conexión a base de datos..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -w "%{http_code}" -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/despertar-bd"
-        sleep 5
-        echo "✅ Base de datos listo"
+          "${{ secrets.API_URL }}/admin-tareas/despertar-bd")
+        
+        http_code="${response: -3}"
+        if [ "$http_code" = "200" ]; then
+          echo "✓ Base de datos activa"
+        else
+          echo "✗ Error activando BD (código: $http_code)"
+        fi
 
     - name: Enviar Recordatorios de Reservas
       run: |
-        echo "Enviando recordatorios de reservas..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Enviando recordatorios de clases para hoy..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/enviar-recordatorio-reserva"
-        echo "Recordatorios enviados ✅"
+          "${{ secrets.API_URL }}/admin-tareas/enviar-recordatorio-reserva")
+        
+        if echo "$response" | grep -q '"status":"ok"'; then
+          emails=$(echo "$response" | grep -o '"emails_enviados":[0-9]*' | cut -d':' -f2)
+          echo "✓ Recordatorios enviados: $emails"
+        else
+          echo "✗ Error enviando recordatorios de reservas"
+          echo "Respuesta: $response"
+        fi
         
     - name: Enviar Recordatorios de Pagos Pendientes
       run: |
-        echo "Enviando recordatorios de pagos..."
-        curl --max-time 60 --connect-timeout 15 -X POST \
+        echo "Enviando recordatorios de pagos pendientes..."
+        response=$(curl --max-time 60 --connect-timeout 15 -s -L -X POST \
           -H "Authorization: Bearer ${{ secrets.CRON_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          "${{ secrets.API_URL }}/api/admin-tareas/enviar-pagos-pendientes"
-        echo "Pagos recordados ✅"   
+          "${{ secrets.API_URL }}/admin-tareas/enviar-pagos-pendientes")
+        
+        if echo "$response" | grep -q '"status":"ok"'; then
+          emails=$(echo "$response" | grep -o '"emails_enviados":[0-9]*' | cut -d':' -f2)
+          echo "✓ Recordatorios de pago enviados: $emails"
+        else
+          echo "✗ Error enviando recordatorios de pagos"
+          echo "Respuesta: $response"
+        fi

@@ -8,7 +8,7 @@ reportes_bp = Blueprint("reportes", __name__)
 
 @reportes_bp.route("/admin-dashboard", methods=["GET"])
 @flask_praetorian.roles_required("admin")
-@cache.cached(timeout=180, key_prefix="admin_dashboard")
+@cache.cached(timeout=60, key_prefix="admin_dashboard")
 def ver_reporte_admin():
     data = obtener_reporte_admin()
     return jsonify(data), 200

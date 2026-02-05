@@ -7,6 +7,13 @@ from app.models import (
 )
 from app.datetime_utils import now_peru, today_peru, combine_peru
 
+def get_year_month_expr(column):
+    dialect = db.session.bind.dialect.name
+    if dialect == 'postgresql':
+        return func.to_char(column, 'YYYY-MM')
+    else:  # mysql
+        return func.date_format(column, '%Y-%m')
+
 def obtener_reporte_admin():
     hoy = today_peru()
     ahora = now_peru()
@@ -60,27 +67,29 @@ def obtener_reporte_admin():
     
     # === ANÁLISIS MENSUAL (últimos 6 meses) ===
     # Matrículas por mes
+    year_month_expr = get_year_month_expr(Matricula.fecha_matricula)
     matriculas_por_mes = db.session.query(
-        func.date_format(Matricula.fecha_matricula, "%Y-%m").label("mes"),
+        year_month_expr.label("mes"),
         func.count(Matricula.id).label("cantidad")
     ).filter(
         Matricula.fecha_matricula >= fecha_limite_meses
     ).group_by(
-        func.date_format(Matricula.fecha_matricula, "%Y-%m")
+        year_month_expr
     ).order_by(
-        func.date_format(Matricula.fecha_matricula, "%Y-%m")
+        year_month_expr
     ).all()
     
     # Ingresos por mes
+    year_month_expr_pago = get_year_month_expr(Pago.fecha_pago)
     ingresos_por_mes = db.session.query(
-        func.date_format(Pago.fecha_pago, "%Y-%m").label("mes"),
+        year_month_expr_pago.label("mes"),
         func.sum(Pago.monto).label("total")
     ).filter(
         Pago.fecha_pago >= fecha_limite_meses
     ).group_by(
-        func.date_format(Pago.fecha_pago, "%Y-%m")
+        year_month_expr_pago
     ).order_by(
-        func.date_format(Pago.fecha_pago, "%Y-%m")
+        year_month_expr_pago
     ).all()
     
     # === ACTIVIDAD HOY Y MAÑANA ===

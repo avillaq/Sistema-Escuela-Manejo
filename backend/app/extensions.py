@@ -33,13 +33,18 @@ cache = Cache(config={
 })
 
 # Configracion para los CORS
+allowed_origins = [
+    os.getenv("DEVELOPMENT_HOST"),
+    os.getenv("PRODUCTION_HOST")
+]
+
+# Filtrar valores None o vacíos
+allowed_origins = [origin for origin in allowed_origins if origin]
+
 cors = CORS(
     resources={
         r"/api/*": {
-            "origins": [
-                os.getenv("DEVELOPMENT_HOST"),
-                os.getenv("PRODUCTION_HOST")
-            ],
+            "origins": allowed_origins if allowed_origins else "*",
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Range", "X-Content-Range"],

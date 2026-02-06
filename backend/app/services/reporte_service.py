@@ -8,7 +8,7 @@ from app.models import (
 from app.datetime_utils import now_peru, today_peru, combine_peru
 
 def get_year_month_expr(column):
-    dialect = db.session.bind.dialect.name
+    dialect = db.engine.dialect.name
     if dialect == 'postgresql':
         return func.to_char(column, 'YYYY-MM')
     else:  # mysql
